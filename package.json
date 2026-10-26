@@ -1,0 +1,15 @@
+{
+  "name": "tft-arcade",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TFT Arcade – Minispiele, Quiz und Challenges rund um Teamfight Tactics",
+  "scripts": {
+    "build": "node build.js",
+    "dev": "node tools/serve.js",
+    "check": "node build.js && node tools/seo-check.js",
+    "champions": "node tools/champions.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
