@@ -66,12 +66,12 @@ Genau eine sichtbare H1 ≤ 54 Zeichen (nie versteckt), Titel ≤ 60, Meta-Besch
 
 ## Veröffentlichen (Vercel)
 
-`vercel.json` ist vorbereitet: Build `node build.js`, Ausgabe `dist/`, Adressen ohne `.html` und ohne Schrägstrich am Ende.
+Live: **https://tft-arcade.vercel.app** · Code: https://github.com/CrazYSlayt/TFT-Arcade
+
+Jeder Push auf `main` wird von Vercel automatisch gebaut und veröffentlicht (Build `node build.js`, Ausgabe `dist/`, Adressen ohne `.html`). Die Adresse für canonical und Sitemap setzt sich selbst aus der Produktions-Domain von Vercel – eine eigene Domain unter Vercel → Settings → Domains verknüpfen, beim nächsten Deploy wird sie übernommen.
 
 ## Vor dem Livegang offen
 
-- Domain in `src/config/site.js` (aktuell Platzhalter `www.tftarcade.com`)
-- Kontakt-E-Mail, Impressum und Datenschutz (Platzhalter sind rot markiert; beide Seiten stehen bis dahin auf noindex)
-- „Wer steckt dahinter?“ auf der Über-Seite
-- Spiele programmieren und auf `live` stellen
+- Eigene Domain (optional, siehe oben)
+- Weitere Spiele programmieren und auf `live` stellen
 - Öffentliche Bestenlisten: Backend wählen (z. B. Vercel-Funktion + Datenbank), mit Namensfilter gegen Beleidigungen und Schutz gegen gefälschte Ergebnisse
