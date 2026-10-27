@@ -1,5 +1,5 @@
 // TFT Arcade – wandelt die ausgeschnittenen Buden-Rahmen (tools/cache/rahmen/*.png, von tools/rahmen-schneiden.ps1)
-// in WebP mit Transparenz um und bringt alle vier auf dieselbe Größe (684×509) → public/assets/img/rahmen/<farbe>.webp
+// in WebP mit Transparenz um und bringt alle vier auf dieselbe Größe (die des ersten PNGs) → public/assets/img/rahmen/<farbe>.webp
 // Umwandlung per Chrome im Hintergrund (Canvas → WebP, gesteuert über die DevTools-Schnittstelle),
 // damit kein Bildprogramm installiert sein muss.  Aufruf: node tools/rahmen-webp.js
 const fs = require('fs');
@@ -9,10 +9,14 @@ const { spawn } = require('child_process');
 
 const SRC = path.join(__dirname, 'cache', 'rahmen');
 const OUT = path.join(__dirname, '..', 'public', 'assets', 'img', 'rahmen');
-const W = 684, H = 509, Q = 0.86, PORT = 9333;
+const Q = 0.86, PORT = 9333;
 const CHROME = ['C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'].find(f => fs.existsSync(f));
 
 const names = fs.readdirSync(SRC).filter(f => f.endsWith('.png')).map(f => f.slice(0, -4));
+// Zielgröße = Größe des ersten PNGs (Breite/Höhe stehen im PNG-Kopf ab Byte 16)
+const head = fs.readFileSync(path.join(SRC, names[0] + '.png'));
+const W = head.readUInt32BE(16), H = head.readUInt32BE(20);
+console.log(`Zielgröße ${W}×${H} – im CSS (Spielkarten) muss aspect-ratio ${W} / ${H} stehen`);
 const pngs = Object.fromEntries(names.map(n => [n, 'data:image/png;base64,' + fs.readFileSync(path.join(SRC, n + '.png')).toString('base64')]));
 const script = `(async () => {
   const pngs = ${JSON.stringify(pngs)}, res = {};

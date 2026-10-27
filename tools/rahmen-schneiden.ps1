@@ -1,9 +1,13 @@
-# TFT Arcade – schneidet die vier Buden-Rahmen (quellen/rahmen/buden-rahmen.png, 2×2 Raster mit Transparenz) einzeln aus
-# und misst Fenster, Namensleiste und Kreis aus. Ergebnis: tools/cache/rahmen/<farbe>.png + Maße in der Konsole.
-# Danach wandelt tools/rahmen-webp.html die PNGs in WebP um (siehe README).  Aufruf: powershell -File tools/rahmen-schneiden.ps1
+# TFT Arcade – schneidet die vier Buden-Rahmen (2×2 Raster mit Transparenz: violett, rot / türkis, gold) einzeln aus
+# und misst Fenster und Namensleiste aus. Ergebnis: tools/cache/rahmen/<farbe>.png + Maße in der Konsole.
+# Danach wandelt tools/rahmen-webp.js die PNGs in WebP um (siehe README).
+# Aufruf: powershell -File tools/rahmen-schneiden.ps1 [-Datei buden-rahmen-2.png] [-Trenn 610]
+#   -Trenn = Trennlinie zwischen oberer und unterer Reihe (Sternspitzen/Dachspitzen dürfen nicht abgeschnitten werden)
+param([string]$Datei = 'buden-rahmen-2.png', [int]$Trenn = 610)
 $root = Split-Path $PSScriptRoot -Parent
-$src = "$root\quellen\rahmen\buden-rahmen.png"
+$src = "$root\quellen\rahmen\$Datei"
 $out = "$root\tools\cache\rahmen"
+Remove-Item "$out\*.png" -ErrorAction SilentlyContinue
 New-Item -ItemType Directory -Force $out | Out-Null
 
 Add-Type -ReferencedAssemblies System.Drawing -TypeDefinition @'
@@ -18,6 +22,7 @@ public static class Rahmen {
   public static int A(int x, int y) { return px[y * stride + x * 4 + 3]; }
   // umschließendes Rechteck aller deckenden Pixel (Alpha >= t) im Bereich
   public static int[] Box(int x0, int y0, int x1, int y1, int t) {
+    x1 = Math.Min(x1, W); y1 = Math.Min(y1, H);
     int l = x1, r = x0, o = y1, u = y0;
     for (int y = y0; y < y1; y++) for (int x = x0; x < x1; x++) if (A(x, y) >= t) { if (x < l) l = x; if (x > r) r = x; if (y < o) o = y; if (y > u) u = y; }
     return new int[] { l, o, r, u };
@@ -31,8 +36,7 @@ public static class Rahmen {
 $img = [System.Drawing.Bitmap]::FromFile($src)
 [Rahmen]::Load($img)
 $hw = [int]($img.Width / 2)
-# Reihen überlappen im Raster (die Sternspitzen der unteren Reihe ragen über die Bildmitte) – deshalb feste Trennlinie bei y = 525
-$split = 525
+$split = $Trenn
 $cells = @(
   @{ name = 'violett'; x = 0;   y = 0;      h = $split }, @{ name = 'rot';  x = $hw; y = 0;      h = $split },
   @{ name = 'tuerkis'; x = 0;   y = $split; h = $img.Height - $split }, @{ name = 'gold'; x = $hw; y = $split; h = $img.Height - $split }
@@ -44,9 +48,7 @@ foreach ($c in $cells) {
   $crop.Save("$out\$($c.name).png", [System.Drawing.Imaging.ImageFormat]::Png); $crop.Dispose()
   "$($c.name): ${w}x${h} (ab $($b[0]),$($b[1]))"
   # Linien durch Fenstermitte (waagerecht) und Bildmitte (senkrecht)
-  "  Zeile 50%:  " + [Rahmen]::Row($b[1] + [int]($h * .5), $b[0], $b[2] + 1)
-  "  Zeile 83%:  " + [Rahmen]::Row($b[1] + [int]($h * .83), $b[0], $b[2] + 1)
-  "  Spalte 50%: " + [Rahmen]::Col($b[0] + [int]($w * .5), $b[1], $b[3] + 1)
-  "  Spalte 20%: " + [Rahmen]::Col($b[0] + [int]($w * .2), $b[1], $b[3] + 1)
+  foreach ($p in .5, .6, .85) { "  Zeile $($p*100)%:  " + [Rahmen]::Row($b[1] + [int]($h * $p), $b[0], $b[2] + 1) }
+  foreach ($p in .5, .3, .15) { "  Spalte $($p*100)%: " + [Rahmen]::Col($b[0] + [int]($w * $p), $b[1], $b[3] + 1) }
 }
 $img.Dispose()
