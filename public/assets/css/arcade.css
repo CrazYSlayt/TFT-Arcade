@@ -348,59 +348,68 @@ main > :not(.scene) { position: relative; z-index: 1; }
 .booth-count .ui { width: 16px; height: 16px; transition: transform .2s; }
 .booth:hover .booth-count .ui { transform: translateX(4px); }
 
-/* ───────── Spielkarten (wie kleine Buden mit Bild) ───────── */
-.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 22px; text-align: left; }
-.cards-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(14px, 1.6vw, 26px); }
-.gcard {
-  position: relative; display: flex; flex-direction: column; overflow: hidden; border-radius: 16px;
-  background: #1a0b30; border: 2px solid var(--c);
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, .45), 0 0 26px -6px color-mix(in srgb, var(--c) 60%, transparent), var(--shadow);
-  transition: transform .2s, box-shadow .2s;
-}
-.gcard .awning { position: absolute; top: 0; left: 0; right: 0; z-index: 2; height: 12px; }
-.gcard .awning::after { height: 7px; background:
-    radial-gradient(ellipse 13px 7px at 13px 0, var(--c) 97%, transparent 100%) 0 0 / 52px 7px repeat-x,
-    radial-gradient(ellipse 13px 7px at 39px 0, #e9d6bb 97%, transparent 100%) 0 0 / 52px 7px repeat-x; }
-.gcard-art { position: relative; height: clamp(120px, 16vh, 260px); overflow: hidden; background: #170a2b; }
-.cards:not(.cards-4) .gcard-art { height: 170px; }
+/* ───────── Spielkarten: Kirmesbude als Bildrahmen (public/assets/img/rahmen/<farbe>.webp, eine Farbe je Kategorie) ─────────
+   Das Spielbild liegt hinter dem Rahmen im Fenster, Name + Slogan stehen in der Namensleiste, der Pfeil im Kreis.
+   Alle Maße in % der Rahmengröße (684 × 509), Schriften in cqi, damit alles mit der Kartenbreite mitwächst. */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px; text-align: left; }
+/* Startseite: vier Buden; so breit, wie die Bildschirmhöhe zulässt (alles Wichtige ohne Scrollen auf 1080p) */
+.cards-4 { --card-w: min(calc((100% - 3 * var(--gap)) / 4), calc((100svh - 690px) * 1.344)); --gap: clamp(14px, 1.6vw, 26px);
+  grid-template-columns: repeat(4, max(200px, var(--card-w))); justify-content: center; gap: var(--gap); }
+.c-gold { --frame: url(../img/rahmen/gold.webp); }
+.c-coral { --frame: url(../img/rahmen/rot.webp); }
+.c-teal { --frame: url(../img/rahmen/tuerkis.webp); }
+.c-violet { --frame: url(../img/rahmen/violett.webp); }
+.gcard { position: relative; display: flex; flex-direction: column; container-type: inline-size; transition: transform .2s, filter .2s; }
+.gcard-booth { position: relative; aspect-ratio: 684 / 509; filter: drop-shadow(0 14px 18px rgba(0, 0, 0, .55)); }
+.gcard-booth::after { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: var(--frame) center / 100% 100% no-repeat; }
+.gcard-art { position: absolute; left: 8%; right: 8%; top: 20%; bottom: 26%; overflow: hidden; background: #170a2b; }
 .gcard-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .45s; }
-.gcard-art::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, rgba(12, 5, 24, .7)); }
+.gcard-art::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(12, 5, 24, .35), transparent 30%, transparent 70%, rgba(12, 5, 24, .55)); }
 /* Ausschnitt aus dem Kirmes-Bild + Symbol, solange es keine eigene Illustration gibt */
 .gcard-emblem {
   position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; color: var(--c);
-  background: radial-gradient(circle at 50% 55%, color-mix(in srgb, var(--c) 30%, transparent), rgba(14, 6, 28, .6) 70%);
+  background: radial-gradient(circle at 50% 60%, color-mix(in srgb, var(--c) 30%, transparent), rgba(14, 6, 28, .6) 70%);
 }
-.gcard-emblem .art { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: clamp(56px, 8.5vh, 100px); height: clamp(56px, 8.5vh, 100px); filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .6)); transition: transform .25s; }
+.gcard-emblem .art { width: 26cqi; height: 26cqi; margin-top: 5cqi; filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .6)); transition: transform .25s; }
 .gcard-tag {
-  position: absolute; left: 12px; bottom: 10px; z-index: 2; padding: 5px 12px; border-radius: 999px;
-  font: 700 .8rem/1 var(--f-cond); letter-spacing: .08em; text-transform: uppercase; color: var(--c-ink);
+  position: absolute; left: 14%; top: 61%; z-index: 3; padding: .45em 1em; border-radius: 999px;
+  font: 700 max(10px, 2.6cqi)/1 var(--f-cond); letter-spacing: .08em; text-transform: uppercase; color: var(--c-ink);
   background: var(--c); box-shadow: 0 2px 0 rgba(0, 0, 0, .4);
 }
-.gcard-status { position: absolute; right: 10px; top: 18px; z-index: 2; }
-.gcard-status .badge { background: rgba(18, 8, 34, .88); }
-.gcard-body { flex: 1; padding: clamp(10px, 1.6vh, 18px) 16px clamp(12px, 1.8vh, 20px); background: linear-gradient(180deg, color-mix(in srgb, var(--c) 16%, #1d0c33), #170a29); border-top: 1px solid color-mix(in srgb, var(--c) 45%, transparent); }
-.gcard-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; }
-.gcard-title { margin: 0 0 4px; font: 400 clamp(1.2rem, 2.5vh, 1.6rem)/1.1 var(--f-display); color: #fff1d6; }
-.gcard-hook { margin: 0; font-size: .95rem; color: #e6dcf5; }
+.gcard-status { position: absolute; right: 14%; top: 31%; z-index: 3; }
+.gcard-status .badge { font-size: max(9px, 2.3cqi); background: rgba(18, 8, 34, .88); }
+/* Namensleiste */
+.gcard-body { position: absolute; left: 12%; right: 23%; top: 75.5%; bottom: 4.5%; z-index: 3; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+.gcard-title { margin: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font: 400 max(15px, 5.4cqi)/1.1 var(--f-display); color: #fff1d6; text-shadow: 0 2px 0 rgba(0, 0, 0, .5); }
+.gcard-hook { margin: .2em 0 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: max(11px, 3.2cqi); line-height: 1.2; color: #e6dcf5; }
+/* Pfeil im Kreis der Namensleiste */
 .gcard-go {
-  display: grid; place-items: center; width: clamp(40px, 4.6vh, 50px); height: clamp(40px, 4.6vh, 50px); border-radius: 50%;
-  color: #2b1500; background: linear-gradient(180deg, #ffe07a, #f5a623); box-shadow: 0 3px 0 #a5520a, 0 0 16px rgba(255, 190, 60, .45);
-  transition: transform .2s;
+  position: absolute; left: 84.1%; top: 85.9%; z-index: 3; display: grid; place-items: center; width: 8.4%; aspect-ratio: 1; border-radius: 50%;
+  transform: translate(-50%, -50%); color: #2b1500; background: radial-gradient(circle at 40% 35%, #fff0b0, #ffc94a 55%, #e8901a);
+  box-shadow: 0 0 12px rgba(255, 190, 60, .55); transition: transform .2s;
 }
-.gcard-go .ui { width: 50%; height: 50%; stroke-width: 2.6; }
-.gcard-text { margin: 12px 0 12px; font-size: .95rem; color: var(--muted); }
+.gcard-go .ui { width: 58%; height: 58%; stroke-width: 2.8; }
+/* volle Karte (Kategorie-Seiten): Beschreibung und Infos unter der Bude */
+.gcard-info { padding: 4px 6% 0; }
+.gcard-text { margin: 0 0 8px; font-size: .95rem; color: var(--muted); }
 .gcard-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
 .meta { display: inline-flex; align-items: center; gap: 6px; font-size: .9rem; font-weight: 600; color: var(--dim); }
 .meta .ui { width: 16px; height: 16px; }
 .meta-cat { margin-left: auto; }
 .gcard-record { display: inline-flex; align-items: center; gap: 5px; font-size: .9rem; font-weight: 700; color: var(--gold); }
 .gcard-record .ui { width: 16px; height: 16px; }
-.gcard:not(.is-bald):hover { transform: translateY(-5px); box-shadow: 0 0 0 1px rgba(0, 0, 0, .45), 0 0 40px -4px color-mix(in srgb, var(--c) 75%, transparent), var(--shadow); }
+.gcard:not(.is-bald):hover { transform: translateY(-5px); }
+.gcard:not(.is-bald):hover .gcard-booth { filter: drop-shadow(0 14px 18px rgba(0, 0, 0, .55)) drop-shadow(0 0 18px color-mix(in srgb, var(--c) 55%, transparent)); }
 .gcard:not(.is-bald):hover .gcard-img { transform: scale(1.06); }
-.gcard:not(.is-bald):hover .gcard-go { transform: translateX(3px) scale(1.06); }
-.gcard.is-bald { border-style: dashed; }
-.gcard.is-bald .gcard-img { filter: saturate(.5) brightness(.75); }
-.gcard.is-bald .gcard-go { color: var(--dim); background: rgba(255, 255, 255, .1); box-shadow: none; }
+.gcard:not(.is-bald):hover .gcard-go { transform: translate(-50%, -50%) scale(1.12); }
+.gcard.is-bald .gcard-img { filter: saturate(.5) brightness(.7); }
+.gcard.is-bald .gcard-booth::after { filter: saturate(.55) brightness(.8); }
+.gcard.is-bald .gcard-go { color: var(--muted); background: rgba(30, 14, 50, .9); box-shadow: none; }
+/* ganze Bude klickbar (zusätzlicher Link ohne Tab-Stopp); Tastatur-Fokus über den Titel-Link, Ring um die Bude */
+.gcard-hit { position: absolute; inset: 4% 4% 0; z-index: 4; }
+.gcard .stretch::after { content: none; }
+.gcard .stretch:focus-visible { outline: none; }
+.gcard:has(.stretch:focus-visible) .gcard-booth { outline: 3px solid var(--teal); outline-offset: 2px; border-radius: 14px; }
 
 /* Etiketten */
 .badge, .chip { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 999px; white-space: nowrap; }
@@ -827,7 +836,7 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
 @media (max-width: 1180px) {
   .cards-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .home-stage { min-height: 0; }
-  .gcard-art { height: 190px; }
+  .cards-4 { max-width: 900px; margin-inline: auto; }
 }
 @media (max-width: 1080px) {
   .booths { grid-template-columns: repeat(2, 1fr); }

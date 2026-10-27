@@ -15,30 +15,27 @@ const recordSlot = g => g.record
   ? `<span class="gcard-record" data-record-slot="${g.id}" data-type="${g.record.type}" data-lower="${g.record.lowerIsBetter ? 1 : 0}" hidden>${ui('trophy')}<span></span></span>`
   : '';
 
-// Spielkarte wie eine kleine Bude: Markise, Bild mit Etikett, Titel + Slogan und runder Start-Button.
-// full = mit Beschreibung, Rundendauer und Rekord (Kategorieseiten); attrs = zusätzliche Attribute (z. B. für den Filter der Startseite)
+// Spielkarte als Kirmesbude: Rahmen in der Farbe der Kategorie (CSS --frame), Spielbild im Fenster,
+// Name + Slogan in der Namensleiste, Pfeil im Kreis. full = darunter Beschreibung, Rundendauer und Rekord (Kategorieseiten);
+// attrs = zusätzliche Attribute (z. B. für den Filter der Startseite)
 function gameCard(g, ctx, { level = 3, full = false, attrs = '' } = {}) {
-  const c = ctx.catOf(g), url = ctx.gameUrl(g), color = g.color || c.color;
+  const c = ctx.catOf(g), url = ctx.gameUrl(g);
   const title = url ? `<a class="stretch" href="${url}">${esc(g.title)}</a>` : esc(g.title);
   const img = g.bild ? `<img class="gcard-img" src="/assets/img/karten/${g.bild}.jpg" alt="" width="640" height="360" loading="lazy" decoding="async">` : '';
-  return `<article class="gcard c-${color} is-${g.status}" data-cat="${g.category}"${attrs}>
-  <div class="awning" aria-hidden="true"></div>
-  <div class="gcard-art">
-    ${img}${g.illu ? '' : `<span class="gcard-emblem">${art(g.art)}</span>`}
+  return `<article class="gcard c-${c.color} is-${g.status}" data-cat="${g.category}"${attrs}>
+  <div class="gcard-booth">
+    ${url ? `<a class="gcard-hit" href="${url}" tabindex="-1" aria-hidden="true"></a>` : ''}
+    <div class="gcard-art">${img}${g.illu ? '' : `<span class="gcard-emblem">${art(g.art)}</span>`}</div>
     ${g.status !== 'live' ? `<span class="gcard-status">${badge(g.status)}</span>` : ''}
     ${g.tag ? `<span class="gcard-tag">${esc(g.tag)}</span>` : ''}
-  </div>
-  <div class="gcard-body">
-    <div class="gcard-head">
-      <div>
-        <h${level} class="gcard-title">${title}</h${level}>
-        <p class="gcard-hook">${esc(g.hook || g.short)}</p>
-      </div>
-      <span class="gcard-go" aria-hidden="true">${ui(url ? 'arrow' : 'lock')}</span>
+    <div class="gcard-body">
+      <h${level} class="gcard-title">${title}</h${level}>
+      <p class="gcard-hook">${esc(g.hook || g.short)}</p>
     </div>
-    ${full ? `<p class="gcard-text">${esc(g.short)}</p>
-    <div class="gcard-foot"><span class="meta">${ui('clock')}${esc(g.duration)}</span>${recordSlot(g)}<span class="meta meta-cat">${esc(c.name)}</span></div>` : ''}
+    <span class="gcard-go" aria-hidden="true">${ui(url ? 'arrow' : 'lock')}</span>
   </div>
+  ${full ? `<div class="gcard-info"><p class="gcard-text">${esc(g.short)}</p>
+    <div class="gcard-foot"><span class="meta">${ui('clock')}${esc(g.duration)}</span>${recordSlot(g)}<span class="meta meta-cat">${esc(c.name)}</span></div></div>` : ''}
 </article>`;
 }
 
