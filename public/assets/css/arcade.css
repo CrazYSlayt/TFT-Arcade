@@ -350,20 +350,21 @@ main > :not(.scene) { position: relative; z-index: 1; }
 
 /* ───────── Spielkarten: Kirmesbude als Bildrahmen (public/assets/img/rahmen/<farbe>.webp, eine Farbe je Kategorie) ─────────
    Das Spielbild liegt hinter dem Rahmen im Fenster (zwischen den Pfosten, unter dem Dach bis zur Theke),
-   Name + Slogan stehen im Schild unter der Theke, der Pfeil rechts im Schild.
-   Alle Maße in % der Rahmengröße (590 × 587), Schriften in cqi, damit alles mit der Kartenbreite mitwächst. */
+   Name + Slogan stehen im Schild unter der Theke, der Pfeil rechts im Schild, über den fünf Lämpchen liegen
+   eigene Lichtpunkte (.gcard-lamps) zum Flackern.
+   Alle Maße in % der Rahmengröße (616 × 579), Schriften in cqi, damit alles mit der Kartenbreite mitwächst. */
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(255px, 1fr)); gap: 22px; text-align: left; }
 /* Startseite: vier Buden; so breit, wie die Bildschirmhöhe zulässt (alles Wichtige ohne Scrollen auf 1080p) */
-.cards-4 { --card-w: min(calc((100% - 3 * var(--gap)) / 4), calc((100svh - 695px) * 1.005)); --gap: clamp(14px, 1.6vw, 26px);
+.cards-4 { --card-w: min(calc((100% - 3 * var(--gap)) / 4), calc((100svh - 695px) * 1.064)); --gap: clamp(14px, 1.6vw, 26px);
   grid-template-columns: repeat(4, max(200px, var(--card-w))); justify-content: center; gap: var(--gap); }
 .c-gold { --frame: url(../img/rahmen/gold.webp); }
 .c-coral { --frame: url(../img/rahmen/rot.webp); }
 .c-teal { --frame: url(../img/rahmen/tuerkis.webp); }
 .c-violet { --frame: url(../img/rahmen/violett.webp); }
 .gcard { position: relative; display: flex; flex-direction: column; container-type: inline-size; transition: transform .2s, filter .2s; }
-.gcard-booth { position: relative; aspect-ratio: 590 / 587; filter: drop-shadow(0 14px 18px rgba(0, 0, 0, .55)); }
+.gcard-booth { position: relative; aspect-ratio: 616 / 579; filter: drop-shadow(0 14px 18px rgba(0, 0, 0, .55)); }
 .gcard-booth::after { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: var(--frame) center / 100% 100% no-repeat; }
-.gcard-art { position: absolute; left: 5%; right: 5%; top: 27%; bottom: 25%; overflow: hidden; background: #170a2b; }
+.gcard-art { position: absolute; left: 7%; right: 7%; top: 26%; bottom: 25%; overflow: hidden; background: #170a2b; }
 .gcard-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .45s; }
 .gcard-art::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(12, 5, 24, .35), transparent 30%, transparent 70%, rgba(12, 5, 24, .55)); }
 /* Ausschnitt aus dem Kirmes-Bild + Symbol, solange es keine eigene Illustration gibt */
@@ -373,19 +374,19 @@ main > :not(.scene) { position: relative; z-index: 1; }
 }
 .gcard-emblem .art { width: 28cqi; height: 28cqi; margin-top: 6cqi; filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .6)); transition: transform .25s; }
 .gcard-tag {
-  position: absolute; left: 11%; top: 64.5%; z-index: 3; padding: .45em 1em; border-radius: 999px;
+  position: absolute; left: 12%; top: 66%; z-index: 3; padding: .45em 1em; border-radius: 999px;
   font: 700 max(10px, 2.6cqi)/1 var(--f-cond); letter-spacing: .08em; text-transform: uppercase; color: var(--c-ink);
   background: var(--c); box-shadow: 0 2px 0 rgba(0, 0, 0, .4);
 }
-.gcard-status { position: absolute; right: 11%; top: 38%; z-index: 3; }
+.gcard-status { position: absolute; right: 12%; top: 35%; z-index: 3; }
 .gcard-status .badge { font-size: max(9px, 2.3cqi); background: rgba(18, 8, 34, .88); }
 /* Schild unter der Theke */
-.gcard-body { position: absolute; left: 10%; right: 22%; top: 80%; bottom: 3.5%; z-index: 3; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
-.gcard-title { margin: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font: 400 max(15px, 5.4cqi)/1.1 var(--f-display); color: #fff1d6; text-shadow: 0 2px 0 rgba(0, 0, 0, .5); }
-.gcard-hook { margin: .2em 0 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: max(11px, 3.2cqi); line-height: 1.2; color: #e6dcf5; }
+.gcard-body { position: absolute; left: 10%; right: 20%; top: 81%; bottom: 5.5%; z-index: 3; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+.gcard-title { margin: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font: 400 max(14px, 5.2cqi)/1.05 var(--f-display); color: #fff1d6; text-shadow: 0 2px 0 rgba(0, 0, 0, .5); }
+.gcard-hook { margin: .1em 0 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: max(10.5px, 3.1cqi); line-height: 1.15; color: #e6dcf5; }
 /* Pfeil rechts im Schild */
 .gcard-go {
-  position: absolute; left: 85%; top: 88.5%; z-index: 3; display: grid; place-items: center; width: 10.5%; aspect-ratio: 1; border-radius: 50%;
+  position: absolute; left: 85%; top: 87.5%; z-index: 3; display: grid; place-items: center; width: 9.5%; aspect-ratio: 1; border-radius: 50%;
   transform: translate(-50%, -50%); color: #2b1500; background: radial-gradient(circle at 40% 35%, #fff0b0, #ffc94a 55%, #e8901a);
   box-shadow: 0 2px 0 #8f4a08, 0 0 12px rgba(255, 190, 60, .55); transition: transform .2s;
 }
@@ -411,6 +412,136 @@ main > :not(.scene) { position: relative; z-index: 1; }
 .gcard .stretch::after { content: none; }
 .gcard .stretch:focus-visible { outline: none; }
 .gcard:has(.stretch:focus-visible) .gcard-booth { outline: 3px solid var(--teal); outline-offset: 2px; border-radius: 14px; }
+
+/* ───────── Kirmes-Leben: Lichter, Glanz und Bewegung ─────────
+   Nur transform/opacity (flüssig auch auf schwachen Geräten). Mit „Bewegung reduzieren“ im System bleibt alles ruhig
+   (Regel ganz unten in dieser Datei). Funken, Sterne und Konfetti erzeugt arcade.js (initFun). */
+
+/* Lämpchen der Bude: Lichtpunkte über den gemalten Birnen, flackern als Lauflicht */
+.gcard-lamps { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.gcard-lamps i {
+  position: absolute; top: 25.6%; width: 11%; aspect-ratio: 1; border-radius: 50%; transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 250, 225, .95) 0 12%, rgba(255, 214, 120, .55) 28%, rgba(255, 180, 60, 0) 68%);
+  mix-blend-mode: screen; opacity: .25; animation: lamp 2.2s ease-in-out infinite;
+}
+.gcard-lamps i:nth-child(1) { left: 15.1%; }
+.gcard-lamps i:nth-child(2) { left: 32.6%; animation-delay: .22s; }
+.gcard-lamps i:nth-child(3) { left: 51%; animation-delay: .44s; }
+.gcard-lamps i:nth-child(4) { left: 69.2%; animation-delay: .66s; }
+.gcard-lamps i:nth-child(5) { left: 86%; animation-delay: .88s; }
+.gcard:nth-child(2n) .gcard-lamps i { animation-duration: 2.6s; }
+@keyframes lamp { 0%, 100% { opacity: .2; } 45% { opacity: .95; } 55% { opacity: .8; } }
+/* Glitzern an der Dachspitze */
+.gcard-glint {
+  position: absolute; left: 51%; top: 5.5%; z-index: 3; width: 16%; aspect-ratio: 1; pointer-events: none; transform: translate(-50%, -50%) scale(0);
+  background: conic-gradient(from 0deg, transparent 0 10%, #fff8d8 12%, transparent 14% 35%, #fff8d8 37%, transparent 39% 60%, #fff8d8 62%, transparent 64% 85%, #fff8d8 87%, transparent 89%);
+  -webkit-mask: radial-gradient(circle, #000 0 18%, transparent 60%); mask: radial-gradient(circle, #000 0 18%, transparent 60%);
+  animation: glint 5s ease-in-out infinite;
+}
+.gcard:nth-child(2) .gcard-glint { animation-delay: 1.3s; }
+.gcard:nth-child(3) .gcard-glint { animation-delay: 2.6s; }
+.gcard:nth-child(4) .gcard-glint { animation-delay: 3.9s; }
+@keyframes glint { 0%, 82%, 100% { transform: translate(-50%, -50%) scale(0) rotate(0); opacity: 0; } 88% { transform: translate(-50%, -50%) scale(1) rotate(45deg); opacity: 1; } 94% { transform: translate(-50%, -50%) scale(.2) rotate(90deg); opacity: 0; } }
+
+/* Darüberfahren: Bude wackelt fröhlich, alle Lichter an, Pfeil hüpft */
+.gcard:not(.is-bald):hover { transform: none; }
+.gcard:not(.is-bald):hover .gcard-booth { animation: booth-wiggle .55s ease-in-out; transform: translateY(-6px); transition: transform .25s; }
+.gcard:not(.is-bald):hover .gcard-lamps i { animation: lamp-on .5s ease-in-out infinite alternate; }
+.gcard:not(.is-bald):hover .gcard-go { animation: go-bounce .7s ease-in-out infinite; }
+.gcard-booth { transition: transform .3s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes booth-wiggle { 0% { transform: translateY(0) rotate(0); } 25% { transform: translateY(-8px) rotate(-1.6deg); } 55% { transform: translateY(-6px) rotate(1.2deg); } 80% { transform: translateY(-7px) rotate(-.5deg); } 100% { transform: translateY(-6px) rotate(0); } }
+@keyframes lamp-on { from { opacity: .75; } to { opacity: 1; } }
+@keyframes go-bounce { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-30%, -50%) scale(1.08); } }
+
+/* Sterne, die beim Darüberfahren aus dem Dach sprühen (Elemente von arcade.js) */
+.fx-star {
+  position: absolute; left: 51%; top: 8%; z-index: 5; width: 11%; aspect-ratio: 1; pointer-events: none;
+  background: var(--star, #ffd65a); clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  filter: drop-shadow(0 0 6px rgba(255, 220, 120, 1)); animation: star-burst 1s cubic-bezier(.2, .7, .3, 1) forwards;
+}
+@keyframes star-burst {
+  0% { transform: translate(-50%, -50%) scale(.2) rotate(0); opacity: 1; }
+  60% { opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(var(--s, 1)) rotate(var(--r, 180deg)); opacity: 0; }
+}
+
+/* Startseite: Buden fallen nacheinander herein (auch nach dem Filtern) */
+.is-home .cards-4 .gcard.is-enter .gcard-booth { animation: booth-drop .8s cubic-bezier(.25, 1.5, .45, 1) both; animation-delay: calc(var(--i, 0) * 110ms + 150ms); }
+@keyframes booth-drop { 0% { transform: translateY(-70px) scale(.85) rotate(-4deg); opacity: 0; } 60% { opacity: 1; } 100% { transform: none; opacity: 1; } }
+.is-home .cards-4 .gcard:not(.is-bald):hover .gcard-booth { animation: booth-wiggle .55s ease-in-out; }
+
+/* Hero: Band schwingt herein, Zeilen hüpfen, Pinselstrich zeichnet sich, Stern dreht sich */
+.is-home .ribbon { animation: ribbon-in .7s cubic-bezier(.3, 1.5, .5, 1) both, ribbon-wave 4s ease-in-out 1s infinite; }
+@keyframes ribbon-in { from { transform: rotate(-14deg) translateX(-40px); opacity: 0; } to { transform: rotate(-4deg); opacity: 1; } }
+@keyframes ribbon-wave { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(-2.2deg) translateY(-2px); } }
+.is-home .hero-line { animation: line-pop .75s cubic-bezier(.3, 1.6, .5, 1) both; }
+.is-home .hero-line:nth-child(1) { animation-delay: .2s; }
+.is-home .hero-line:nth-child(2) { animation-delay: .38s; }
+@keyframes line-pop { 0% { transform: translateY(30px) scale(.8); opacity: 0; } 100% { transform: none; opacity: 1; } }
+.is-home .hero-line .deco-star { animation: spin-star 6s linear infinite; }
+@keyframes spin-star { to { transform: rotate(360deg); } }
+.is-home .swoosh::after { transform-origin: left center; animation: swoosh-draw .7s ease-out .85s both; }
+@keyframes swoosh-draw { from { transform: scaleX(0); opacity: 0; } to { transform: scaleX(1); opacity: 1; } }
+.is-home .swoosh { animation: runde-bob 3.2s ease-in-out 1.6s infinite; }
+@keyframes runde-bob { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-4px) rotate(-1.5deg); } }
+.is-home .hero-sub { animation: fade-up .6s ease-out .55s both; }
+.is-home .hero .btn-xl { animation: fade-up .6s ease-out .7s both; }
+@keyframes fade-up { from { transform: translateY(14px); opacity: 0; } to { transform: none; opacity: 1; } }
+/* Glanz, der über den goldenen Button läuft */
+.btn-xl { position: relative; overflow: hidden; }
+.btn-xl::before {
+  content: ''; position: absolute; top: -20%; bottom: -20%; left: -40%; width: 30%; transform: skewX(-20deg) translateX(-150%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .75), transparent); animation: shine 3.6s ease-in-out 1.6s infinite;
+}
+@keyframes shine { 0%, 60% { transform: skewX(-20deg) translateX(-150%); } 85%, 100% { transform: skewX(-20deg) translateX(560%); } }
+.btn-xl .ui { transition: transform .2s; }
+.btn-xl:hover .ui { animation: nudge .6s ease-in-out infinite; }
+@keyframes nudge { 50% { transform: translateX(5px); } }
+
+/* Überschrift „Woran willst du dich versuchen?“: Sterne funkeln */
+.is-home .deco-title .deco-star { animation: twinkle-star 1.8s ease-in-out infinite; }
+.is-home .deco-title .deco-star:last-child { animation-delay: .9s; }
+@keyframes twinkle-star { 0%, 100% { transform: scale(1) rotate(0); opacity: 1; } 50% { transform: scale(1.35) rotate(25deg); opacity: .7; } }
+.pill { transition: background .2s, border-color .2s, color .2s, transform .15s; }
+.pill:hover { transform: translateY(-2px); }
+.pill:active { transform: scale(.94); }
+.pill[aria-pressed="true"] { animation: pill-pop .35s cubic-bezier(.3, 1.8, .5, 1); }
+@keyframes pill-pop { 0% { transform: scale(.9); } 100% { transform: scale(1); } }
+
+/* Ticket schwebt, „Challenge starten“ wackelt ab und zu */
+.is-home .daily .ticket { animation: ticket-float 5s ease-in-out infinite; }
+@keyframes ticket-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+.is-home .daily .btn-red { animation: btn-wiggle 6s ease-in-out 3s infinite; }
+@keyframes btn-wiggle { 0%, 88%, 100% { transform: rotate(0); } 90% { transform: rotate(-4deg) scale(1.05); } 93% { transform: rotate(4deg) scale(1.05); } 96% { transform: rotate(-2deg); } }
+
+/* Pinguin wippt, Geschenke wackeln, leichte Tiefe bei Mausbewegung (--mx/--my von arcade.js, -1 … 1) */
+.scene-corner-l { transform-origin: 30% 100%; animation: penguin 3.4s ease-in-out infinite; }
+@keyframes penguin { 0%, 100% { transform: translate(calc(var(--mx, 0) * -10px), calc(var(--my, 0) * -6px)) rotate(0); } 50% { transform: translate(calc(var(--mx, 0) * -10px), calc(var(--my, 0) * -6px - 6px)) rotate(-2deg); } }
+.scene-corner-r { transform-origin: 60% 100%; animation: gifts 4.2s ease-in-out infinite; }
+@keyframes gifts { 0%, 100% { transform: translate(calc(var(--mx, 0) * -10px), calc(var(--my, 0) * -6px)) rotate(0); } 50% { transform: translate(calc(var(--mx, 0) * -10px), calc(var(--my, 0) * -6px - 4px)) rotate(1.5deg); } }
+.scene-home .scene-img { transform: scale(1.04) translate(calc(var(--mx, 0) * 8px), calc(var(--my, 0) * 6px)); transition: transform .6s ease-out; }
+
+/* Funken, die über der Kirmes aufsteigen, und Konfetti (Elemente von arcade.js) */
+.fx-layer { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.fx-spark {
+  position: absolute; bottom: -10px; width: var(--size, 6px); aspect-ratio: 1; border-radius: 50%;
+  background: radial-gradient(circle, #fff6d0 0 30%, rgba(255, 200, 90, .6) 50%, transparent 70%);
+  animation: spark-rise var(--dur, 9s) linear var(--delay, 0s) infinite; opacity: 0;
+}
+@keyframes spark-rise {
+  0% { transform: translate(0, 0); opacity: 0; } 10% { opacity: .9; }
+  50% { transform: translate(var(--sway, 20px), -45vh); } 85% { opacity: .7; }
+  100% { transform: translate(calc(var(--sway, 20px) * -.5), -90vh); opacity: 0; }
+}
+.fx-confetti-layer { position: fixed; inset: 0; z-index: 60; overflow: hidden; pointer-events: none; }
+.fx-confetti {
+  position: absolute; width: 9px; height: 14px; border-radius: 2px; background: var(--col);
+  animation: confetti 1.4s cubic-bezier(.15, .6, .4, 1) forwards;
+}
+@keyframes confetti {
+  0% { transform: translate(-50%, -50%) rotate(0); opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--r)); opacity: 0; }
+}
 
 /* Etiketten */
 .badge, .chip { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 999px; white-space: nowrap; }

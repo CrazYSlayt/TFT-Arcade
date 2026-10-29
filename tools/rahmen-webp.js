@@ -13,9 +13,9 @@ const Q = 0.86, PORT = 9333;
 const CHROME = ['C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'].find(f => fs.existsSync(f));
 
 const names = fs.readdirSync(SRC).filter(f => f.endsWith('.png')).map(f => f.slice(0, -4));
-// Zielgröße = Größe des ersten PNGs (Breite/Höhe stehen im PNG-Kopf ab Byte 16)
+// Zielgröße: node tools/rahmen-webp.js <Breite> <Höhe> – sonst die Größe des ersten PNGs (Breite/Höhe stehen im PNG-Kopf ab Byte 16)
 const head = fs.readFileSync(path.join(SRC, names[0] + '.png'));
-const W = head.readUInt32BE(16), H = head.readUInt32BE(20);
+const W = Number(process.argv[2]) || head.readUInt32BE(16), H = Number(process.argv[3]) || head.readUInt32BE(20);
 console.log(`Zielgröße ${W}×${H} – im CSS (Spielkarten) muss aspect-ratio ${W} / ${H} stehen`);
 const pngs = Object.fromEntries(names.map(n => [n, 'data:image/png;base64,' + fs.readFileSync(path.join(SRC, n + '.png')).toString('base64')]));
 const script = `(async () => {

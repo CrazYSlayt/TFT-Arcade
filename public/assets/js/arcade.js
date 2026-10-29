@@ -359,7 +359,105 @@
         more.hidden = f === 'alle';
         if (f !== 'alle') $('a', more).setAttribute('href', pageLink('/' + f));
       }
+      document.dispatchEvent(new CustomEvent('arcade:filter'));
     }));
+  }
+
+  // ───────── Kirmes-Leben auf der Startseite (Gestaltung in arcade.css → „Kirmes-Leben“) ─────────
+  // Buden fallen herein, Sterne sprühen beim Darüberfahren, Funken steigen auf, Konfetti am Start-Button,
+  // leichte Tiefe bei Mausbewegung. Bei „Bewegung reduzieren“ bleibt alles ruhig.
+  function initFun() {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const grid = $('[data-filter-grid]');
+
+    // Buden-Einflug: nacheinander (--i), nach jedem Filterwechsel neu
+    if (grid) {
+      const enter = () => $$('.gcard:not([hidden])', grid).forEach((card, i) => {
+        card.style.setProperty('--i', i);
+        card.classList.remove('is-enter');
+        void card.offsetWidth;   // Animation neu starten
+        card.classList.add('is-enter');
+      });
+      // danach Klasse entfernen, sonst startet der Einflug nach dem Darüberfahren erneut
+      grid.addEventListener('animationend', e => { if (e.animationName === 'booth-drop') e.target.closest('.gcard').classList.remove('is-enter'); });
+      document.addEventListener('arcade:filter', enter);
+      enter();
+    }
+
+    // Sternenregen aus dem Dach beim Darüberfahren (höchstens alle 0,7 s pro Bude)
+    const last = new WeakMap();
+    const burst = booth => {
+      const now = Date.now();
+      if (now - (last.get(booth) || 0) < 700) return;
+      last.set(booth, now);
+      const w = booth.clientWidth, colors = ['#ffd65a', '#fff1d6', '#ff8a6b', '#7ff3e6', '#d3a8ff'];
+      for (let i = 0; i < 9; i++) {
+        const s = document.createElement('span'), a = (-170 + Math.random() * 160) * Math.PI / 180, d = w * (.12 + Math.random() * .16);
+        s.className = 'fx-star';
+        s.style.setProperty('--star', colors[i % colors.length]);
+        s.style.setProperty('--dx', Math.cos(a) * d + 'px');
+        s.style.setProperty('--dy', Math.sin(a) * d + 'px');
+        s.style.setProperty('--r', (Math.random() * 360 - 180) + 'deg');
+        s.style.setProperty('--s', (.5 + Math.random() * .7).toFixed(2));
+        s.addEventListener('animationend', () => s.remove());
+        booth.appendChild(s);
+      }
+    };
+    $$('.gcard:not(.is-bald)').forEach(card => card.addEventListener('mouseenter', () => burst($('.gcard-booth', card))));
+
+    // Funken, die über der Kirmes aufsteigen
+    const stage = $('.home-stage');
+    if (stage) {
+      const layer = document.createElement('div');
+      layer.className = 'fx-layer';
+      layer.setAttribute('aria-hidden', 'true');
+      for (let i = 0; i < 22; i++) {
+        const s = document.createElement('span');
+        s.className = 'fx-spark';
+        s.style.left = (Math.random() * 100).toFixed(1) + '%';
+        s.style.setProperty('--size', (3 + Math.random() * 6).toFixed(1) + 'px');
+        s.style.setProperty('--dur', (7 + Math.random() * 7).toFixed(1) + 's');
+        s.style.setProperty('--delay', (-Math.random() * 14).toFixed(1) + 's');
+        s.style.setProperty('--sway', (Math.random() * 60 - 30).toFixed(0) + 'px');
+        layer.appendChild(s);
+      }
+      stage.prepend(layer);
+    }
+
+    // Konfetti beim Klick auf „Spielhalle entdecken“
+    const cta = $('.hero .btn-xl');
+    if (cta) cta.addEventListener('click', () => {
+      const r = cta.getBoundingClientRect(), layer = document.createElement('div');
+      const colors = ['#ffc94a', '#ff6f61', '#46e3d2', '#b98aff', '#fff1d6'];
+      layer.className = 'fx-confetti-layer';
+      for (let i = 0; i < 40; i++) {
+        const c = document.createElement('span'), a = Math.random() * Math.PI * 2, d = 80 + Math.random() * 160;
+        c.className = 'fx-confetti';
+        c.style.left = r.left + r.width / 2 + 'px';
+        c.style.top = r.top + r.height / 2 + 'px';
+        c.style.setProperty('--col', colors[i % colors.length]);
+        c.style.setProperty('--dx', Math.cos(a) * d + 'px');
+        c.style.setProperty('--dy', Math.sin(a) * d - 60 + 'px');
+        c.style.setProperty('--r', (Math.random() * 720 - 360) + 'deg');
+        layer.appendChild(c);
+      }
+      document.body.appendChild(layer);
+      setTimeout(() => layer.remove(), 1600);
+    });
+
+    // Tiefe: Bild und Ecken bewegen sich leicht gegen die Maus (nur mit Maus, gebündelt pro Bildschirm-Frame)
+    if (document.body.classList.contains('is-home') && matchMedia('(pointer: fine)').matches) {
+      let raf = null, mx = 0, my = 0;
+      window.addEventListener('mousemove', e => {
+        mx = e.clientX / innerWidth * 2 - 1; my = e.clientY / innerHeight * 2 - 1;
+        if (raf) return;
+        raf = requestAnimationFrame(() => {
+          raf = null;
+          document.documentElement.style.setProperty('--mx', mx.toFixed(3));
+          document.documentElement.style.setProperty('--my', my.toFixed(3));
+        });
+      }, { passive: true });
+    }
   }
 
   // ───────── Mega-Menü „Spielhalle“ ─────────
@@ -412,4 +510,5 @@
   initTopbar();
   initMega();
   initRandomGame();
+  initFun();
 })();

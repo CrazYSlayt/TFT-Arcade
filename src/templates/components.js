@@ -33,6 +33,8 @@ function gameCard(g, ctx, { level = 3, full = false, attrs = '' } = {}) {
       <p class="gcard-hook">${esc(g.hook || g.short)}</p>
     </div>
     <span class="gcard-go" aria-hidden="true">${ui(url ? 'arrow' : 'lock')}</span>
+    <span class="gcard-lamps" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+    <span class="gcard-glint" aria-hidden="true"></span>
   </div>
   ${full ? `<div class="gcard-info"><p class="gcard-text">${esc(g.short)}</p>
     <div class="gcard-foot"><span class="meta">${ui('clock')}${esc(g.duration)}</span>${recordSlot(g)}<span class="meta meta-cat">${esc(c.name)}</span></div></div>` : ''}

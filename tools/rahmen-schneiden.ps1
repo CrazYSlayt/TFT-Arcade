@@ -3,7 +3,8 @@
 # Danach wandelt tools/rahmen-webp.js die PNGs in WebP um (siehe README).
 # Aufruf: powershell -File tools/rahmen-schneiden.ps1 [-Datei buden-rahmen-2.png] [-Trenn 610]
 #   -Trenn = Trennlinie zwischen oberer und unterer Reihe (Sternspitzen/Dachspitzen dürfen nicht abgeschnitten werden)
-param([string]$Datei = 'buden-rahmen-2.png', [int]$Trenn = 610)
+#   -Schwelle = ab welcher Deckkraft (0–255) ein Pixel zum Rahmen zählt (höher = Glühen/Streupixel am Rand ignorieren)
+param([string]$Datei = 'buden-rahmen-3.png', [int]$Trenn = 614, [int]$Schwelle = 40)
 $root = Split-Path $PSScriptRoot -Parent
 $src = "$root\quellen\rahmen\$Datei"
 $out = "$root\tools\cache\rahmen"
@@ -42,7 +43,7 @@ $cells = @(
   @{ name = 'tuerkis'; x = 0;   y = $split; h = $img.Height - $split }, @{ name = 'gold'; x = $hw; y = $split; h = $img.Height - $split }
 )
 foreach ($c in $cells) {
-  $b = [Rahmen]::Box($c.x, $c.y, $c.x + $hw, $c.y + $c.h, 40)
+  $b = [Rahmen]::Box($c.x, $c.y, $c.x + $hw, $c.y + $c.h, $Schwelle)
   $w = $b[2] - $b[0] + 1; $h = $b[3] - $b[1] + 1
   $crop = $img.Clone((New-Object System.Drawing.Rectangle $b[0], $b[1], $w, $h), [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
   $crop.Save("$out\$($c.name).png", [System.Drawing.Imaging.ImageFormat]::Png); $crop.Dispose()
