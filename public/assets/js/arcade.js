@@ -357,15 +357,15 @@
       $$('.gcard', grid).forEach(c => { c.hidden = f === 'alle' ? !c.hasAttribute('data-featured') : c.dataset.cat !== f; });
       if (more) {
         more.hidden = f === 'alle';
-        if (f !== 'alle') $('a', more).setAttribute('href', pageLink('/' + f));
+        if (f !== 'alle') more.setAttribute('href', pageLink('/' + f));
       }
       document.dispatchEvent(new CustomEvent('arcade:filter'));
     }));
   }
 
   // ───────── Kirmes-Leben auf der Startseite (Gestaltung in arcade.css → „Kirmes-Leben“) ─────────
-  // Buden fallen herein, Sterne sprühen beim Darüberfahren, Funken steigen auf, Konfetti am Start-Button,
-  // leichte Tiefe bei Mausbewegung. Bei „Bewegung reduzieren“ bleibt alles ruhig.
+  // Buden fahren von unten herein, Sterne sprühen beim Darüberfahren, Funken steigen auf, Konfetti am Start-Button.
+  // Bei „Bewegung reduzieren“ bleibt alles ruhig.
   function initFun() {
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const grid = $('[data-filter-grid]');
@@ -379,7 +379,7 @@
         card.classList.add('is-enter');
       });
       // danach Klasse entfernen, sonst startet der Einflug nach dem Darüberfahren erneut
-      grid.addEventListener('animationend', e => { if (e.animationName === 'booth-drop') e.target.closest('.gcard').classList.remove('is-enter'); });
+      grid.addEventListener('animationend', e => { if (e.animationName === 'booth-rise') e.target.closest('.gcard').classList.remove('is-enter'); });
       document.addEventListener('arcade:filter', enter);
       enter();
     }
@@ -444,20 +444,6 @@
       document.body.appendChild(layer);
       setTimeout(() => layer.remove(), 1600);
     });
-
-    // Tiefe: Bild und Ecken bewegen sich leicht gegen die Maus (nur mit Maus, gebündelt pro Bildschirm-Frame)
-    if (document.body.classList.contains('is-home') && matchMedia('(pointer: fine)').matches) {
-      let raf = null, mx = 0, my = 0;
-      window.addEventListener('mousemove', e => {
-        mx = e.clientX / innerWidth * 2 - 1; my = e.clientY / innerHeight * 2 - 1;
-        if (raf) return;
-        raf = requestAnimationFrame(() => {
-          raf = null;
-          document.documentElement.style.setProperty('--mx', mx.toFixed(3));
-          document.documentElement.style.setProperty('--my', my.toFixed(3));
-        });
-      }, { passive: true });
-    }
   }
 
   // ───────── Mega-Menü „Spielhalle“ ─────────

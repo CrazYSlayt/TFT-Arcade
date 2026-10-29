@@ -8,7 +8,6 @@ const HOME = { label: 'Spielhalle', href: '/' };
 
 // ───────── Startseite ─────────
 function home(ctx) {
-  const booths = site.nav.map(id => booth(ctx.categories.find(c => c.id === id), ctx)).join('');
   // Alle Spiele stehen im Raster; „Alle Spiele“ zeigt die hervorgehobenen, die Filter-Pillen (arcade.js) einen Bereich
   // „Alle Spiele“ = höchstens vier hervorgehobene (spielbare zuerst), damit alles auf einen Bildschirm passt
   const order = { live: 0, bau: 1, bald: 2 };
@@ -19,7 +18,8 @@ function home(ctx) {
   const pills = [`<button class="pill" type="button" data-filter="alle" aria-pressed="true">Alle Spiele</button>`,
     ...site.nav.map(id => { const c = ctx.categories.find(x => x.id === id); return `<button class="pill" type="button" data-filter="${c.id}" aria-pressed="false">${esc(c.name)}</button>`; })].join('');
   const star = `<svg class="deco-star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.5 1.3 6.5L12 17l-5.9 3.3 1.3-6.5-4.9-4.5 6.6-.8z"/></svg>`;
-  // home-stage: Hero, Spielkarten und Tageschallenge passen zusammen auf einen Bildschirm (1920×1080 ohne Scrollen)
+  // home-stage: Hero, Spielkarten und Tageschallenge füllen genau den ersten Bildschirm, das Ticket schließt unten ab
+  // (die Buden wachsen in den Platz dazwischen, cards-fit); darunter folgt nur noch der Fußbereich
   const body = `
 <div class="home-stage">
 <section class="hero">
@@ -36,32 +36,13 @@ function home(ctx) {
 <section class="games-section" id="attraktionen" aria-labelledby="att-h">
   <div class="wrap wrap-wide">
     <h2 class="deco-title" id="att-h">${star}<span>Woran willst du dich versuchen?</span>${star}</h2>
-    <div class="pills" role="group" aria-label="Spiele nach Bereich filtern">${pills}</div>
-    <div class="cards cards-4" data-filter-grid>${cards}</div>
-    <p class="filter-more" data-filter-more hidden><a class="text-link" href="/">Ganzen Bereich ansehen${ui('arrow')}</a></p>
+    <div class="pills" role="group" aria-label="Spiele nach Bereich filtern">${pills}<a class="pill pill-more" href="/" data-filter-more hidden>Ganzen Bereich ansehen${ui('arrow')}</a></div>
+    <div class="cards-fit"><div class="cards cards-4" data-filter-grid>${cards}</div></div>
   </div>
 </section>
 
 <div class="wrap wrap-wide">${daily(ctx, { compact: true })}</div>
-</div>
-
-<section class="section" aria-labelledby="booth-h">
-  <div class="wrap">
-    <div class="section-head"><p class="eyebrow">${ui('star')}Vier Buden, eine Spielhalle</p><h2 id="booth-h">Alle Bereiche der Arcade</h2></div>
-    <div class="booths">${booths}</div>
-  </div>
-</section>
-
-<section class="section section-steps" aria-labelledby="how-h">
-  <div class="wrap">
-    <div class="section-head"><p class="eyebrow">${ui('star')}So läuft’s</p><h2 id="how-h">Rein, spielen, Rekord jagen</h2></div>
-    <ol class="steps">
-      <li><span class="step-n">1</span><h3>Bude wählen</h3><p>Simulator, Challenge, Quiz oder Party – jede Runde dauert nur wenige Minuten.</p></li>
-      <li><span class="step-n">2</span><h3>Spielen ohne Anmeldung</h3><p>Kein Konto, kein Download. Deine Rekorde bleiben in deinem Browser gespeichert.</p></li>
-      <li><span class="step-n">3</span><h3>Ergebnis teilen</h3><p>Ein Klick kopiert dein Ergebnis samt Link – fordere deine Freunde heraus.</p></li>
-    </ol>
-  </div>
-</section>`;
+</div>`;
   return {
     path: '/',
     scene: 'home',

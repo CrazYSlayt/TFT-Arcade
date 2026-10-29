@@ -245,6 +245,18 @@ main > :not(.scene) { position: relative; z-index: 1; }
 /* ───────── Startseite: erster Bildschirm ───────── */
 .home-stage { display: flex; flex-direction: column; min-height: 100svh; padding-top: var(--hdr); }
 .is-home main { margin-top: calc(-1 * var(--hdr)); }
+/* Großer Bildschirm: genau ein Bildschirm hoch, das Ticket schließt unten neben Pinguin und Geschenken ab.
+   Die Buden bekommen den ganzen Platz zwischen Filter-Pillen und Ticket (cards-fit misst ihn als Container). */
+@media (min-width: 1181px) {
+  .home-stage { height: max(100svh, 640px); }
+  .home-stage .hero { flex: none; padding: clamp(6px, 1.2vh, 24px) 0 clamp(4px, .8vh, 16px); }
+  .home-stage .hero-sub { margin-block: clamp(10px, 1.6vh, 30px); }
+  .home-stage .pills { margin-block: clamp(6px, 1vh, 16px) clamp(8px, 1.2vh, 20px); }
+  .home-stage .games-section, .home-stage .games-section > .wrap { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
+  .cards-fit { flex: 1 1 0; min-height: 0; display: flex; align-items: flex-end; container-type: size; }
+  .cards-fit .cards-4 { --card-w: min(calc((100cqw - 3 * var(--gap)) / 4), calc(100cqh * 616 / 579)); width: 100%; }
+  .home-stage .daily { margin: clamp(6px, 1vh, 16px) auto clamp(12px, 1.8vh, 28px); }
+}
 
 /* Hero oben links */
 .hero { flex: 1 0 auto; display: flex; align-items: center; padding: clamp(12px, 2.4vh, 48px) 0 clamp(8px, 1.6vh, 30px); }
@@ -296,7 +308,9 @@ main > :not(.scene) { position: relative; z-index: 1; }
 }
 .pill:hover { border-color: var(--gold); }
 .pill[aria-pressed="true"] { color: #2b1500; background: linear-gradient(180deg, #fff3d0, #ffd27a); border-color: transparent; box-shadow: 0 0 16px rgba(255, 200, 100, .4); }
-.filter-more { margin: 14px 0 0; }
+.pill-more { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; border-style: dashed; }
+.pill-more[hidden] { display: none; }
+.pill-more .ui { width: 16px; height: 16px; }
 
 /* ───────── Abschnitte ───────── */
 .section { padding: clamp(32px, 5vw, 60px) 0; }
@@ -354,8 +368,8 @@ main > :not(.scene) { position: relative; z-index: 1; }
    eigene Lichtpunkte (.gcard-lamps) zum Flackern.
    Alle Maße in % der Rahmengröße (616 × 579), Schriften in cqi, damit alles mit der Kartenbreite mitwächst. */
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(255px, 1fr)); gap: 22px; text-align: left; }
-/* Startseite: vier Buden; so breit, wie die Bildschirmhöhe zulässt (alles Wichtige ohne Scrollen auf 1080p) */
-.cards-4 { --card-w: min(calc((100% - 3 * var(--gap)) / 4), calc((100svh - 695px) * 1.064)); --gap: clamp(14px, 1.6vw, 26px);
+/* Startseite: vier Buden nebeneinander; auf großen Bildschirmen so groß, wie die Höhe zulässt (cards-fit, oben bei .home-stage) */
+.cards-4 { --card-w: calc((100% - 3 * var(--gap)) / 4); --gap: clamp(14px, 1.6vw, 26px);
   grid-template-columns: repeat(4, max(200px, var(--card-w))); justify-content: center; gap: var(--gap); }
 .c-gold { --frame: url(../img/rahmen/gold.webp); }
 .c-coral { --frame: url(../img/rahmen/rot.webp); }
@@ -465,9 +479,16 @@ main > :not(.scene) { position: relative; z-index: 1; }
   100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(var(--s, 1)) rotate(var(--r, 180deg)); opacity: 0; }
 }
 
-/* Startseite: Buden fallen nacheinander herein (auch nach dem Filtern) */
-.is-home .cards-4 .gcard.is-enter .gcard-booth { animation: booth-drop .8s cubic-bezier(.25, 1.5, .45, 1) both; animation-delay: calc(var(--i, 0) * 110ms + 150ms); }
-@keyframes booth-drop { 0% { transform: translateY(-70px) scale(.85) rotate(-4deg); opacity: 0; } 60% { opacity: 1; } 100% { transform: none; opacity: 1; } }
+/* Startseite: Buden fahren nacheinander von unten herein, schaukeln kurz nach (auch nach dem Filtern) */
+.is-home .cards-4 .gcard.is-enter .gcard-booth { animation: booth-rise 1.1s cubic-bezier(.2, .9, .3, 1) both; animation-delay: calc(var(--i, 0) * 140ms + 250ms); }
+@keyframes booth-rise {
+  0% { transform: translateY(120%) rotate(4deg); opacity: 0; }
+  20% { opacity: 1; }
+  55% { transform: translateY(-7%) rotate(-2deg); }
+  72% { transform: translateY(2%) rotate(1.2deg); }
+  86% { transform: translateY(-1%) rotate(-.5deg); }
+  100% { transform: none; opacity: 1; }
+}
 .is-home .cards-4 .gcard:not(.is-bald):hover .gcard-booth { animation: booth-wiggle .55s ease-in-out; }
 
 /* Hero: Band schwingt herein, Zeilen hüpfen, Pinselstrich zeichnet sich, Stern dreht sich */
@@ -513,13 +534,6 @@ main > :not(.scene) { position: relative; z-index: 1; }
 @keyframes ticket-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
 .is-home .daily .btn-red { animation: btn-wiggle 6s ease-in-out 3s infinite; }
 @keyframes btn-wiggle { 0%, 88%, 100% { transform: rotate(0); } 90% { transform: rotate(-4deg) scale(1.05); } 93% { transform: rotate(4deg) scale(1.05); } 96% { transform: rotate(-2deg); } }
-
-/* Pinguin wippt, Geschenke wackeln, leichte Tiefe bei Mausbewegung (--mx/--my von arcade.js, -1 … 1) */
-.scene-corner-l { transform-origin: 30% 100%; animation: penguin 3.4s ease-in-out infinite; }
-@keyframes penguin { 0%, 100% { transform: translate(calc(var(--mx, 0) * -10px), calc(var(--my, 0) * -6px)) rotate(0); } 50% { transform: translate(calc(var(--mx, 0) * -10px), calc(var(--my, 0) * -6px - 6px)) rotate(-2deg); } }
-.scene-corner-r { transform-origin: 60% 100%; animation: gifts 4.2s ease-in-out infinite; }
-@keyframes gifts { 0%, 100% { transform: translate(calc(var(--mx, 0) * -10px), calc(var(--my, 0) * -6px)) rotate(0); } 50% { transform: translate(calc(var(--mx, 0) * -10px), calc(var(--my, 0) * -6px - 4px)) rotate(1.5deg); } }
-.scene-home .scene-img { transform: scale(1.04) translate(calc(var(--mx, 0) * 8px), calc(var(--my, 0) * 6px)); transition: transform .6s ease-out; }
 
 /* Funken, die über der Kirmes aufsteigen, und Konfetti (Elemente von arcade.js) */
 .fx-layer { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
@@ -583,16 +597,6 @@ main > :not(.scene) { position: relative; z-index: 1; }
 .ticket-meta b { font-variant-numeric: tabular-nums; color: #fff; }
 @keyframes bob { 50% { transform: translateY(-6px) rotate(-3deg); } }
 @keyframes twinkle { 50% { opacity: .45; } }
-
-/* ───────── So läuft’s ───────── */
-.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 0; padding: 0; list-style: none; }
-.steps li { position: relative; padding: 26px 22px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
-.step-n {
-  display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: 12px; border-radius: 50%;
-  font: 400 1.5rem/1 var(--f-display); color: #2b1500; background: linear-gradient(180deg, #ffe17c, #f5a623); box-shadow: 0 3px 0 #a5520a;
-}
-.steps h3 { margin-bottom: 6px; font: 400 1.35rem/1.15 var(--f-display); color: #fff; }
-.steps p { margin: 0; color: var(--muted); }
 
 /* ───────── Unterseiten: Kopf ───────── */
 .page-top { padding-top: clamp(18px, 3vw, 30px); }
@@ -1023,7 +1027,6 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
   .ribbon { padding: .55em 1.1em; font-size: clamp(.62rem, 2.9vw, .8rem); letter-spacing: .06em; white-space: nowrap; }
   .deco-title::before, .deco-title::after { display: none; }
   .booths-3 { grid-template-columns: repeat(2, 1fr); }
-  .steps { grid-template-columns: 1fr; }
   .howto-grid { grid-template-columns: 1fr; }
   .stage { min-height: 380px; }
   .daily { padding: 0; }
