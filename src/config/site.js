@@ -1,9 +1,9 @@
 // TFT Arcade – Grunddaten der Seite. Alles, was auf jeder Seite gleich ist, steht hier.
 module.exports = {
   name: 'TFT Arcade',
-  // Adresse für canonical, Sitemap und Link-Vorschauen. Auf Vercel automatisch die Produktions-Domain
-  // (VERCEL_PROJECT_PRODUCTION_URL – nach dem Verknüpfen einer eigenen Domain ist das diese), sonst SITE_URL oder die Vercel-Adresse
-  url: process.env.SITE_URL || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? 'https://' + process.env.VERCEL_PROJECT_PRODUCTION_URL : 'https://tft-arcade.vercel.app'),
+  // Adresse für canonical, Sitemap und Link-Vorschauen: immer die www-Domain (wie bei TFTClimb).
+  // tftarcade.com und tft-arcade.vercel.app leiten per vercel.json dorthin weiter. SITE_URL überschreibt sie (z. B. für Tests).
+  url: process.env.SITE_URL || 'https://www.tftarcade.com',
   lang: 'de',
   locale: 'de_DE',
   themeColor: '#160a28',

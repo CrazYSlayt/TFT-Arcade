@@ -66,9 +66,11 @@ Genau eine sichtbare H1 ≤ 54 Zeichen (nie versteckt), Titel ≤ 60, Meta-Besch
 
 ## Veröffentlichen (Vercel)
 
-Live: **https://tft-arcade.vercel.app** · Code: https://github.com/CrazYSlayt/TFT-Arcade
+Live: **https://www.tftarcade.com** · Code: https://github.com/CrazYSlayt/TFT-Arcade
 
-Jeder Push auf `main` wird von Vercel automatisch gebaut und veröffentlicht (Build `node build.js`, Ausgabe `dist/`, Adressen ohne `.html`). Die Adresse für canonical und Sitemap setzt sich selbst aus der Produktions-Domain von Vercel – eine eigene Domain unter Vercel → Settings → Domains verknüpfen, beim nächsten Deploy wird sie übernommen.
+Jeder Push auf `main` wird von Vercel automatisch gebaut und veröffentlicht (Build `node build.js`, Ausgabe `dist/`, Adressen ohne `.html`). Hauptadresse ist `www.tftarcade.com` (`src/config/site.js`); `tftarcade.com` und `tft-arcade.vercel.app` leiten per `vercel.json` dorthin weiter.
+
+DNS bei All-Inkl (KAS): `A @ → 216.198.79.1` und `A @ → 64.29.17.1`, `CNAME www → 0499c69c23f0c572.vercel-dns-017.com.` Prüfen: `npx vercel domains verify www.tftarcade.com`.
 
 ## Vor dem Livegang offen
 

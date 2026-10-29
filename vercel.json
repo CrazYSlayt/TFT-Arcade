@@ -3,6 +3,10 @@
   "outputDirectory": "dist",
   "cleanUrls": true,
   "trailingSlash": false,
+  "redirects": [
+    { "source": "/:path*", "has": [{ "type": "host", "value": "tftarcade.com" }], "destination": "https://www.tftarcade.com/:path*", "permanent": true },
+    { "source": "/:path*", "has": [{ "type": "host", "value": "tft-arcade.vercel.app" }], "destination": "https://www.tftarcade.com/:path*", "permanent": true }
+  ],
   "headers": [
     {
       "source": "/assets/fonts/(.*)",
