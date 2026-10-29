@@ -85,7 +85,8 @@ main > :not(.scene) { position: relative; z-index: 1; }
     linear-gradient(90deg, rgba(16, 7, 30, .78) 0%, rgba(16, 7, 30, .45) 28%, rgba(16, 7, 30, 0) 52%),
     linear-gradient(180deg, rgba(16, 7, 30, .55) 0, rgba(16, 7, 30, 0) 12%, rgba(16, 7, 30, 0) 40%, rgba(22, 10, 40, .72) 66%, var(--bg) 100%);
 }
-.scene-corner { position: absolute; z-index: 1; top: calc(max(100svh, 640px) - clamp(140px, 22vh, 300px)); height: clamp(140px, 22vh, 300px); width: auto; }
+/* ein Fünftel ragt unten aus dem Bild (nur Boden), damit der Pinguin frei neben dem Ticket steht und nicht unter der ersten Bude */
+.scene-corner { position: absolute; z-index: 1; top: calc(max(100svh, 640px) - .8 * clamp(140px, 22vh, 300px)); height: clamp(140px, 22vh, 300px); width: auto; }
 .scene-corner-l { left: 0; }
 .scene-corner-r { right: 0; }
 /* Ticket mittig zwischen den Ecken, wie im Mockup */
