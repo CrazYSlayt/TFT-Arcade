@@ -41,16 +41,19 @@
     idx = 0; score = 0; bonusSum = 0; correct = 0; answers = [];
     state = 'play';
     stage.innerHTML = `<div class="kq">
-      <div class="game-hud">
-        <span>Champion <b data-kq-n>1</b> / ${ROUNDS}</span>
-        <ol class="game-dots" aria-hidden="true">${deck.map(() => '<li></li>').join('')}</ol>
-        <span>Punkte <b data-kq-score>0</b></span>
+      <div class="hud">
+        <div class="hud-side">
+          <span class="hud-pill">Champion <b data-kq-n>1</b><i>/ ${ROUNDS}</i></span>
+          <ol class="game-dots" aria-hidden="true">${deck.map(() => '<li></li>').join('')}</ol>
+        </div>
+        <span class="hud-pill hud-score">Punkte <b data-kq-score>0</b></span>
+        <div class="hud-side"></div>
       </div>
+      <div class="hud-bar" aria-hidden="true"><span data-kq-bonus></span></div>
       <figure class="kq-figure">
         <img class="kq-img" data-kq-img alt="" width="960" height="480">
         <figcaption class="kq-name" data-kq-name></figcaption>
       </figure>
-      <div class="game-timer" aria-hidden="true"><span data-kq-bonus></span></div>
       <p class="game-msg" data-kq-feedback aria-live="polite"></p>
       <div class="kq-costs" role="group" aria-label="Kosten wählen">
         ${[1, 2, 3, 4, 5].map(n => `<button class="kq-cost cost-${n}" type="button" data-cost="${n}" aria-label="${n} Gold" aria-keyshortcuts="${n}">${coin(n)}<span class="kq-gold">Gold</span></button>`).join('')}
@@ -114,6 +117,7 @@
       if (!ok && n === c.cost) b.classList.add('is-answer');
     });
     ui.figure.classList.add(ok ? 'is-ok' : 'is-bad');
+    A.sound(ok ? 'ok' : 'bad');
     if (!ok) ui.bonus.style.transform = 'scaleX(0)';
     ui.dots[idx].classList.add(ok ? 'is-ok' : 'is-bad');
     ui.score.textContent = score.toLocaleString('de-DE');
@@ -147,6 +151,9 @@
       onReplay: start,
     });
   }
+
+  // „Neu starten“ in der Leiste unter der Spielfläche
+  document.addEventListener('arcade:restart', start);
 
   // ───────── Tastatur: 1–5 antworten, Enter = weiter ─────────
   document.addEventListener('keydown', e => {

@@ -1,5 +1,6 @@
 // TFT Arcade – Beispieldaten für die Bestenlisten (Prototyp, auf der Seite als „Demo“ markiert).
 // Schlüssel: Spiel-id → Modus-id → Einträge [Name, Wert]. Werte im Format des Rekords (Zeit in Sekunden, Punkte als Zahl).
+// „<Modus>:heute“ = Liste für den Reiter „Heute“ auf der Spielseite (fehlt sie, zeigt „Heute“ nur eigene Einträge von heute).
 // Eigene Einträge nach einer Runde mischt arcade.js dazu (vorerst nur im Browser). Sobald es ein Backend gibt, ersetzt es diese Datei.
 module.exports = {
   '3-star-rush': {
@@ -13,15 +14,22 @@ module.exports = {
     ],
   },
   'shop-memory': {
-    klassisch: [
-      ['Augmentina', 2850], ['HexHanna', 2700], ['RerollRitter', 2550], ['KarussellKai', 2400], ['PenguPilot', 2250],
-      ['NoItemNina', 2050], ['Lvl8Lotte', 1900], ['BankBert', 1700], ['GoldGoblin', 1550], ['TopFourTim', 1300],
+    gewertet: [
+      ['Augmentina', 1240], ['HexHanna', 1180], ['RerollRitter', 1090], ['KarussellKai', 1010], ['PenguPilot', 960],
+      ['NoItemNina', 890], ['Lvl8Lotte', 820], ['BankBert', 740], ['GoldGoblin', 650], ['TopFourTim', 560],
+    ],
+    'gewertet:heute': [
+      ['PoroMaster', 920], ['LuluMain', 860], ['TactixTom', 540], ['ArcadeAnnie', 480], ['ShopDiff', 420],
+      ['GoldGoblin', 360], ['Lvl8Lotte', 310],
     ],
   },
   'was-kostet-der': {
     klassisch: [
       ['GoldGoblin', 1468], ['Augmentina', 1431], ['PenguPilot', 1390], ['BankBert', 1322], ['Lvl8Lotte', 1275],
       ['RerollRitter', 1190], ['HexHanna', 1104], ['TopFourTim', 1012], ['LuckyLoot', 930], ['ZwölfZinsen', 845],
+    ],
+    'klassisch:heute': [
+      ['PenguPilot', 1344], ['LuckyLoot', 1210], ['ShopDiff', 1095], ['ArcadeAnnie', 980], ['TactixTom', 870],
     ],
   },
   'champion-quiz': {

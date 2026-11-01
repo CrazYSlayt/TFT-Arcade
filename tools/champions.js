@@ -4,7 +4,8 @@
 // 1. liest das Live-Set aus ../TFT/data (sets.js → tft-data-<Set>.js, erzeugt von TFTClimb aus CommunityDragon)
 // 2. lädt je Champion das große Splash-Bild (splash_centered, 1024×512) von CommunityDragon – fehlt es, die Kachel (256×256)
 // 3. verkleinert auf 960×480 JPG (tools/bild-konvertieren.ps1) → public/assets/img/champions/<id>.jpg
-// 4. schreibt public/assets/js/spiele/daten/champions.js (als Skript statt JSON, damit es auch per Doppelklick ohne Server lädt)
+// 4. lädt die Symbole der Eigenschaften (Traits, weiß auf transparent) → public/assets/img/traits/<id>.png
+// 5. schreibt public/assets/js/spiele/daten/champions.js (als Skript statt JSON, damit es auch per Doppelklick ohne Server lädt)
 // Heruntergeladene Originale bleiben in tools/cache/ (nicht veröffentlicht), ein zweiter Lauf lädt nur Neues.
 const fs = require('fs');
 const path = require('path');
@@ -14,6 +15,7 @@ const ROOT = path.join(__dirname, '..');
 const CLIMB = path.join(ROOT, '..', 'TFT', 'data');
 const CACHE = path.join(__dirname, 'cache', 'champions');
 const IMG_OUT = path.join(ROOT, 'public', 'assets', 'img', 'champions');
+const TRAIT_OUT = path.join(ROOT, 'public', 'assets', 'img', 'traits');
 const DATA_OUT = path.join(ROOT, 'public', 'assets', 'js', 'spiele', 'daten', 'champions.js');
 
 function load(file) {
@@ -47,6 +49,15 @@ async function main() {
   fs.mkdirSync(CACHE, { recursive: true });
   fs.mkdirSync(IMG_OUT, { recursive: true });
   fs.mkdirSync(path.dirname(DATA_OUT), { recursive: true });
+  fs.mkdirSync(TRAIT_OUT, { recursive: true });
+
+  // Eigenschaften: englischer Name (so stehen sie beim Champion) → deutscher Name + Symbol
+  const traits = {};
+  for (const t of d.traits || []) {
+    const id = slug(t.n);
+    const ok = t.icon && await download(d.cdn + t.icon.toLowerCase(), path.join(TRAIT_OUT, id + '.png'));
+    traits[t.n] = { name: t.de || t.n, icon: ok ? `assets/img/traits/${id}.png` : null };
+  }
 
   const list = [], jobs = [];
   for (const c of d.champions) {
@@ -58,7 +69,8 @@ async function main() {
     else if (await download(d.cdn + c.sq, path.join(CACHE, id + '-tile.png'))) { src = path.join(CACHE, id + '-tile.png'); mode = 'tile'; }
     if (!src) { console.warn(`  ✖ kein Bild für ${c.n} – Champion wird ausgelassen`); continue; }
     jobs.push({ src, out: path.join(IMG_OUT, id + '.jpg'), mode });
-    list.push({ id, name: c.de || c.n, cost: c.c, img: `assets/img/champions/${id}.jpg` });
+    const tr = (c.t || []).map(n => traits[n]).filter(Boolean).map(t => t.icon ? [t.name, t.icon] : [t.name]);
+    list.push({ id, name: c.de || c.n, cost: c.c, img: `assets/img/champions/${id}.jpg`, traits: tr });
   }
 
   // Bilder umrechnen (Windows: System.Drawing über PowerShell, wie die anderen Bild-Werkzeuge im Projekt)

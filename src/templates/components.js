@@ -54,8 +54,9 @@ function booth(c, ctx, { level = 3 } = {}) {
 </article>`;
 }
 
+// Brotkrumen; davor ein Haus-Symbol als Link zur Startseite
 function crumbs(list) {
-  return `<nav class="crumbs" aria-label="Brotkrumen"><ol>${list.map((c, i) => i === list.length - 1
+  return `<nav class="crumbs" aria-label="Brotkrumen"><ol><li class="crumb-home"><a href="/" aria-label="Startseite">${ui('home')}</a></li>${list.map((c, i) => i === list.length - 1
     ? `<li aria-current="page">${esc(c.label)}</li>`
     : `<li><a href="${c.href}">${esc(c.label)}</a></li>`).join('')}</ol></nav>`;
 }
@@ -83,38 +84,46 @@ function daily(ctx, { level = 2, compact = false } = {}) {
 
 // ───────── Seitenbereich neben der Spielfläche ─────────
 
-function recordBox(g) {
-  if (!g.record) return '';
-  return `<div class="panel record-box" data-record-box="${g.id}" data-type="${g.record.type}" data-lower="${g.record.lowerIsBetter ? 1 : 0}">
-  <p class="panel-kicker">${ui('trophy')}Dein Rekord · ${esc(g.record.label)}</p>
-  <p class="record-value" data-record-value>–</p>
-  <p class="record-sub" data-record-sub>Noch kein Rekord – spiel eine Runde!</p>
-</div>`;
-}
-
 // ───────── Bestenliste (Seitenbereich der Spielseite und Automaten der Hall of Fame) ─────────
 // Gerendert werden die Beispieldaten; arcade.js mischt beim Laden die eigenen Einträge aus dem Browser dazu (renderBoard).
-const BOARD_SIZE = 10;
-const boardAttrs = g => `data-board-root="${g.id}" data-type="${g.record.type}" data-lower="${g.record.lowerIsBetter ? 1 : 0}" data-mode="${g.modes[0].id}" data-size="${BOARD_SIZE}"`;
+// Modi mit ranked: false (z. B. Training) haben keine Bestenliste.
+const BOARD_SIZE = 10, SIDE_ROWS = 5;
+const rankedModes = g => g.modes.filter(m => m.ranked !== false);
+const boardAttrs = g => `data-board-root="${g.id}" data-type="${g.record.type}" data-lower="${g.record.lowerIsBetter ? 1 : 0}" data-mode="${rankedModes(g)[0].id}" data-size="${BOARD_SIZE}"`;
 const boardJson = (g, ctx) => `<script type="application/json" data-board-data>${json(ctx.boards[g.id] || {})}</script>`;
 
-// Zeilen eines Modus: kind 'li' (Liste im Seitenbereich) oder 'tr' (Tabelle der Hall of Fame)
-function boardRows(g, ctx, mode, kind) {
-  const rows = ((ctx.boards[g.id] || {})[mode] || []).slice(0, BOARD_SIZE);
+// Platzhalter-Avatar: Anfangsbuchstabe auf einer Farbe, die sich aus dem Namen ergibt (gleiche Regel wie avatar() in arcade.js)
+const AVATAR_COLORS = 6;
+const avatarOf = name => [...name].reduce((h, ch) => (h * 31 + ch.codePointAt(0)) >>> 0, 7) % AVATAR_COLORS;
+const avatar = name => `<span class="avatar av-${avatarOf(name)}" aria-hidden="true">${esc([...name][0].toUpperCase())}</span>`;
+
+// Zeilen eines Modus: kind 'li' (Liste im Seitenbereich, mit Avatar) oder 'tr' (Tabelle der Hall of Fame)
+function boardRows(g, ctx, mode, kind, max = BOARD_SIZE) {
+  const rows = ((ctx.boards[g.id] || {})[mode] || []).slice(0, max);
   if (!rows.length) return kind === 'tr' ? '<tr class="empty"><td colspan="3">Noch keine Einträge.</td></tr>' : '<li class="empty">Noch keine Einträge.</li>';
-  const cell = kind === 'tr' ? 'td' : 'span';
-  return rows.map(([name, v], r) => `<${kind} data-v="${v}"><${cell} class="rank">${r + 1}</${cell}><${cell} class="who">${esc(name)}</${cell}><${cell} class="val">${fmtValue(v, g.record.type)}</${cell}></${kind}>`).join('');
+  if (kind === 'tr') return rows.map(([name, v], r) => `<tr data-v="${v}"><td class="rank">${r + 1}</td><td class="who">${esc(name)}</td><td class="val">${fmtValue(v, g.record.type)}</td></tr>`).join('');
+  return rows.map(([name, v], r) => `<li data-v="${v}"><span class="rank">${r + 1}</span>${avatar(name)}<span class="who">${esc(name)}</span><span class="val">${g.record.type === 'punkte' ? v.toLocaleString('de-DE') : fmtValue(v, g.record.type)}</span></li>`).join('');
 }
 
+// Bestenliste der Spielseite: Reiter Heute/Gesamt (Heute nur, wenn es dafür Daten gibt), darunter der eigene Rekord
 function leaderboard(g, ctx) {
-  const lists = g.modes.map((m, i) => `<ol class="board-list" data-board="${m.id}"${i ? ' hidden' : ''}>${boardRows(g, ctx, m.id, 'li')}</ol>`).join('');
-  return `<section class="panel board" aria-labelledby="board-h" ${boardAttrs(g)}>
-  <div class="panel-head"><h2 id="board-h">Bestenliste</h2><span class="badge badge-demo" title="Beispieldaten">Demo</span></div>
-  <p class="board-mode">Modus: <b data-board-mode>${esc(g.modes[0].label)}</b> · ${esc(g.record.label)}</p>
+  const modes = rankedModes(g), data = ctx.boards[g.id] || {};
+  const today = !!data[modes[0].id + ':heute'], period = today ? 'heute' : 'gesamt';
+  const key = m => period === 'heute' ? m.id + ':heute' : m.id;
+  const lists = modes.map((m, i) => `<ol class="board-list" data-board="${m.id}"${i ? ' hidden' : ''}>${boardRows(g, ctx, key(m), 'li', SIDE_ROWS)}</ol>`).join('');
+  const tabs = ['heute', 'gesamt'].map(p => `<button class="board-tab" type="button" data-board-period="${p}" aria-pressed="${p === period}">${p === 'heute' ? 'Heute' : 'Gesamt'}</button>`).join('');
+  return `<section class="panel board" aria-labelledby="board-h" ${boardAttrs(g)} data-period="${period}" data-show="${SIDE_ROWS}">
+  <div class="board-head"><h2 id="board-h">${ui('trophy')}Bestenliste</h2><span class="board-demo" title="Vorschau mit erfundenen Namen">Beispieldaten</span></div>
+  <div class="board-tabs" role="group" aria-label="Zeitraum">${tabs}</div>
   ${lists}
   ${boardJson(g, ctx)}
-  <p class="panel-note">${ui('info')}Beispieldaten zur Vorschau. Deine Einträge bleiben vorerst in deinem Browser.</p>
-  <a class="text-link" href="/bestenliste#${g.id}">Alle Bestenlisten ansehen${ui('arrow')}</a>
+  <div class="board-record" data-record-box="${g.id}" data-type="${g.record.type}" data-lower="${g.record.lowerIsBetter ? 1 : 0}">
+    <p class="br-kicker">${ui('crown')}Dein Rekord</p>
+    <p class="br-value"><b data-record-value>–</b> <span>${g.record.type === 'zeit' ? '' : 'Punkte'}</span></p>
+    <p class="br-sub" data-record-sub>Noch kein Rekord – spiel eine Runde!</p>
+    <span class="br-pengu" aria-hidden="true">${ui('crown')}</span>
+  </div>
+  <a class="text-link board-all" href="/bestenliste#${g.id}">Ganze Bestenliste${ui('arrow')}</a>
 </section>`;
 }
 
@@ -138,9 +147,9 @@ function historyPanel(g) {
 }
 
 function aside(g, ctx) {
-  if (g.aside === 'bestenliste') return recordBox(g) + leaderboard(g, ctx);
+  if (g.aside === 'bestenliste') return leaderboard(g, ctx);
   if (g.aside === 'verlauf') return historyPanel(g);
   return infoPanel(g, ctx);
 }
 
-module.exports = { gameCard, booth, crumbs, daily, aside, badge, boardAttrs, boardJson, boardRows, STATUS };
+module.exports = { gameCard, booth, crumbs, daily, aside, badge, boardAttrs, boardJson, boardRows, rankedModes, STATUS };

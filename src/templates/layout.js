@@ -126,7 +126,8 @@ function footer(ctx) {
 </footer>`;
 }
 
-// Kulisse: das Kirmes-Bild. Startseite groß, Unterseiten gedämpft, damit die Spielfläche Vorrang hat.
+// Kulisse: das Kirmes-Bild. Startseite groß, Spielseiten als fester Hintergrund hinter der ganzen Seite,
+// übrige Unterseiten gedämpft, damit der Inhalt Vorrang hat.
 // Startseite: Das Bild füllt die Breite und wird unten abgeschnitten – Pinguin (links) und Geschenke (rechts) aus den unteren Ecken
 // liegen deshalb als eigene Ausschnitte in den Ecken des ersten Bildschirms (erzeugt mit tools/bild-ecken.ps1)
 const scene = (kind, a) => `<div class="scene scene-${kind}" aria-hidden="true"><img class="scene-img" src="${a('/assets/img/arcade-hintergrund-1536.jpg')}" srcset="${a('/assets/img/arcade-hintergrund-960.jpg')} 960w, ${a('/assets/img/arcade-hintergrund-1536.jpg')} 1536w" sizes="100vw" alt="" width="1536" height="1024"${kind === 'home' ? ' fetchpriority="high"' : ' loading="eager"'}>${kind === 'home'

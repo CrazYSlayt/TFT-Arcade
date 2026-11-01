@@ -2,7 +2,7 @@
 const site = require('../config/site');
 const { esc } = require('./helpers');
 const { art, ui } = require('./icons');
-const { gameCard, booth, crumbs, daily, aside, badge, boardAttrs, boardJson, boardRows } = require('./components');
+const { gameCard, booth, crumbs, daily, aside, badge, boardAttrs, boardJson, boardRows, rankedModes } = require('./components');
 
 const HOME = { label: 'Spielhalle', href: '/' };
 
@@ -135,76 +135,110 @@ const result = g => `<div class="result" id="auswertung" tabindex="-1" hidden>
   </div>
 </div>`;
 
+// Modus-Knöpfe in der Leiste unter der Spielfläche (Radio-Felder, arcade.js reagiert auf Wechsel);
+// data-unranked: Modus zählt nicht für Rekord und Bestenliste
 function modePicker(g) {
-  if (g.modes.length < 2) return '';
   return `<fieldset class="modes" data-modes="${g.id}">
-    <legend>Modus</legend>
-    ${g.modes.map((m, i) => `<label class="mode"><input type="radio" name="modus" value="${m.id}"${i ? '' : ' checked'}><span>${esc(m.label)}</span></label>`).join('')}
+    <legend class="sr-label">Modus</legend>
+    ${g.modes.map((m, i) => `<label class="mode"><input type="radio" name="modus" value="${m.id}"${m.ranked === false ? ' data-unranked' : ''}${i ? '' : ' checked'}><span>${m.icon ? ui(m.icon) : ''}${esc(m.label)}</span></label>`).join('')}
   </fieldset>`;
 }
 
+// zwei weitere Attraktionen für die Zeile ganz unten (spielbare zuerst)
 function related(g, ctx) {
-  const pick = [
-    ...ctx.games.filter(x => x.id !== g.id && x.category === g.category && x.status !== 'bald'),
-    ...ctx.games.filter(x => x.id !== g.id && x.category !== g.category && x.featured),
-    ...ctx.games.filter(x => x.id !== g.id && x.category === g.category && x.status === 'bald'),
-  ].filter((x, i, a) => a.indexOf(x) === i).slice(0, 3);
-  return pick.map(x => gameCard(x, ctx)).join('');
+  return [
+    ...ctx.games.filter(x => x.id !== g.id && x.status === 'live'),
+    ...ctx.games.filter(x => x.id !== g.id && x.category === g.category && x.status === 'bau'),
+    ...ctx.games.filter(x => x.id !== g.id && x.featured && x.status !== 'bald'),
+  ].filter((x, i, a) => a.indexOf(x) === i).slice(0, 2);
+}
+
+// Überschrift: Teil vor dem Doppelpunkt groß, der Rest als zweite Farbe (beides sichtbar in der einen H1)
+function gameH1(h1) {
+  const i = h1.indexOf(': ');
+  return i < 0 ? esc(h1) : `${esc(h1.slice(0, i))}<span class="game-h1-sub">: ${esc(h1.slice(i + 2))}</span>`;
+}
+
+// Drei Schritte unter der Spielfläche: aus g.schritte, sonst aus Ziel und Regeln
+function steps(g) {
+  const list = g.schritte || [['Ziel', g.rules.ziel], ...g.rules.regeln.slice(0, 2).map((x, i) => [i ? 'Und dann' : 'Regeln', x])];
+  return list.map(([t, x], i) => `<li><span class="step-n">${i + 1}</span><div><h3>${esc(t)}</h3><p>${esc(x)}</p></div></li>`).join('');
 }
 
 function game(g, ctx) {
-  const c = ctx.catOf(g), url = ctx.gameUrl(g);
+  const c = ctx.catOf(g), url = ctx.gameUrl(g), live = g.status === 'live';
   const crumbList = [HOME, { label: c.name, href: '/' + c.slug }, { label: g.title, href: url }];
-  const r = g.rules;
+  const r = g.rules, more = related(g, ctx);
   // Gemeinsamer Rahmen aller Spielseiten:
-  // Kopf (Kategorie, Name, ein Satz zum Ziel) · Kurzanleitung über der Spielfläche, Details aufklappbar ·
-  // Spielrahmen in der Akzentfarbe der Kategorie · Bestenliste rechts · Ergebniskarte an Stelle der Spielfläche ·
-  // unten: zurück zur Sammlung, Feedback, weitere Attraktionen
+  // Kopf (Etikett, Name, ein Satz) mit Ton und „So geht’s“ (Dialog mit allen Regeln) ·
+  // Spielrahmen mit goldener Kante, darin Spielfläche bzw. Ergebniskarte und unten die Modus-Leiste mit „Neu starten“ ·
+  // Bestenliste mit eigenem Rekord rechts · darunter „So funktioniert’s“ und „Dein nächster Versuch“ · ganz unten weitere Attraktionen
   const body = `
-<div class="wrap page-top">
+<div class="wrap wrap-game page-top">
   ${crumbs(crumbList)}
   <header class="game-head c-${c.color}">
-    <div class="page-head-art">${art(g.art)}</div>
-    <div class="page-head-text">
-      <div class="game-meta"><a class="cat-link" href="/${c.slug}">${art(c.icon)}${esc(c.name)}</a>${g.status !== 'live' ? badge(g.status) : ''}<span class="chip">${ui('clock')}${esc(g.duration)}</span>${g.demo ? '<span class="chip chip-demo">Vereinfachte Demo</span>' : ''}</div>
-      <h1>${esc(g.seo.h1)}</h1>
-      <p class="lead">${esc(g.lead)}</p>
+    <div class="game-head-main">
+      ${g.tag ? `<a class="game-tag" href="/${c.slug}" title="Alle ${esc(c.name)}">${esc(g.tag)}</a>` : ''}
+      <div>
+        <h1 class="game-h1">${gameH1(g.seo.h1)}</h1>
+        <p class="game-hook">${esc(g.hook || g.short)}${live ? '' : ` ${badge(g.status)}`}</p>
+      </div>
+    </div>
+    <div class="game-tools">
+      ${live ? `<button class="tool-btn tool-sound" type="button" data-sound aria-pressed="true" aria-label="Ton an – klicken zum Ausschalten">${ui('sound', 'ui ui-on')}${ui('mute', 'ui ui-off')}</button>` : ''}
+      <button class="tool-btn" type="button" data-howto-open aria-haspopup="dialog" aria-controls="so-gehts">So geht’s ${ui('help')}</button>
     </div>
   </header>
 
   <div class="play c-${c.color}" data-game-page="${g.id}" data-game-title="${esc(g.title)}">
-    <section class="play-main" aria-label="Spielfläche">
-      <details class="howto">
-        <summary class="howto-short">${ui('info')}<span><b>So geht’s:</b> ${esc(g.kurz || r.ziel)}</span><span class="howto-more">Regeln &amp; Details</span></summary>
-        <div class="howto-body">
-          <div class="howto-grid">
-            <div class="howto-item"><h3>${ui('star')}Ziel</h3><p>${esc(r.ziel)}</p></div>
-            <div class="howto-item"><h3>${ui('info')}Regeln</h3><ul>${r.regeln.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
-            <div class="howto-item"><h3>${ui('check')}Bedienung</h3><ul>${r.bedienung.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
-          </div>
-          ${g.hinweise ? `<p class="howto-note">${esc(g.hinweise)}</p>` : ''}
-        </div>
-      </details>
-      ${modePicker(g)}
+    <section class="play-frame" aria-label="Spielfläche">
+      <span class="frame-star fs-tl" aria-hidden="true"></span><span class="frame-star fs-tr" aria-hidden="true"></span>
+      <span class="frame-star fs-bl" aria-hidden="true"></span><span class="frame-star fs-br" aria-hidden="true"></span>
       ${stage(g, c)}
       ${result(g)}
+      <div class="frame-bar">
+        ${modePicker(g)}
+        ${live ? `<button class="btn btn-ghost frame-restart" type="button" data-restart>Neu starten${ui('replay')}</button>` : ''}
+      </div>
     </section>
     <aside class="play-side">${aside(g, ctx)}</aside>
   </div>
 
-  <nav class="game-foot" aria-label="Weiter in der Spielhalle">
-    <a class="btn btn-ghost" href="/${c.slug}">${ui('arrow', 'ui ui-back')}Zurück zu ${esc(c.name)}</a>
-    <p class="game-feedback">${ui('info')}<span>Fehler entdeckt oder eine Idee für das Spiel? <a href="/feedback">Gib uns Feedback</a></span></p>
-  </nav>
+  <div class="game-extra">
+    <section class="panel extra-steps" aria-labelledby="steps-h">
+      <h2 class="extra-h" id="steps-h">${ui('info')}So funktioniert’s</h2>
+      <ol class="steps">${steps(g)}</ol>
+    </section>
+    <section class="panel extra-next" aria-labelledby="next-h">
+      <div>
+        <h2 class="extra-h" id="next-h">${ui('star')}Dein nächster Versuch</h2>
+        <p>${g.aside === 'bestenliste' ? 'Bereit für eine neue Runde? Trainiere, verbessere deinen Rekord und klettere in der Bestenliste nach oben!' : 'Bereit für eine neue Runde? Spiel noch mal und fordere deine Freunde heraus!'}</p>
+      </div>
+      <button class="btn btn-red" type="button" data-share-last>${ui('share')}Ergebnis teilen</button>
+    </section>
+  </div>
 
-  <section class="section-tight" aria-labelledby="rel-h">
-    <h2 class="section-title" id="rel-h">Weitere Attraktionen</h2>
-    <div class="cards">${related(g, ctx)}</div>
-  </section>
-</div>`;
+  <nav class="game-more" aria-label="Weitere Attraktionen">
+    <span class="game-more-lead">${ui('dice')}Noch eine Runde woanders?</span>
+    ${more.map(x => `<a href="${ctx.gameUrl(x)}">${esc(x.title)}${ui('arrow')}</a>`).join('')}
+    <a class="game-more-fb" href="/feedback">Feedback geben</a>
+  </nav>
+</div>
+
+<dialog class="howto-dialog c-${c.color}" id="so-gehts" aria-labelledby="so-gehts-h">
+  <div class="howto-head"><h2 id="so-gehts-h">So geht’s: ${esc(g.title)}</h2><button class="tool-btn tool-close" type="button" data-howto-close aria-label="Schließen">${ui('close')}</button></div>
+  <div class="howto-grid">
+    <div class="howto-item"><h3>${ui('star')}Ziel</h3><p>${esc(r.ziel)}</p></div>
+    <div class="howto-item"><h3>${ui('info')}Regeln</h3><ul>${r.regeln.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
+    <div class="howto-item"><h3>${ui('check')}Bedienung</h3><ul>${r.bedienung.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
+  </div>
+  ${g.hinweise ? `<p class="howto-note">${esc(g.hinweise)}</p>` : ''}
+</dialog>`;
   return {
     path: url,
     section: c.id,
+    scene: 'game',
+    bodyClass: 'is-sub is-game',
     crumbs: crumbList,
     seo: g.seo,
     // Solange die Bude im Aufbau ist, soll Google die Platzhalter-Seite nicht aufnehmen – mit status 'live' automatisch indexiert
@@ -219,9 +253,10 @@ function bestenliste(ctx) {
   const ranked = ctx.games.filter(g => g.status !== 'bald' && g.aside === 'bestenliste');
   const cabinets = ranked.map(g => {
     const c = ctx.catOf(g), color = g.color || c.color;
-    const tabs = g.modes.length > 1
-      ? `<div class="cab-tabs" role="group" aria-label="Modus">${g.modes.map((m, i) => `<button class="cab-tab" type="button" data-board-tab="${m.id}" aria-pressed="${i ? 'false' : 'true'}">${esc(m.label)}</button>`).join('')}</div>`
-      : `<p class="cab-mode">${esc(g.modes[0].label)}</p>`;
+    const modes = rankedModes(g);
+    const tabs = modes.length > 1
+      ? `<div class="cab-tabs" role="group" aria-label="Modus">${modes.map((m, i) => `<button class="cab-tab" type="button" data-board-tab="${m.id}" aria-pressed="${i ? 'false' : 'true'}">${esc(m.label)}</button>`).join('')}</div>`
+      : `<p class="cab-mode">${esc(modes[0].label)}</p>`;
     return `<section class="cabinet c-${color}" id="${g.id}" aria-labelledby="hof-${g.id}" ${boardAttrs(g)}>
   <div class="cab-marquee">
     <span class="cab-art">${art(g.art)}</span>
@@ -232,7 +267,7 @@ function bestenliste(ctx) {
     ${tabs}
     <table class="hs-table">
       <thead><tr><th scope="col">Rang</th><th scope="col">Name</th><th scope="col">${g.record.type === 'zeit' ? 'Zeit' : 'Punkte'}</th></tr></thead>
-      ${g.modes.map((m, i) => `<tbody data-board="${m.id}"${i ? ' hidden' : ''}>${boardRows(g, ctx, m.id, 'tr')}</tbody>`).join('')}
+      ${modes.map((m, i) => `<tbody data-board="${m.id}"${i ? ' hidden' : ''}>${boardRows(g, ctx, m.id, 'tr')}</tbody>`).join('')}
     </table>
     ${boardJson(g, ctx)}
   </div>

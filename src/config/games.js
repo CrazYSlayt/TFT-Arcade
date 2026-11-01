@@ -131,20 +131,27 @@ module.exports = [
     short: 'Präg dir den Shop ein, bevor er verdeckt wird – und setz ihn danach aus dem Gedächtnis wieder zusammen.',
     lead: 'Merk dir fünf Champions im Shop und setz ihn aus dem Gedächtnis wieder zusammen – jede Runde bleibt dir weniger Zeit.',
     kurz: 'Shop einprägen, dann die fünf Champions der Reihe nach auswählen.',
-    duration: 'ca. 2 Min.',
+    duration: 'ca. 3 Min.',
     status: 'live',
     art: 'memory',
     featured: true,
     record: { label: 'Höchste Punktzahl', type: 'punkte', lowerIsBetter: false },
     aside: 'bestenliste',
-    modes: [{ id: 'klassisch', label: '5 Runden' }],
+    // ranked: false → zählt nicht für Rekord und Bestenliste
+    modes: [{ id: 'training', label: 'Training', icon: 'dumbbell', ranked: false }, { id: 'gewertet', label: 'Gewertet', icon: 'trophy' }],
     scripts: ['/assets/js/spiele/daten/champions.js', '/assets/js/spiele/shop-memory.js'],
     rules: {
       ziel: 'Merk dir fünf Champions im Shop und setz ihn danach aus dem Gedächtnis wieder zusammen.',
-      regeln: ['Fünf Runden – der Shop ist jede Runde kürzer zu sehen (5 bis 2,5 Sekunden).', 'Richtiger Champion am richtigen Platz: 100 Punkte, am falschen Platz: 50.', 'Kompletter Shop richtig: 100 Bonuspunkte.'],
+      regeln: ['Zehn Runden, drei Herzen: Hast du weniger als drei Champions am richtigen Platz, verlierst du ein Herz. Ohne Herzen ist das Spiel vorbei.', 'Gewertet: Der Shop ist jede Runde kürzer zu sehen (5 bis 2,5 Sekunden). Im Training bleiben es immer 6 Sekunden.', 'Richtiger Champion am richtigen Platz: 20 Punkte, im Shop, aber falscher Platz: 10. Kompletter Shop richtig: 20 Bonus, plus bis zu 10 für Tempo.'],
       bedienung: ['Klick auf einen Champion setzt ihn auf den markierten Platz.', 'Klick auf einen belegten Platz macht ihn wieder frei.', '„Prüfen“ zeigt die Auflösung, Enter geht zur nächsten Runde.'],
     },
-    hinweise: 'In der Auswahl stecken neben den fünf Champions aus dem Shop fünf weitere mit möglichst gleichen Kosten – die Kostenfarbe allein verrät also nichts. Höchstpunktzahl: 3.000 (fünf perfekte Shops).',
+    // drei Schritte unter der Spielfläche („So funktioniert’s“)
+    schritte: [
+      ['Shop merken', 'Schau dir die Champions und ihre Reihenfolge an.'],
+      ['Reihenfolge wiederherstellen', 'Nachdem die Karten verdeckt sind, bring sie in die richtige Reihenfolge.'],
+      ['Punkte sammeln', 'Je schneller und fehlerfreier, desto mehr Punkte!'],
+    ],
+    hinweise: 'In der Auswahl stecken neben den fünf Champions aus dem Shop fünf weitere mit möglichst gleichen Kosten – die Kostenfarbe allein verrät also nichts. Höchstpunktzahl: 1.300 (zehn perfekte, schnelle Shops). Nur „Gewertet“ zählt für Rekord und Bestenliste.',
     seo: {
       title: 'TFT Shop-Memory – Merk dir den Shop! | TFT Arcade',
       desc: 'TFT Shop-Memory: Präg dir fünf Champions im Shop ein und setz ihn aus dem Gedächtnis wieder zusammen. Fünf Runden, immer schneller.',
@@ -192,6 +199,11 @@ module.exports = [
       regeln: ['Jeder Champion aus dem aktuellen Set kommt höchstens einmal pro Runde vor.', 'Richtig: 100 Punkte plus bis zu 50 Tempo-Bonus.', 'Falsch: keine Punkte – die richtigen Kosten werden aufgelöst.'],
       bedienung: ['Klick auf 1 bis 5 – oder drück die Tasten 1 bis 5.', 'Nach der Auflösung geht es automatisch weiter, mit Enter sofort.'],
     },
+    schritte: [
+      ['Champion ansehen', 'Ein Champion aus dem aktuellen Set erscheint im Bild.'],
+      ['Kosten tippen', 'Wähl 1 bis 5 Gold – per Klick oder mit den Tasten 1–5.'],
+      ['Punkte sammeln', 'Richtig gibt 100 Punkte, wer schnell ist, bis zu 50 Bonus.'],
+    ],
     hinweise: 'Tempo-Bonus: Wer innerhalb einer Sekunde antwortet, bekommt die vollen 50 Bonuspunkte; danach sinkt der Bonus und ist nach 6 Sekunden weg. Höchstpunktzahl pro Runde: 1.500. Die Champions stammen aus dem aktuellen Set (Daten von CommunityDragon).',
     seo: {
       title: 'TFT Kosten-Quiz – Was kostet der Champion? | TFT Arcade',

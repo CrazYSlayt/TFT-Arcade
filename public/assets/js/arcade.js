@@ -83,13 +83,32 @@
     const list = $('[data-board]');
     return list ? list.dataset.board : 'standard';
   }
+  // Modi mit data-unranked (z. B. Training) zählen nicht für Rekord und Bestenliste
+  const isRanked = mode => !$(`[data-modes] input[value="${CSS.escape(mode)}"][data-unranked]`);
+  // Modus, dessen Bestenliste und Rekord angezeigt werden: der gewählte – oder im Training der erste gewertete
+  function boardMode() {
+    const mode = currentMode();
+    if (isRanked(mode)) return mode;
+    const first = $('[data-modes] input:not([data-unranked])');
+    return first ? first.value : mode;
+  }
 
+  // Rekord unter der Bestenliste, dazu wie viel bis zum nächsten Platz fehlt
   function renderRecordBox() {
     const box = $('[data-record-box]');
     if (!box) return;
-    const r = records.get(box.dataset.recordBox, currentMode());
-    $('[data-record-value]', box).textContent = r ? fmt(r.value, box.dataset.type) : '–';
-    $('[data-record-sub]', box).textContent = r ? `Aufgestellt am ${fmtDate(r.date)}` : 'Noch kein Rekord – spiel eine Runde!';
+    const mode = boardMode(), r = records.get(box.dataset.recordBox, mode), root = box.closest('[data-board-root]');
+    const plain = box.dataset.type === 'punkte';
+    const val = $('[data-record-value]', box);
+    val.textContent = r ? (plain ? r.value.toLocaleString('de-DE') : fmt(r.value, box.dataset.type)) : '–';
+    val.parentElement.classList.toggle('is-empty', !r);
+    let sub = 'Noch kein Rekord – spiel eine Runde!';
+    if (r && root) {
+      const lower = root.dataset.lower === '1', better = boardRowsFor(root, mode, root.dataset.period).filter(x => !x.mine && (lower ? x.value < r.value : x.value > r.value));
+      const target = better[better.length - 1], diff = target && Math.abs(target.value - r.value);
+      sub = !target ? 'Damit stehst du ganz oben!' : `Nur noch ${plain ? diff.toLocaleString('de-DE') : fmt(diff, box.dataset.type)} bis Platz ${better.length}.`;
+    }
+    $('[data-record-sub]', box).textContent = sub;
   }
 
   // ───────── Bestenlisten: Beispieldaten + eigene Namenseinträge ─────────
@@ -108,46 +127,62 @@
   };
   let lastEntryId = null;
 
-  // sortierte Liste eines Modus (Gleichstand: wer zuerst da war, bleibt vorn – wie am Automaten)
-  function boardRowsFor(root, mode) {
+  // sortierte Liste eines Modus (Gleichstand: wer zuerst da war, bleibt vorn – wie am Automaten).
+  // period 'heute': Beispieldaten unter „<Modus>:heute“ und nur eigene Einträge von heute
+  const sameDay = (a, b) => new Date(a).toDateString() === new Date(b).toDateString();
+  function boardRowsFor(root, mode, period) {
+    const today = period === 'heute';
     let demo = [];
-    try { demo = JSON.parse($('[data-board-data]', root).textContent)[mode] || []; } catch (e) { demo = []; }
-    const lower = root.dataset.lower === '1';
+    try { demo = JSON.parse($('[data-board-data]', root).textContent)[today ? mode + ':heute' : mode] || []; } catch (e) { demo = []; }
+    const lower = root.dataset.lower === '1', now = Date.now();
     const rows = demo.map(([name, value]) => ({ name, value }))
-      .concat(entries.list(root.dataset.boardRoot, mode).map(e => ({ ...e, mine: true })));
+      .concat(entries.list(root.dataset.boardRoot, mode).filter(e => !today || sameDay(e.date, now)).map(e => ({ ...e, mine: true })));
     rows.sort((a, b) => (lower ? a.value - b.value : b.value - a.value) || (a.date || 0) - (b.date || 0));
     return rows.slice(0, Number(root.dataset.size) || 10);
   }
-  // Platz, den ein neuer Wert bekäme – null, wenn er nicht in die Liste passt
+  // Platz, den ein neuer Wert in der Gesamtliste bekäme – null, wenn er nicht hineinpasst
   function rankFor(root, mode, value) {
     const lower = root.dataset.lower === '1', size = Number(root.dataset.size) || 10;
     const rank = boardRowsFor(root, mode).filter(r => lower ? r.value <= value : r.value >= value).length + 1;
     return rank <= size ? rank : null;
   }
 
-  // zeichnet die Liste des aktiven Modus neu (Liste im Seitenbereich oder Tabelle der Hall of Fame)
+  // Platzhalter-Avatar wie avatar() in src/templates/components.js
+  const avatarOf = name => [...name].reduce((h, ch) => (h * 31 + ch.codePointAt(0)) >>> 0, 7) % 6;
+
+  // zeichnet die Liste des aktiven Modus neu (Liste im Seitenbereich mit Avatar oder Tabelle der Hall of Fame)
   function renderBoard(root) {
-    const mode = root.dataset.mode, type = root.dataset.type;
+    const mode = root.dataset.mode, type = root.dataset.type, show = Number(root.dataset.show) || 0;
     $$('[data-board]', root).forEach(list => {
       list.hidden = list.dataset.board !== mode;
       if (list.hidden) return;
-      const tr = list.tagName === 'TBODY', rows = boardRowsFor(root, mode);
-      list.innerHTML = rows.length ? '' : (tr ? '<tr class="empty"><td colspan="3">Noch keine Einträge.</td></tr>' : '<li class="empty">Noch keine Einträge.</li>');
-      rows.forEach((r, i) => {
+      const tr = list.tagName === 'TBODY', all = boardRowsFor(root, mode, root.dataset.period);
+      // Seitenbereich: nur die ersten Plätze – der eigene neue Eintrag bleibt sichtbar, auch wenn er weiter unten steht
+      const rows = all.map((r, i) => ({ ...r, place: i + 1 })).filter((r, i) => !show || i < show || r.id === lastEntryId);
+      list.innerHTML = rows.length ? '' : (tr ? '<tr class="empty"><td colspan="3">Noch keine Einträge.</td></tr>'
+        : `<li class="empty">${root.dataset.period === 'heute' ? 'Heute noch keine Einträge – sei die erste Person!' : 'Noch keine Einträge.'}</li>`);
+      rows.forEach(r => {
         const row = document.createElement(tr ? 'tr' : 'li');
         if (r.mine) row.className = 'is-you' + (r.id === lastEntryId ? ' is-new' : '');
-        [['rank', i + 1], ['who', r.name], ['val', fmt(r.value, type)]].forEach(([cls, text]) => {
+        const cells = [['rank', r.place], ['who', r.name], ['val', !tr && type === 'punkte' ? r.value.toLocaleString('de-DE') : fmt(r.value, type)]];
+        cells.forEach(([cls, text]) => {
           const cell = document.createElement(tr ? 'td' : 'span');
           cell.className = cls;
           cell.textContent = text;
           row.appendChild(cell);
+          if (!tr && cls === 'rank') {
+            const av = document.createElement('span');
+            av.className = 'avatar av-' + avatarOf(r.name);
+            av.setAttribute('aria-hidden', 'true');
+            av.textContent = [...r.name][0].toUpperCase();
+            row.appendChild(av);
+          }
         });
         list.appendChild(row);
       });
     });
     $$('[data-board-tab]', root).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.boardTab === mode)));
-    const label = $(`[data-modes] input[value="${mode}"] + span`), out = $('[data-board-mode]', root);
-    if (label && out) out.textContent = label.textContent;
+    $$('[data-board-period]', root).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.boardPeriod === root.dataset.period)));
   }
   const renderBoards = () => $$('[data-board-root]').forEach(renderBoard);
 
@@ -171,15 +206,72 @@
     const radio = want && $(`[data-modes] input[value="${CSS.escape(want)}"]`);
     if (radio) radio.checked = true;
     const root = $('[data-board-root]');
-    const sync = () => { if (root) { root.dataset.mode = currentMode(); renderBoard(root); } };
+    const sync = () => { if (root) { root.dataset.mode = boardMode(); renderBoard(root); } renderRecordBox(); };
     $$('[data-modes] input').forEach(i => i.addEventListener('change', () => {
       const u = new URL(location.href);
       u.searchParams.set('modus', i.value);
       history.replaceState(null, '', u);
-      renderRecordBox(); sync();
+      sync();
+      showStage();
       document.dispatchEvent(new CustomEvent('arcade:mode', { detail: { mode: i.value } }));
     }));
-    renderRecordBox(); sync(); renderHistory();
+    // Reiter Heute/Gesamt
+    $$('[data-board-period]').forEach(b => b.addEventListener('click', () => { root.dataset.period = b.dataset.boardPeriod; sync(); }));
+    // „Neu starten“: Ergebniskarte weg, Spielfläche zurück, das Spielskript startet eine neue Runde
+    const restart = $('[data-restart]');
+    if (restart) restart.addEventListener('click', () => {
+      showStage();
+      sound('click');
+      document.dispatchEvent(new CustomEvent('arcade:restart', { detail: { mode: currentMode() } }));
+    });
+    // „So geht’s“: alle Regeln im Dialog
+    const dlg = $('#so-gehts');
+    if (dlg && dlg.showModal) {
+      $$('[data-howto-open]').forEach(b => b.addEventListener('click', () => dlg.showModal()));
+      $$('[data-howto-close]', dlg).forEach(b => b.addEventListener('click', () => dlg.close()));
+      dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });   // Klick neben den Dialog
+    }
+    // Ton an/aus (gemerkt im Browser)
+    $$('[data-sound]').forEach(b => {
+      const show = () => { b.setAttribute('aria-pressed', String(soundOn)); b.setAttribute('aria-label', soundOn ? 'Ton an – klicken zum Ausschalten' : 'Ton aus – klicken zum Einschalten'); };
+      b.addEventListener('click', () => { soundOn = !soundOn; store.set('ton', soundOn); show(); sound('click'); });
+      show();
+    });
+    // „Ergebnis teilen“ unter der Spielfläche: letztes Ergebnis – oder eine Einladung, falls noch keine Runde gespielt ist
+    $$('[data-share-last]').forEach(b => b.addEventListener('click', () => share(lastShare || `Ich spiele gerade ${page.dataset.gameTitle} in der TFT Arcade – kannst du mich schlagen? #TFTArcade`)));
+    sync(); renderHistory();
+  }
+
+  function showStage() {
+    const res = $('#auswertung'), stage = $('#spielflaeche');
+    if (res) res.hidden = true;
+    if (stage) stage.hidden = false;
+  }
+
+  // ───────── Ton: kurze Kirmes-Klänge, im Browser erzeugt (keine Dateien). Arcade.sound('ok' | 'bad' | 'flip' | 'tick' | 'click' | 'win' | 'lose') ─────────
+  let soundOn = store.get('ton', true), audio = null;
+  const TONES = {
+    click: [[660, .05]], tick: [[880, .04]], flip: [[520, .05], [780, .06]],
+    ok: [[660, .08], [880, .08], [1320, .14]], bad: [[220, .12], [175, .2]],
+    win: [[523, .1], [659, .1], [784, .1], [1047, .25]], lose: [[392, .14], [330, .14], [262, .3]],
+  };
+  function sound(name) {
+    if (!soundOn || !TONES[name]) return;
+    try {
+      audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+      let t = audio.currentTime;
+      TONES[name].forEach(([f, d]) => {
+        const o = audio.createOscillator(), g = audio.createGain();
+        o.type = name === 'bad' || name === 'lose' ? 'sawtooth' : 'triangle';
+        o.frequency.value = f;
+        g.gain.setValueAtTime(.0001, t);
+        g.gain.exponentialRampToValueAtTime(.12, t + .01);
+        g.gain.exponentialRampToValueAtTime(.0001, t + d);
+        o.connect(g).connect(audio.destination);
+        o.start(t); o.stop(t + d + .02);
+        t += d * .8;
+      });
+    } catch (e) { /* ohne Ton weiter */ }
   }
 
   // ───────── Verlauf (z. B. zuletzt gezogene Vorgaben im Challenge-Roulette) ─────────
@@ -242,21 +334,25 @@
   // ───────── Auswertung nach einer Runde ─────────
   // Arcade.finishRound({ value, title, lines: [], shareText, lowerIsBetter, onReplay })
   // speichert den Rekord (falls die Seite einen hat), zeigt die Auswertung und verbindet „Nochmal spielen“/„Ergebnis teilen“.
+  let lastShare = null;
   function finishRound(o) {
     const el = $('#auswertung');
     if (!el) return;
-    const box = $('[data-record-box]'), mode = currentMode();
+    const box = $('[data-record-box]'), mode = currentMode(), ranked = isRanked(mode);
     let isRecord = false;
-    if (box && typeof o.value === 'number') {
+    if (box && ranked && typeof o.value === 'number') {
       isRecord = records.save(box.dataset.recordBox, mode, o.value, box.dataset.lower === '1');
       renderRecordBox(); renderBoards();
     }
     $('[data-result-title]', el).textContent = o.title || 'Runde vorbei!';
     $('[data-result-value]', el).textContent = typeof o.value === 'number' && box ? fmt(o.value, box.dataset.type) : (o.valueText || '');
     $('[data-result-record]', el).hidden = !isRecord;
-    const ul = $('[data-result-lines]', el);
+    const ul = $('[data-result-lines]', el), label = $('[data-modes] input:checked + span');
     ul.innerHTML = '';
-    (o.lines || []).forEach(l => { const li = document.createElement('li'); li.textContent = l; ul.appendChild(li); });
+    const lines = (o.lines || []).concat(ranked ? [] : [`${label ? label.textContent : 'Dieser Modus'} zählt nicht für Rekord und Bestenliste.`]);
+    lines.forEach(l => { const li = document.createElement('li'); li.textContent = l; ul.appendChild(li); });
+    lastShare = o.shareText || null;
+    sound(isRecord ? 'win' : 'flip');
     // Ergebniskarte erscheint an Stelle der Spielfläche; „Nochmal spielen“ holt die Spielfläche zurück
     const stage = $('#spielflaeche');
     if (stage) stage.hidden = true;
@@ -268,7 +364,7 @@
     };
     $('[data-result-share]', el).onclick = () => share(o.shareText || `${page.dataset.gameTitle}: ${$('[data-result-value]', el).textContent} – schaffst du das? #TFTArcade`);
     el.hidden = false;
-    const entry = highscoreEntry(el, mode, o.value);
+    const entry = ranked ? highscoreEntry(el, mode, o.value) : hideEntry(el);
     (entry || el).focus({ preventScroll: true });
     el.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'nearest' });
     fillCardRecords();
@@ -277,6 +373,10 @@
 
   // Namenseintrag wie am Automaten: nur wenn das Ergebnis in die Top 10 kommt. Gibt das Eingabefeld zurück (für den Fokus).
   const NAME_OK = /^[\p{L}\p{N}][\p{L}\p{N} _.-]{1,11}$/u;
+  function hideEntry(el) {
+    $$('[data-hs-form], [data-hs-done]', el).forEach(x => { x.hidden = true; });
+    return null;
+  }
   function highscoreEntry(el, mode, value) {
     const form = $('[data-hs-form]', el), done = $('[data-hs-done]', el), root = $('[data-board-root]');
     if (!form || !root) return null;
@@ -486,7 +586,7 @@
   }
 
   // ───────── Start ─────────
-  window.Arcade = { store, records, entries, fmt, share, copy, toast, finishRound, history: history_, currentMode, gameId, esc, shuffle, asset, typing };
+  window.Arcade = { store, records, entries, fmt, share, copy, toast, finishRound, history: history_, currentMode, isRanked, gameId, esc, shuffle, asset, typing, sound };
   fillCardRecords();
   renderBoards();
   initHallOfFame();
