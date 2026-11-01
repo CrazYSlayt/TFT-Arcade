@@ -175,7 +175,6 @@ function game(g, ctx) {
   // Bestenliste mit eigenem Rekord rechts · darunter „So funktioniert’s“ und „Dein nächster Versuch“ · ganz unten weitere Attraktionen
   const body = `
 <div class="wrap wrap-game page-top">
-  ${crumbs(crumbList)}
   <header class="game-head c-${c.color}">
     <div class="game-head-main">
       ${g.tag ? `<a class="game-tag" href="/${c.slug}" title="Alle ${esc(c.name)}">${esc(g.tag)}</a>` : ''}
