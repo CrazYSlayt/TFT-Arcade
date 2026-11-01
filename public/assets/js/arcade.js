@@ -403,7 +403,7 @@
         booth.appendChild(s);
       }
     };
-    $$('.gcard:not(.is-bald)').forEach(card => card.addEventListener('mouseenter', () => burst($('.gcard-booth', card))));
+    $$('.gcard:not(.is-bald)').forEach(card => card.addEventListener('mouseenter', () => { if (!card.classList.contains('is-enter')) burst($('.gcard-booth', card)); }));
 
     // Funken, die über der Kirmes aufsteigen
     const stage = $('.home-stage');
