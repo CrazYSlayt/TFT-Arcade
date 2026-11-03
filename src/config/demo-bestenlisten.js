@@ -50,13 +50,9 @@ module.exports = {
     ],
   },
   'roll-simulator': {
-    rolldown: [
-      ['RerollRitter', 615, 'zottelbock'], ['DDDDDD', 580, 'runengolem'], ['Lvl8Lotte', 540, 'puschel'], ['GoldGoblin', 505, 'schuerfi'], ['PenguPilot', 470, 'kronenpinguin'],
-      ['Streak_Stefan', 420, 'greifling'], ['BankBert', 360, 'flatterbaer'], ['ZwölfZinsen', 290, 'wolkenschaf'], ['LuckyLoot', 220, 'schnabeltier'], ['TopFourTim', 160, 'federritter'],
-    ],
-    speed: [
-      ['ShopDiff', 230, 'schnabeltier'], ['DDDDDD', 214, 'runengolem'], ['PenguPilot', 198, 'kronenpinguin'], ['HexHanna', 183, 'greifling'], ['RerollRitter', 170, 'zottelbock'],
-      ['ArcadeAnnie', 152, 'puschel'], ['BankBert', 137, 'flatterbaer'], ['GoldGoblin', 121, 'schuerfi'], ['Lvl8Lotte', 104, 'wolkenschaf'], ['TopFourTim', 86, 'federritter'],
+    rush: [
+      ['DDDDDD', 21.4, 'runengolem'], ['RerollRitter', 26.8, 'zottelbock'], ['LuckyLoot', 31.2, 'schnabeltier'], ['PenguPilot', 35.9, 'kronenpinguin'], ['GoldGoblin', 39.5, 'schuerfi'],
+      ['Lvl8Lotte', 44.1, 'puschel'], ['Streak_Stefan', 48.7, 'greifling'], ['BankBert', 53.0, 'flatterbaer'], ['ZwölfZinsen', 58.6, 'wolkenschaf'], ['TopFourTim', 64.3, 'federritter'],
     ],
   },
   'shop-odds-quiz': {
