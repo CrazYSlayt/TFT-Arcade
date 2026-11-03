@@ -971,6 +971,98 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
 .sm-action:disabled:not(.is-status) { opacity: .6; }
 .sm-hint { min-height: 1.4em; margin: 0; font-size: .95rem; color: var(--muted); }
 
+/* ───────── Quiz mit vier Antworten (quiz.js: Item-Quiz, Trait-Quiz) ───────── */
+.qz { display: flex; flex-direction: column; gap: 12px; }
+.qz-label { margin: 6px 0 0; text-align: center; font: 700 .9rem/1 var(--f-cond); letter-spacing: .14em; text-transform: uppercase; color: var(--c); }
+.qz-prompt { display: grid; place-items: center; min-height: 190px; }
+.qz-prompt.is-new > * { animation: qz-pop .35s cubic-bezier(.3, 1.5, .5, 1); }
+@keyframes qz-pop { from { transform: scale(.85); opacity: 0; } }
+/* Rezept: Symbol + Symbol = ? */
+.qz-recipe { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 1.6vw, 20px); }
+.qz-icon { display: block; width: 96px; height: 96px; border-radius: 14px; border: 3px solid #c99a3c; box-shadow: 0 0 0 2px rgba(8, 3, 16, .8), 0 8px 18px rgba(0, 0, 0, .55); background: #0b0416; }
+.qz-icon.is-big { width: 150px; height: 150px; }
+.qz-op { font: 400 2.4rem/1 var(--f-display); color: var(--gold); text-shadow: 0 3px 0 #7a2f00; }
+.qz-mystery { display: grid; place-items: center; width: 96px; height: 96px; border-radius: 14px; border: 3px dashed var(--gold); font: 400 3rem/1 var(--f-display); color: var(--gold); animation: qz-glow 1.4s ease-in-out infinite; }
+@keyframes qz-glow { 50% { box-shadow: 0 0 24px rgba(255, 201, 74, .5); } }
+.qz-recipe.is-preview .qz-icon, .qz-recipe.is-preview .qz-mystery { width: 64px; height: 64px; font-size: 2rem; }
+.qz-recipe.is-preview .qz-op { font-size: 1.6rem; }
+/* Trait-Abzeichen (Sechseck) und Champion als Frage */
+.qz-subject { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.qz-subject-name { font: 400 clamp(1.8rem, 2.6vw, 2.4rem)/1 var(--f-display); color: #fff1d6; text-shadow: 0 3px 0 #6b2c1a, 0 6px 14px rgba(0, 0, 0, .5); }
+/* goldenes Sechseck, darin ein violettes (::before) mit dem weißen Trait-Symbol */
+.qz-trait {
+  position: relative; display: grid; place-items: center; width: 52px; height: 60px; flex: none;
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: linear-gradient(180deg, #ffe17c, #b9771c);
+}
+.qz-trait::before { content: ''; position: absolute; inset: 3px; clip-path: inherit; background: radial-gradient(circle at 50% 30%, #7a52c0, #2a1248 72%); }
+.qz-trait img { position: relative; width: 58%; height: auto; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .6)); }
+.qz-trait.is-big { width: 112px; height: 130px; }
+.qz-trait.is-big::before { inset: 5px; }
+.qz-preview { display: flex; gap: 12px; margin: 6px 0; }
+.qz-champ-big { display: block; width: min(440px, 100%); height: auto; aspect-ratio: 2 / 1; object-fit: cover; object-position: center 30%; border-radius: 14px; border: 3px solid var(--k); box-shadow: 0 0 22px -4px var(--k), 0 10px 24px rgba(0, 0, 0, .55); }
+/* Antworten */
+.qz-options { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.qz-opt {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 120px; padding: 16px 10px 12px;
+  border-radius: 14px; cursor: pointer; font: inherit; color: #fff; background: rgba(8, 3, 16, .55); border: 2px solid rgba(255, 220, 160, .35);
+  transition: transform .15s, border-color .15s, background .2s, opacity .2s;
+}
+.qz-opt:hover:not(:disabled) { transform: translateY(-3px); border-color: var(--gold); background: rgba(255, 201, 74, .08); }
+.qz-opt:active:not(:disabled) { transform: translateY(1px); }
+.qz-key { position: absolute; left: 8px; top: 8px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 6px; font: 700 .8rem/1 var(--f-cond); color: var(--muted); background: rgba(255, 255, 255, .08); }
+.qz-opt .qz-icon { width: 64px; height: 64px; border-width: 2px; }
+.qz-name { font-size: .95rem; font-weight: 700; line-height: 1.2; text-align: center; }
+.qz-recipes .qz-pair { display: flex; align-items: center; gap: 6px; }
+.qz-recipes .qz-icon { width: 50px; height: 50px; }
+.qz-recipes .qz-op { font-size: 1.3rem; }
+.qz-recipes .qz-name { font-size: .8rem; font-weight: 600; color: var(--muted); }
+.qz-champs .qz-opt { padding-top: 12px; }
+.qz-champ { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; object-position: center 30%; border-radius: 10px; border: 2px solid var(--k); }
+.qz-steps { padding: 14px 0; font: 400 clamp(1.4rem, 2vw, 1.9rem)/1 var(--f-display); letter-spacing: .02em; color: var(--gold); }
+.qz-opt:disabled { cursor: default; opacity: .45; }
+.qz-opt.is-right, .qz-opt.is-wrong, .qz-opt.is-answer { opacity: 1; }
+.qz-opt.is-right { border-color: #3ddc84; background: rgba(61, 220, 132, .2); box-shadow: 0 0 24px -4px #3ddc84; }
+.qz-opt.is-wrong { border-color: #ff5a6a; background: rgba(255, 90, 106, .18); animation: shake .35s; }
+.qz-opt.is-answer { border-color: #3ddc84; box-shadow: 0 0 0 3px rgba(61, 220, 132, .4); }
+
+/* ───────── Spiel: Comp-Memory (Board aus Sechsecken, aktive Traits links) ───────── */
+.cm-board { display: grid; grid-template-columns: 210px minmax(0, 1fr); align-items: center; gap: 18px; min-height: 230px; padding: 16px; border-radius: 16px; background: rgba(8, 3, 16, .45); box-shadow: inset 0 0 0 1.5px rgba(255, 214, 120, .2); }
+.cm-traits { display: grid; align-content: start; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.cm-trait { display: flex; align-items: center; gap: 8px; padding: 5px 10px 5px 6px; border-radius: 10px; font-size: .9rem; font-weight: 600; background: rgba(255, 255, 255, .06); }
+.cm-trait img { width: 20px; height: 20px; }
+.cm-trait b { display: grid; place-items: center; min-width: 24px; height: 24px; border-radius: 6px; font: 400 .95rem/1 var(--f-display); color: #1a0b2e; background: var(--tier, #8b7aa8); }
+.cm-trait.is-bronze { --tier: #d08a54; } .cm-trait.is-silver { --tier: #c9d1dd; } .cm-trait.is-gold { --tier: #ffc94a; } .cm-trait.is-unique { --tier: #d58cff; }
+.cm-trait.is-empty { color: var(--dim); font-style: italic; background: none; }
+.cm-hexes { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 12px; margin: 0; padding: 0; list-style: none; }
+.cm-hexes li { position: relative; width: 92px; }
+.cm-hex { display: block; width: 88px; height: 101px; margin: 0 auto; padding: 4px; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: var(--k, rgba(255, 214, 120, .35)); filter: drop-shadow(0 0 8px var(--k, transparent)); }
+.cm-hex-in { display: block; width: 100%; height: 100%; overflow: hidden; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: repeating-linear-gradient(45deg, #2c1252 0 8px, #241044 8px 16px); }
+.cm-hex-in img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
+.cm-name { display: block; margin-top: 4px; overflow: hidden; text-align: center; white-space: nowrap; text-overflow: ellipsis; font-size: .8rem; font-weight: 700; }
+.cm-slot { display: block; width: 100%; padding: 0; border: 0; font: inherit; color: inherit; background: none; }
+.cm-slot.is-pick { cursor: pointer; }
+.cm-slot.is-pick:hover .cm-hex { background: var(--gold); }
+.cm-hexes li.is-ok, .cm-hexes li.is-ok .cm-hex { --k: #3ddc84; }
+.cm-hexes li.is-bad, .cm-hexes li.is-bad .cm-hex { --k: #ff5a6a; }
+.cm-hexes li.is-bad img { filter: grayscale(.6) brightness(.7); }
+.cm-hexes .sm-mark { left: 2px; top: 6px; }
+.cm-hexes.is-deal li { animation: sm-deal .45s cubic-bezier(.3, 1.4, .5, 1) both; animation-delay: calc(var(--i, 0) * 60ms); }
+.cm-hexes.is-covering li { animation: sm-flip-out .3s ease-in forwards; }
+.cm-options { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 6px; }
+.cm-opt { padding: 4px 2px; border: 0; border-radius: 10px; cursor: pointer; font: inherit; color: #fff; background: none; transition: transform .15s, opacity .2s; }
+.cm-opt .cm-hex { width: 62px; height: 71px; padding: 3px; }
+.cm-opt .cm-name { font-size: .74rem; }
+.cm-opt:hover:not(:disabled) { transform: translateY(-3px); }
+.cm-opt:hover:not(:disabled) .cm-hex { background: var(--gold); }
+.cm-opt.is-chosen { opacity: .3; }
+.cm-opt:disabled { cursor: default; opacity: .3; }
+.cm-opt.is-wrong, .cm-opt.is-missed { opacity: 1; }
+.cm-opt.is-wrong .cm-hex { --k: #ff5a6a; }
+.cm-opt.is-missed .cm-hex { --k: #ffc94a; }
+.cm-preview { display: flex; gap: 8px; margin: 6px 0; padding: 0; list-style: none; }
+.cm-preview li { width: 40px; height: 46px; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: var(--k); animation: bob 3s ease-in-out infinite; }
+.cm-preview li:nth-child(2) { animation-delay: .2s; } .cm-preview li:nth-child(3) { animation-delay: .4s; } .cm-preview li:nth-child(4) { animation-delay: .6s; } .cm-preview li:nth-child(5) { animation-delay: .8s; }
+
 /* ───────── Highscore-Eintrag nach einer Runde (wie am Automaten) ───────── */
 .hs-entry {
   max-width: 460px; margin: 4px auto 18px; padding: 18px; border-radius: 16px; background: #0b0416;
@@ -1159,6 +1251,13 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
   .steps li { padding: 0; }
   .steps li + li { border-left: 0; }
   .sm-options { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .qz-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .qz-icon { width: 72px; height: 72px; } .qz-icon.is-big { width: 110px; height: 110px; } .qz-mystery { width: 72px; height: 72px; }
+  .cm-board { grid-template-columns: 1fr; }
+  .cm-traits { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+  .cm-hexes li { width: 66px; } .cm-hexes .cm-hex { width: 62px; height: 71px; padding: 3px; } .cm-name { font-size: .7rem; }
+  .cm-options { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+  .cm-opt .cm-hex { width: 50px; height: 58px; } .cm-opt .cm-name { font-size: .64rem; }
   .hud { grid-template-columns: 1fr auto; }
   .hud > .hud-side:last-child { display: none; }
   .game-head-main { align-items: flex-start; flex-direction: column; }

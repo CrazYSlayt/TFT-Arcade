@@ -11,7 +11,7 @@ Die digitale Kirmes für TFT-Fans: Minispiele, Quiz und Challenges rund um Teamf
 - `npm run check` baut die Seite und prüft alle SEO-Regeln und Links.
 - Buden-Rahmen der Spielkarten (eine Farbe je Kategorie): Original `quellen/rahmen/buden-rahmen.png` → `powershell -File tools/rahmen-schneiden.ps1` (ausschneiden) → `node tools/rahmen-webp.js` (WebP, `public/assets/img/rahmen/`). Fenster, Namensleiste und Kreis sind in `arcade.css` (Spielkarten) in % des Rahmens hinterlegt.
 - Avatare (Charaktere für die Bestenlisten): Original `quellen/avatare/charaktere.png` (2 × 5, freigestellt) → `powershell -File tools/avatare-schneiden.ps1` (ausschneiden, Schleier entfernen) → `node tools/rahmen-webp.js 256 256 avatare` (WebP, `public/assets/img/avatare/`). Namen in `src/config/avatare.js`, Hintergrundfarben `.av-<id>` in `arcade.css`.
-- `npm run champions` übernimmt die Champions des Live-Sets aus den TFTClimb-Daten (`../TFT/data`) und lädt die Bilder einmalig von CommunityDragon (→ `public/assets/img/champions/`, `public/assets/js/spiele/daten/champions.js`). Nach jedem Set- oder Patch-Wechsel einmal ausführen, sobald TFTClimb aktualisiert ist.
+- `npm run champions` übernimmt die Champions des Live-Sets aus den TFTClimb-Daten (`../TFT/data`) und lädt die Bilder einmalig von CommunityDragon (→ `public/assets/img/champions/`, `public/assets/js/spiele/daten/champions.js`), dazu Traits mit Stufen und Symbolen (`img/traits/`) sowie Komponenten und baubare Items mit Rezept (`img/items/`, `daten/items.js`). Nach jedem Set- oder Patch-Wechsel einmal ausführen, sobald TFTClimb aktualisiert ist.
 
 ## Spiele
 
@@ -44,6 +44,7 @@ Es gibt keine Abhängigkeiten, nur Node.js (ab Version 20).
 - `/` – Spielhalle
 - `/simulatoren`, `/challenges`, `/quiz`, `/party` – Bereiche
 - `/simulatoren/tft-roll-simulator`, `/challenges/tft-3-star-rush`, `/quiz/tft-champion-quiz`, `/party/tft-challenge-roulette` – Spielseiten
+- spielbar: `/challenges/tft-shop-memory`, `/challenges/tft-comp-memory`, `/quiz/tft-champion-kosten-quiz`, `/quiz/tft-item-quiz`, `/quiz/tft-trait-quiz` – Item- und Trait-Quiz nutzen den gemeinsamen Ablauf `public/assets/js/spiele/quiz.js` (`ArcadeQuiz({ … })`, Fragen mit vier Antworten)
 - `/bestenliste` – Hall of Fame: ein Arcade-Automat pro Spiel mit Rangliste (noindex, bis ein Spiel mit Bestenliste live ist)
 - `/ueber-tft-arcade`, `/feedback`, `/impressum`, `/datenschutz`
 

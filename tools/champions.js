@@ -5,7 +5,10 @@
 // 2. lädt je Champion das große Splash-Bild (splash_centered, 1024×512) von CommunityDragon – fehlt es, die Kachel (256×256)
 // 3. verkleinert auf 960×480 JPG (tools/bild-konvertieren.ps1) → public/assets/img/champions/<id>.jpg
 // 4. lädt die Symbole der Eigenschaften (Traits, weiß auf transparent) → public/assets/img/traits/<id>.png
-// 5. schreibt public/assets/js/spiele/daten/champions.js (als Skript statt JSON, damit es auch per Doppelklick ohne Server lädt)
+// 5. schreibt public/assets/js/spiele/daten/champions.js (als Skript statt JSON, damit es auch per Doppelklick ohne Server lädt):
+//    Champions (Kosten, Bild, Traits) und Traits (Stufen = ab wie vielen Champions aktiv, zugehörige Champions)
+// 6. Items: Komponenten und daraus baubare Items (Rezept aus zwei Komponenten) samt Symbol
+//    → public/assets/img/items/<id>.webp (über tools/rahmen-webp.js) und public/assets/js/spiele/daten/items.js
 // Heruntergeladene Originale bleiben in tools/cache/ (nicht veröffentlicht), ein zweiter Lauf lädt nur Neues.
 const fs = require('fs');
 const path = require('path');
@@ -17,6 +20,8 @@ const CACHE = path.join(__dirname, 'cache', 'champions');
 const IMG_OUT = path.join(ROOT, 'public', 'assets', 'img', 'champions');
 const TRAIT_OUT = path.join(ROOT, 'public', 'assets', 'img', 'traits');
 const DATA_OUT = path.join(ROOT, 'public', 'assets', 'js', 'spiele', 'daten', 'champions.js');
+const ITEM_CACHE = path.join(__dirname, 'cache', 'items');
+const ITEM_DATA_OUT = path.join(ROOT, 'public', 'assets', 'js', 'spiele', 'daten', 'items.js');
 
 function load(file) {
   const window = {};
@@ -56,7 +61,7 @@ async function main() {
   for (const t of d.traits || []) {
     const id = slug(t.n);
     const ok = t.icon && await download(d.cdn + t.icon.toLowerCase(), path.join(TRAIT_OUT, id + '.png'));
-    traits[t.n] = { name: t.de || t.n, icon: ok ? `assets/img/traits/${id}.png` : null };
+    traits[t.n] = { id, name: t.de || t.n, icon: ok ? `assets/img/traits/${id}.png` : null, bp: t.bp || [], champs: [] };
   }
 
   const list = [], jobs = [];
@@ -69,8 +74,9 @@ async function main() {
     else if (await download(d.cdn + c.sq, path.join(CACHE, id + '-tile.png'))) { src = path.join(CACHE, id + '-tile.png'); mode = 'tile'; }
     if (!src) { console.warn(`  ✖ kein Bild für ${c.n} – Champion wird ausgelassen`); continue; }
     jobs.push({ src, out: path.join(IMG_OUT, id + '.jpg'), mode });
-    const tr = (c.t || []).map(n => traits[n]).filter(Boolean).map(t => t.icon ? [t.name, t.icon] : [t.name]);
-    list.push({ id, name: c.de || c.n, cost: c.c, img: `assets/img/champions/${id}.jpg`, traits: tr });
+    const own = (c.t || []).map(n => traits[n]).filter(Boolean);
+    own.forEach(t => t.champs.push(id));
+    list.push({ id, name: c.de || c.n, cost: c.c, img: `assets/img/champions/${id}.jpg`, traits: own.map(t => t.icon ? [t.name, t.icon] : [t.name]) });
   }
 
   // Bilder umrechnen (Windows: System.Drawing über PowerShell, wie die anderen Bild-Werkzeuge im Projekt)
@@ -83,10 +89,45 @@ async function main() {
   for (const f of fs.readdirSync(IMG_OUT)) if (!keep.has(f)) fs.rmSync(path.join(IMG_OUT, f));
 
   list.sort((a, b) => a.cost - b.cost || a.name.localeCompare(b.name, 'de'));
-  const out = { set: d.set, version: d.version, generated: d.generated, champions: list };
-  fs.writeFileSync(DATA_OUT, `// TFT Arcade – Champions des Live-Sets (automatisch erzeugt mit tools/champions.js, nicht von Hand bearbeiten)\n// Quelle: TFTClimb-Spieldaten / CommunityDragon ${d.version} · Set ${d.set}\nwindow.TFT_ARCADE_CHAMPIONS = ${JSON.stringify(out)};\n`);
+  // Traits mit Champions; bp = Stufen (ab so vielen Champions aktiv)
+  const traitList = Object.values(traits).filter(t => t.champs.length)
+    .map(t => ({ id: t.id, name: t.name, icon: t.icon, bp: t.bp, champs: t.champs }))
+    .sort((a, b) => a.name.localeCompare(b.name, 'de'));
+  const out = { set: d.set, version: d.version, generated: d.generated, champions: list, traits: traitList };
+  fs.writeFileSync(DATA_OUT, `// TFT Arcade – Champions und Traits des Live-Sets (automatisch erzeugt mit tools/champions.js, nicht von Hand bearbeiten)\n// Quelle: TFTClimb-Spieldaten / CommunityDragon ${d.version} · Set ${d.set}\nwindow.TFT_ARCADE_CHAMPIONS = ${JSON.stringify(out)};\n`);
   const tiles = jobs.filter(j => j.mode === 'tile').length;
-  console.log(`✔ ${list.length} Champions → ${path.relative(ROOT, DATA_OUT)} (${list.length - tiles} große Splash-Bilder, ${tiles} Kacheln)`);
+  console.log(`✔ ${list.length} Champions, ${traitList.length} Traits → ${path.relative(ROOT, DATA_OUT)} (${list.length - tiles} große Splash-Bilder, ${tiles} Kacheln)`);
+
+  await itemData(d);
+}
+
+// Komponenten + Items, die aus genau zwei Komponenten gebaut werden (cat 'craft'; Embleme, Artefakte usw. nicht)
+async function itemData(d) {
+  fs.mkdirSync(ITEM_CACHE, { recursive: true });
+  const short = id => slug(id.replace(/^DA_(Component_)?/, ''));
+  const used = new Set(d.items.filter(i => i.cat === 'craft').flatMap(i => i.comp || []));
+  const pick = async (i) => {
+    const id = short(i.id);
+    const ok = i.icon && await download(d.cdn + i.icon.toLowerCase(), path.join(ITEM_CACHE, id + '.png'));
+    if (!ok) console.warn(`  ✖ kein Symbol für ${i.de || i.en}`);
+    return ok ? { id, name: i.de || i.en, img: `assets/img/items/${id}.webp` } : null;
+  };
+  const components = (await Promise.all(d.items.filter(i => i.cat === 'component' && used.has(i.id)).map(pick))).filter(Boolean);
+  const known = new Set(components.map(c => c.id));
+  const items = [];
+  for (const i of d.items.filter(x => x.cat === 'craft' && (x.comp || []).length === 2)) {
+    const comp = i.comp.map(short);
+    if (!comp.every(c => known.has(c))) continue;
+    const it = await pick(i);
+    if (it) items.push({ ...it, comp });
+  }
+  // Symbole in WebP umwandeln (alle gleich groß, über Chrome – siehe tools/rahmen-webp.js)
+  for (const f of fs.readdirSync(ITEM_CACHE)) if (![...components, ...items].some(x => x.id + '.png' === f)) fs.rmSync(path.join(ITEM_CACHE, f));
+  execFileSync(process.execPath, [path.join(__dirname, 'rahmen-webp.js'), '128', '128', 'items'], { stdio: 'inherit', cwd: ROOT });
+  items.sort((a, b) => a.name.localeCompare(b.name, 'de'));
+  const out = { set: d.set, version: d.version, components, items };
+  fs.writeFileSync(ITEM_DATA_OUT, `// TFT Arcade – Komponenten und baubare Items des Live-Sets (automatisch erzeugt mit tools/champions.js, nicht von Hand bearbeiten)\n// Quelle: TFTClimb-Spieldaten / CommunityDragon ${d.version} · Set ${d.set}\nwindow.TFT_ARCADE_ITEMS = ${JSON.stringify(out)};\n`);
+  console.log(`✔ ${components.length} Komponenten, ${items.length} Items → ${path.relative(ROOT, ITEM_DATA_OUT)}`);
 }
 
 main().catch(e => { console.error(e); process.exit(1); });
