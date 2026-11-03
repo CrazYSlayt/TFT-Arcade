@@ -429,6 +429,15 @@
       .formatToParts(d).forEach(x => { p[x.type] = Number(x.value); });
     return p;
   }
+  // heutiger Tag (deutsche Zeit): fortlaufende Tagesnummer, Datum als Text, Sekunden bis Mitternacht – z. B. für das Tagesrätsel
+  function today() {
+    const p = berlinParts(new Date());
+    return {
+      day: Math.floor(Date.UTC(p.year, p.month - 1, p.day) / 864e5),
+      label: `${String(p.day).padStart(2, '0')}.${String(p.month).padStart(2, '0')}.`,
+      left: 86400 - (p.hour * 3600 + p.minute * 60 + p.second),
+    };
+  }
   function initDaily() {
     const data = $('#daily-data');
     if (!data) return;
@@ -598,7 +607,7 @@
   }
 
   // ───────── Start ─────────
-  window.Arcade = { store, records, entries, fmt, share, copy, toast, finishRound, history: history_, currentMode, isRanked, gameId, esc, shuffle, asset, typing, sound };
+  window.Arcade = { store, records, entries, fmt, share, copy, toast, finishRound, history: history_, currentMode, isRanked, gameId, esc, shuffle, asset, typing, sound, today };
   fillCardRecords();
   renderBoards();
   initHallOfFame();

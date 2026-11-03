@@ -9,6 +9,7 @@
 //    Champions (Kosten, Bild, Traits) und Traits (Stufen = ab wie vielen Champions aktiv, zugehörige Champions)
 // 6. Items: Komponenten und daraus baubare Items (Rezept aus zwei Komponenten) samt Symbol
 //    → public/assets/img/items/<id>.webp (über tools/rahmen-webp.js) und public/assets/js/spiele/daten/items.js
+// 7. Shop-Regeln (Odds, Kopien pro Champion, XP) aus custom-<Set>.js → public/assets/js/spiele/daten/shop.js
 // Heruntergeladene Originale bleiben in tools/cache/ (nicht veröffentlicht), ein zweiter Lauf lädt nur Neues.
 const fs = require('fs');
 const path = require('path');
@@ -22,6 +23,7 @@ const TRAIT_OUT = path.join(ROOT, 'public', 'assets', 'img', 'traits');
 const DATA_OUT = path.join(ROOT, 'public', 'assets', 'js', 'spiele', 'daten', 'champions.js');
 const ITEM_CACHE = path.join(__dirname, 'cache', 'items');
 const ITEM_DATA_OUT = path.join(ROOT, 'public', 'assets', 'js', 'spiele', 'daten', 'items.js');
+const SHOP_DATA_OUT = path.join(ROOT, 'public', 'assets', 'js', 'spiele', 'daten', 'shop.js');
 
 function load(file) {
   const window = {};
@@ -64,6 +66,10 @@ async function main() {
     traits[t.n] = { id, name: t.de || t.n, icon: ok ? `assets/img/traits/${id}.png` : null, bp: t.bp || [], champs: [] };
   }
 
+  // Rollen je Champion (rollen-<Set>.js, aus dem TFT-Client) – fehlt die Datei, bleibt die Rolle leer
+  const rolesFile = path.join(CLIMB, `rollen-${d.set}.js`);
+  const roles = fs.existsSync(rolesFile) ? (load(rolesFile).TFT_ROLES || {}).champions || {} : {};
+
   const list = [], jobs = [];
   for (const c of d.champions) {
     if (!(c.c >= 1 && c.c <= 5)) continue;
@@ -76,7 +82,11 @@ async function main() {
     jobs.push({ src, out: path.join(IMG_OUT, id + '.jpg'), mode });
     const own = (c.t || []).map(n => traits[n]).filter(Boolean);
     own.forEach(t => t.champs.push(id));
-    list.push({ id, name: c.de || c.n, cost: c.c, img: `assets/img/champions/${id}.jpg`, traits: own.map(t => t.icon ? [t.name, t.icon] : [t.name]) });
+    list.push({
+      id, name: c.de || c.n, cost: c.c, img: `assets/img/champions/${id}.jpg`, traits: own.map(t => t.icon ? [t.name, t.icon] : [t.name]),
+      // für das Champion-Rätsel: Rolle (aus Riots Empfehlungen), Reichweite in Feldern, Name der Fähigkeit
+      role: roleLabel(roles[c.n]), range: (c.st && c.st.range) || null, ability: (c.ab && c.ab.n) || null,
+    });
   }
 
   // Bilder umrechnen (Windows: System.Drawing über PowerShell, wie die anderen Bild-Werkzeuge im Projekt)
@@ -99,6 +109,26 @@ async function main() {
   console.log(`✔ ${list.length} Champions, ${traitList.length} Traits → ${path.relative(ROOT, DATA_OUT)} (${list.length - tiles} große Splash-Bilder, ${tiles} Kacheln)`);
 
   await itemData(d);
+  shopData(d, list);
+}
+
+// Riots Rollen-Schlüssel (z. B. „MagicTank“, „AttackSpecialist_Ammo“) → kurze deutsche Bezeichnung wie „AP-Tank“
+const ROLE_KIND = { Assassin: 'Assassine', Caster: 'Zauberer', Fighter: 'Kämpfer', Marksman: 'Schütze', Specialist: 'Spezialist', Tank: 'Tank' };
+function roleLabel(key) {
+  const m = /^(Attack|Magic)([A-Za-z]+?)(?:_.*)?$/.exec(key || '');
+  return m && ROLE_KIND[m[2]] ? `${m[1] === 'Attack' ? 'AD' : 'AP'}-${ROLE_KIND[m[2]]}` : null;
+}
+
+// Shop-Regeln (Odds pro Level, Kopien pro Champion, XP) aus TFTClimbs custom-<Set>.js → daten/shop.js
+function shopData(d, list) {
+  const file = path.join(CLIMB, `custom-${d.set}.js`);
+  const shop = fs.existsSync(file) && (load(file).TFT_CUSTOM || {}).shop;
+  if (!shop || !Array.isArray(shop.odds)) { console.warn(`  ✖ keine Shop-Daten in ${path.relative(ROOT, file)} – daten/shop.js bleibt unverändert`); return; }
+  // Champions pro Kosten wie bei TFTClimb (SHOP_DISTINCT): alle Champions der Set-Daten mit dieser Stufe
+  const distinct = [1, 2, 3, 4, 5].map(c => list.filter(x => x.cost === c).length);
+  const out = { set: d.set, version: d.version, bag: shop.bag, odds: shop.odds, xp: shop.xp, distinct };
+  fs.writeFileSync(SHOP_DATA_OUT, `// TFT Arcade – Shop-Regeln des Live-Sets (automatisch erzeugt mit tools/champions.js aus TFTClimbs custom-${d.set}.js, nicht von Hand bearbeiten)\n// odds[Level-1][Kosten-1] = Chance pro Shop-Slot in % · bag = Kopien pro Champion · xp[i] = XP von Level i+1 auf i+2 · distinct = Champions pro Kosten\nwindow.TFT_ARCADE_SHOP = ${JSON.stringify(out)};\n`);
+  console.log(`✔ Shop-Regeln (Level 1–${shop.odds.length}) → ${path.relative(ROOT, SHOP_DATA_OUT)}`);
 }
 
 // Komponenten + Items, die aus genau zwei Komponenten gebaut werden (cat 'craft'; Embleme, Artefakte usw. nicht)

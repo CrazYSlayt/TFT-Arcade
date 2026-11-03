@@ -48,6 +48,7 @@ function validate() {
     if (g.aside === 'bestenliste' && (!g.record || !g.modes.length)) err.push(`${w}: Bestenliste braucht record und modes`);
     if (g.status === 'live' && !(g.scripts || []).length) err.push(`${w}: spielbar, aber ohne scripts`);
     for (const s of g.scripts || []) if (!fs.existsSync(path.join(PUB, s))) err.push(`${w}: Skript ${s} fehlt`);
+    if (g.tabelle === 'shop-odds' && !browserData('assets/js/spiele/daten/shop.js', 'TFT_ARCADE_SHOP')) err.push(`${w}: Odds-Tabelle braucht daten/shop.js (npm run champions)`);
     seo(w, g.seo);
   }
   for (const a of require('./src/config/avatare')) {
@@ -64,6 +65,15 @@ function validate() {
   }
 }
 
+// Daten-Skript fürs Spiel (window.X = …) auch beim Bauen lesen
+function browserData(file, name) {
+  const p = path.join(PUB, file);
+  if (!fs.existsSync(p)) return null;
+  const window = {};
+  new Function('window', fs.readFileSync(p, 'utf8'))(window);
+  return window[name] || null;
+}
+
 // ───────── Bauen ─────────
 function build() {
   validate();
@@ -74,6 +84,8 @@ function build() {
   const hashes = {};
   const ctx = {
     site, categories, games, boards, dailies,
+    // Shop-Regeln des Sets (daten/shop.js, erzeugt mit tools/champions.js) – für die Odds-Tabelle auf der Spielseite
+    shop: browserData('assets/js/spiele/daten/shop.js', 'TFT_ARCADE_SHOP'),
     year: new Date().getFullYear(),
     catOf: g => categories.find(c => c.id === g.category),
     gameUrl: g => g.status === 'bald' ? null : `/${categories.find(c => c.id === g.category).slug}/${g.slug}`,

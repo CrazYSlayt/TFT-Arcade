@@ -45,8 +45,24 @@ module.exports = {
   },
   'champion-quiz': {
     klassisch: [
-      ['Augmentina', 960, 'wolkenschaf'], ['HexHanna', 910, 'greifling'], ['LoreLukas', 875, 'runengolem'], ['PenguPilot', 820, 'kronenpinguin'], ['QuizQueenie', 790, 'puschel'],
-      ['TraitTobi', 745, 'zottelbock'], ['BankBert', 700, 'flatterbaer'], ['NoItemNina', 655, 'schnabeltier'], ['RerollRitter', 610, 'federritter'], ['KarussellKai', 560, 'schuerfi'],
+      ['LoreLukas', 2280, 'runengolem'], ['Augmentina', 2160, 'wolkenschaf'], ['HexHanna', 2040, 'greifling'], ['PenguPilot', 1900, 'kronenpinguin'], ['QuizQueenie', 1780, 'puschel'],
+      ['TraitTobi', 1620, 'zottelbock'], ['BankBert', 1480, 'flatterbaer'], ['NoItemNina', 1320, 'schnabeltier'], ['RerollRitter', 1160, 'federritter'], ['KarussellKai', 980, 'schuerfi'],
+    ],
+  },
+  'roll-simulator': {
+    rolldown: [
+      ['RerollRitter', 615, 'zottelbock'], ['DDDDDD', 580, 'runengolem'], ['Lvl8Lotte', 540, 'puschel'], ['GoldGoblin', 505, 'schuerfi'], ['PenguPilot', 470, 'kronenpinguin'],
+      ['Streak_Stefan', 420, 'greifling'], ['BankBert', 360, 'flatterbaer'], ['ZwölfZinsen', 290, 'wolkenschaf'], ['LuckyLoot', 220, 'schnabeltier'], ['TopFourTim', 160, 'federritter'],
+    ],
+    speed: [
+      ['ShopDiff', 230, 'schnabeltier'], ['DDDDDD', 214, 'runengolem'], ['PenguPilot', 198, 'kronenpinguin'], ['HexHanna', 183, 'greifling'], ['RerollRitter', 170, 'zottelbock'],
+      ['ArcadeAnnie', 152, 'puschel'], ['BankBert', 137, 'flatterbaer'], ['GoldGoblin', 121, 'schuerfi'], ['Lvl8Lotte', 104, 'wolkenschaf'], ['TopFourTim', 86, 'federritter'],
+    ],
+  },
+  'shop-odds-quiz': {
+    klassisch: [
+      ['OddsOskar', 1420, 'runengolem'], ['ZwölfZinsen', 1365, 'schuerfi'], ['Lvl8Lotte', 1290, 'puschel'], ['RerollRitter', 1210, 'zottelbock'], ['PenguPilot', 1130, 'kronenpinguin'],
+      ['GoldGoblin', 1040, 'greifling'], ['BankBert', 950, 'flatterbaer'], ['Augmentina', 860, 'wolkenschaf'], ['LuckyLoot', 760, 'schnabeltier'], ['TopFourTim', 650, 'federritter'],
     ],
   },
 };

@@ -166,6 +166,28 @@ function steps(g) {
   return list.map(([t, x], i) => `<li><span class="step-n">${i + 1}</span><div><h3>${esc(t)}</h3><p>${esc(x)}</p></div></li>`).join('');
 }
 
+// Nachschlage-Tabelle unter dem Spiel (g.tabelle): 'shop-odds' = Shop-Chancen pro Level, Kopien pro Champion, XP – aus den Set-Daten
+function lookupTable(g, ctx) {
+  const S = ctx.shop;
+  if (g.tabelle !== 'shop-odds' || !S) return '';
+  const head = [1, 2, 3, 4, 5].map(k => `<th scope="col"><span class="odds-dot cost-${k}"></span>${k}-Kosten</th>`).join('');
+  const rows = S.odds.slice(0, 10).map((r, i) => `<tr><th scope="row">Level ${i + 1}</th>${r.map(v => `<td${v ? '' : ' class="is-zero"'}>${v} %</td>`).join('')}<td>${S.xp[i] != null && i < 9 ? `${S.xp[i]} XP` : '–'}</td></tr>`).join('');
+  const bag = S.bag.map((b, i) => `<td>${b} × ${S.distinct[i]} = <b>${b * S.distinct[i]}</b></td>`).join('');
+  return `
+  <section class="panel odds-panel" aria-labelledby="odds-h">
+    <h2 class="extra-h" id="odds-h">${ui('info')}TFT Shop-Odds – Set ${esc(S.set)}</h2>
+    <p class="odds-lead">Chance pro Shop-Slot je Level und Kosten. Darunter: Kopien pro Champion × Champions pro Kosten = Kopien im geteilten Pool.</p>
+    <div class="odds-scroll">
+      <table class="odds-table">
+        <thead><tr><th scope="col">Level</th>${head}<th scope="col">XP zum nächsten</th></tr></thead>
+        <tbody>${rows}</tbody>
+        <tfoot><tr><th scope="row">Pool</th>${bag}<td></td></tr></tfoot>
+      </table>
+    </div>
+    <p class="odds-note">Stand: Patch ${esc(S.version)} · Level 11 gibt es nur über Augments.</p>
+  </section>`;
+}
+
 function game(g, ctx) {
   const c = ctx.catOf(g), url = ctx.gameUrl(g), live = g.status === 'live';
   const crumbList = [HOME, { label: c.name, href: '/' + c.slug }, { label: g.title, href: url }];
@@ -217,6 +239,7 @@ function game(g, ctx) {
       <button class="btn btn-red" type="button" data-share-last>${ui('share')}Ergebnis teilen</button>
     </section>
   </div>
+${lookupTable(g, ctx)}
 
   <nav class="game-more" aria-label="Weitere Attraktionen">
     <span class="game-more-lead">${ui('dice')}Noch eine Runde woanders?</span>

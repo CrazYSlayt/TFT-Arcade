@@ -6,4 +6,7 @@ module.exports = [
   { game: '3-star-rush', mode: 'tageschallenge', title: 'Drei Sterne, höchstens 40 Rerolls.', text: 'Jeder Fehlkauf kostet dich 2 Sekunden. Spar dir die Panik-Rolls.' },
   { game: '3-star-rush', mode: 'tageschallenge', title: 'Neun Kopien. Null Fehlkäufe.', text: 'Kein einziger falscher Kauf erlaubt. Schaffst du den perfekten Lauf?' },
   { game: '3-star-rush', mode: 'tageschallenge', title: 'Knapper Pool. Gleiche Uhr.', text: 'Heute sind weniger Kopien im Umlauf – halt trotzdem durch!' },
+  { game: 'champion-quiz', mode: 'tagesraetsel', title: 'Ein Champion. Sechs Hinweise. Eine Chance.', text: 'Das Tagesrätsel: Heute suchen alle denselben Champion – wie viele Hinweise brauchst du?' },
+  { game: 'roll-simulator', mode: 'rolldown', title: 'Drei Sterne in 45 Sekunden?', text: 'Bring deinen Reroll-Carry mit den echten Shop-Chancen auf drei Sterne – Restgold gibt Bonus.' },
+  { game: 'roll-simulator', mode: 'speed', title: '30 Sekunden. Nur die Richtigen.', text: 'Shop-Speed: Roll gratis und kauf nur die Ziel-Champions – jeder Fehlkauf kostet Punkte.' },
 ];
