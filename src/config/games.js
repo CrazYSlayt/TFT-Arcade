@@ -142,7 +142,7 @@ module.exports = [
     scripts: ['/assets/js/spiele/daten/champions.js', '/assets/js/spiele/shop-memory.js'],
     rules: {
       ziel: 'Merk dir fünf Champions im Shop und setz ihn danach aus dem Gedächtnis wieder zusammen.',
-      regeln: ['Zehn Runden, drei Herzen: Hast du weniger als drei Champions am richtigen Platz, verlierst du ein Herz. Ohne Herzen ist das Spiel vorbei.', 'Gewertet: Der Shop ist jede Runde kürzer zu sehen (5 bis 2,5 Sekunden). Im Training bleiben es immer 6 Sekunden.', 'Richtiger Champion am richtigen Platz: 20 Punkte, im Shop, aber falscher Platz: 10. Kompletter Shop richtig: 20 Bonus, plus bis zu 10 für Tempo.'],
+      regeln: ['Zehn Runden, drei Herzen: Hast du weniger als drei Champions am richtigen Platz, verlierst du ein Herz. Ohne Herzen ist das Spiel vorbei.', 'Gewertet: Der Shop ist jede Runde kürzer zu sehen (4 bis 2 Sekunden), zum Zurücklegen bleiben 12 Sekunden – danach wird geprüft, leere Plätze zählen als falsch. Im Training: immer 6 Sekunden, ohne Zeitlimit.', 'Richtiger Champion am richtigen Platz: 20 Punkte, im Shop, aber falscher Platz: 10. Kompletter Shop richtig: 20 Bonus, plus bis zu 10 für Tempo.'],
       bedienung: ['Klick auf einen Champion setzt ihn auf den markierten Platz.', 'Klick auf einen belegten Platz macht ihn wieder frei.', '„Prüfen“ zeigt die Auflösung, Enter geht zur nächsten Runde.'],
     },
     // drei Schritte unter der Spielfläche („So funktioniert’s“)
@@ -181,7 +181,7 @@ module.exports = [
     scripts: ['/assets/js/spiele/daten/champions.js', '/assets/js/spiele/comp-memory.js'],
     rules: {
       ziel: 'Merk dir ein Board mit fünf bis acht Champions und bau es danach aus dem Gedächtnis nach.',
-      regeln: ['Acht Runden, das Board wächst von fünf auf acht Champions. Drei Herzen: Fehlen mehr als zwei Champions, verlierst du ein Herz.', 'Die Reihenfolge ist egal – es zählt, wer auf dem Board steht. Die Traits helfen beim Merken.', 'Jeder richtige Champion: 10 Punkte. Komplettes Board: 30 Bonus, plus bis zu 20 für Tempo. Nur „Gewertet“ zählt für die Bestenliste.'],
+      regeln: ['Acht Runden, das Board wächst von fünf auf acht Champions. Drei Herzen: Fehlt mehr als ein Champion, verlierst du ein Herz.', 'Gewertet: rund eine Sekunde Merkzeit pro Champion (jede Runde etwas weniger), zum Nachbauen bleiben 18 Sekunden. Die Reihenfolge ist egal.', 'Jeder richtige Champion: 10 Punkte. Komplettes Board: 30 Bonus, plus bis zu 20 für Tempo. Nur „Gewertet“ zählt für die Bestenliste.'],
       bedienung: ['Klick auf einen Champion stellt ihn aufs Board.', 'Klick auf einen Champion auf dem Board nimmt ihn wieder herunter.', '„Prüfen“ zeigt die Auflösung, Enter geht zur nächsten Runde.'],
     },
     schritte: [
@@ -234,7 +234,7 @@ module.exports = [
     scripts: ['/assets/js/spiele/daten/champions.js', '/assets/js/spiele/was-kostet-der.js'],
     rules: {
       ziel: 'Errate bei zehn Champions, wie viel Gold sie im Shop kosten.',
-      regeln: ['Jeder Champion aus dem aktuellen Set kommt höchstens einmal pro Runde vor.', 'Richtig: 100 Punkte plus bis zu 50 Tempo-Bonus.', 'Falsch: keine Punkte – die richtigen Kosten werden aufgelöst.'],
+      regeln: ['Pro Champion bleiben 4 Sekunden, beim letzten nur noch 2,5 – abgelaufen zählt als falsch.', 'Richtig: 100 Punkte plus bis zu 50 Tempo-Bonus.', 'Falsch: keine Punkte – die richtigen Kosten werden aufgelöst.'],
       bedienung: ['Klick auf 1 bis 5 – oder drück die Tasten 1 bis 5.', 'Nach der Auflösung geht es automatisch weiter, mit Enter sofort.'],
     },
     schritte: [
@@ -242,7 +242,7 @@ module.exports = [
       ['Kosten tippen', 'Wähl 1 bis 5 Gold – per Klick oder mit den Tasten 1–5.'],
       ['Punkte sammeln', 'Richtig gibt 100 Punkte, wer schnell ist, bis zu 50 Bonus.'],
     ],
-    hinweise: 'Tempo-Bonus: Wer innerhalb einer Sekunde antwortet, bekommt die vollen 50 Bonuspunkte; danach sinkt der Bonus und ist nach 6 Sekunden weg. Höchstpunktzahl pro Runde: 1.500. Die Champions stammen aus dem aktuellen Set (Daten von CommunityDragon).',
+    hinweise: 'Tempo-Bonus: Wer in unter einer Sekunde antwortet, bekommt die vollen 50 Bonuspunkte; danach sinkt der Bonus und ist mit dem Zeitlimit weg. Jeder Champion aus dem aktuellen Set kommt höchstens einmal pro Runde vor. Höchstpunktzahl pro Runde: 1.500. Die Champions stammen aus dem aktuellen Set (Daten von CommunityDragon).',
     seo: {
       title: 'TFT Kosten-Quiz – Was kostet der Champion? | TFT Arcade',
       desc: 'TFT Kosten-Quiz: Wie viel Gold kostet der Champion? Rate bei zehn Champions aus dem aktuellen Set die Kosten – auf Zeit.',
@@ -306,7 +306,7 @@ module.exports = [
     scripts: ['/assets/js/spiele/daten/items.js', '/assets/js/spiele/quiz.js', '/assets/js/spiele/item-quiz.js'],
     rules: {
       ziel: 'Erkenne bei zehn Fragen die Rezepte der Items aus dem aktuellen Set.',
-      regeln: ['Zwei Fragearten: „Was ergibt das?“ (zwei Komponenten → Item) und „Woraus besteht das?“ (Item → Rezept).', 'Richtig: 100 Punkte plus bis zu 50 Tempo-Bonus.', 'Falsch: keine Punkte – das richtige Rezept wird aufgelöst.'],
+      regeln: ['Zwei Fragearten: „Was ergibt das?“ (zwei Komponenten → Item) und „Woraus besteht das?“ (Item → Rezept).', 'Pro Frage bleiben 6 Sekunden, bei der letzten nur noch 3,5 – abgelaufen zählt als falsch.', 'Richtig: 100 Punkte plus bis zu 50 Tempo-Bonus. Falsch: keine Punkte, das richtige Rezept wird aufgelöst.'],
       bedienung: ['Klick auf eine der vier Antworten – oder drück die Tasten 1 bis 4.', 'Nach der Auflösung geht es automatisch weiter, mit Enter sofort.'],
     },
     schritte: [
@@ -343,7 +343,7 @@ module.exports = [
     scripts: ['/assets/js/spiele/daten/champions.js', '/assets/js/spiele/quiz.js', '/assets/js/spiele/trait-quiz.js'],
     rules: {
       ziel: 'Beantworte zehn Fragen zu den Traits des aktuellen Sets.',
-      regeln: ['Drei Fragearten: Stufen eines Traits, Champion zum Trait und Trait zum Champion.', 'Richtig: 100 Punkte plus bis zu 50 Tempo-Bonus.', 'Falsch: keine Punkte – die richtige Antwort wird aufgelöst.'],
+      regeln: ['Drei Fragearten: Stufen eines Traits, Champion zum Trait und Trait zum Champion.', 'Pro Frage bleiben 7 Sekunden, bei der letzten nur noch 4 – abgelaufen zählt als falsch.', 'Richtig: 100 Punkte plus bis zu 50 Tempo-Bonus. Falsch: keine Punkte, die richtige Antwort wird aufgelöst.'],
       bedienung: ['Klick auf eine der vier Antworten – oder drück die Tasten 1 bis 4.', 'Nach der Auflösung geht es automatisch weiter, mit Enter sofort.'],
     },
     schritte: [
@@ -351,7 +351,7 @@ module.exports = [
       ['Antwort wählen', 'Stufen, Champion oder Trait – per Klick oder mit den Tasten 1–4.'],
       ['Punkte sammeln', 'Richtig gibt 100 Punkte, wer schnell ist, bis zu 50 Bonus.'],
     ],
-    hinweise: 'Stufen = ab wie vielen Champions eines Traits der nächste Bonus greift (z. B. 2 · 4 · 6). Einzel-Traits mit nur einem Champion kommen bei den Stufen nicht vor. Höchstpunktzahl: 1.500.',
+    hinweise: 'Stufen = ab wie vielen Champions eines Traits der nächste Bonus greift (z. B. 2 · 4 · 6). Die falschen Stufen haben immer gleich viele Zahlen und liegen oft nur eine Stelle daneben. Einzel-Traits mit nur einem Champion kommen bei den Stufen nicht vor. Höchstpunktzahl: 1.500.',
     seo: {
       title: 'TFT Trait-Quiz – Synergien und Stufen | TFT Arcade',
       desc: 'TFT Trait-Quiz: Ab wie vielen Champions wird ein Trait aktiv, und wer gehört dazu? Zehn Fragen zu den Synergien des Sets.',

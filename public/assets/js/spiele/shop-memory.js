@@ -12,9 +12,10 @@
   const ROUNDS = 10, SLOTS = 5, HEARTS = 3;
   const MIN_EXACT = 3;                 // weniger richtig platzierte Champions kosten ein Herz
   const TRAINING_MS = 6000;            // Merkzeit im Training
-  const SHOW_FIRST = 5000, SHOW_LAST = 2500;   // gewertet: Merkzeit sinkt von Runde 1 bis 10
+  const SHOW_FIRST = 4000, SHOW_LAST = 2000;   // gewertet: Merkzeit sinkt von Runde 1 bis 10
+  const RECALL_MS = 12000;             // gewertet: so lange bleibt zum Zurücklegen, danach wird automatisch geprüft (leere Plätze = falsch)
   const P_EXACT = 20, P_SHOP = 10, P_PERFECT = 20, P_SPEED = 10;
-  const SPEED_MS = 15000;              // Tempo-Bonus (nur für perfekte Shops): voll bei sofortiger Antwort, nach 15 s weg
+  const SPEED_MS = RECALL_MS;          // Tempo-Bonus (nur für perfekte Shops): voll bei sofortiger Antwort, zum Ende des Zeitlimits weg
   const esc = A.esc;
   const coin = n => `<span class="kq-coin">${n}</span>`;
   const heart = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.4C.9 8 3.1 4 7 4c2.1 0 3.6 1.1 5 2.9C13.4 5.1 14.9 4 17 4c3.9 0 6.1 4 4.6 7.6C19.5 16.4 12 21 12 21z"/></svg>';
@@ -37,7 +38,7 @@
       <ol class="sm-preview" aria-hidden="true">${[1, 2, 3, 4, 5].map(n => `<li class="cost-${n}"></li>`).join('')}</ol>
       <p class="game-text">${t
         ? `Üb in Ruhe: Der Shop bleibt jede Runde ${TRAINING_MS / 1000} Sekunden sichtbar, Fehler kosten keine Herzen.`
-        : `Präg dir den Shop ein – dann wird er verdeckt. Jede Runde bleibt weniger Zeit. Weniger als ${MIN_EXACT} Champions am richtigen Platz kosten ein Herz.`}</p>
+        : `Präg dir den Shop ein – dann wird er verdeckt. Jede Runde bleibt weniger Zeit (${SHOW_FIRST / 1000} bis ${SHOW_LAST / 1000} Sekunden), zum Zurücklegen hast du ${RECALL_MS / 1000} Sekunden. Weniger als ${MIN_EXACT} Champions am richtigen Platz kosten ein Herz.`}</p>
       <button class="btn btn-gold btn-lg" type="button" data-game-start>Los geht’s</button>
     </div>`;
     stage.querySelector('[data-game-start]').addEventListener('click', start);
@@ -168,16 +169,24 @@
     ui.hint.textContent = 'Klick auf einen belegten Platz macht ihn wieder frei.';
     renderSlots();
     recallAt = performance.now();
+    // gewertet: Zeitlimit, danach wird mit dem geprüft, was liegt
+    if (!training()) { const r = round; timer = setTimeout(() => { if (state === 'recall' && round === r) check(true); }, RECALL_MS); }
     speedBar();
     const first = ui.options.querySelector('.sm-opt');
     if (first) first.focus({ preventScroll: true });
   }
 
-  // Balken zeigt den Tempo-Bonus für einen perfekten Shop
+  // Balken zeigt die verbleibende Zeit (zugleich den Tempo-Bonus); im letzten Drittel rot, in den letzten 3 Sekunden tickt es
   function speedBar() {
+    let lastSec = null;
     const step = () => {
       if (state !== 'recall') return;
-      ui.timer.style.transform = `scaleX(${Math.max(0, 1 - (performance.now() - recallAt) / SPEED_MS)})`;
+      const left = Math.max(0, SPEED_MS - (performance.now() - recallAt)), s = Math.ceil(left / 1000);
+      ui.timer.style.transform = `scaleX(${left / SPEED_MS})`;
+      if (!training()) {
+        ui.timer.parentElement.classList.toggle('is-hurry', left < SPEED_MS / 3);
+        if (s !== lastSec) { if (s <= 3 && s > 0 && lastSec !== null) A.sound('tick'); lastSec = s; }
+      }
       raf = requestAnimationFrame(step);
     };
     step();
@@ -218,20 +227,23 @@
   }
 
   // ───────── Auflösung ─────────
-  function check() {
-    if (state !== 'recall' || !picks.every(Boolean)) return;
+  // timeUp: Zeitlimit abgelaufen – leere Plätze zählen als falsch
+  function check(timeUp) {
+    if (state !== 'recall' || (!timeUp && !picks.every(Boolean))) return;
     state = 'reveal';
+    clearTimeout(timer);
     cancelAnimationFrame(raf);
+    ui.timer.parentElement.classList.remove('is-hurry');
     const used = performance.now() - recallAt;
     let exact = 0, near = 0;
     const ids = shop.map(c => c.id);
     ui.shop.innerHTML = shop.map((c, i) => {
-      const p = picks[i], ok = p === c.id, inShop = !ok && ids.includes(p);
+      const p = picks[i], ok = p === c.id, inShop = !ok && ids.includes(p), guess = p ? byId(p).name : 'leer';
       if (ok) exact++; else if (inShop) near++;
       const cls = ok ? 'is-ok' : inShop ? 'is-near' : 'is-bad';
       const mark = `<span class="sm-mark" aria-hidden="true">${ok ? '✓' : inShop ? '~' : '✗'}</span>`;
-      const tip = ok ? '' : `<span class="sm-tip">Dein Tipp: <s>${esc(byId(p).name)}</s></span>`;
-      return `<li><div class="sm-card cost-${c.cost} ${cls}" aria-label="Platz ${i + 1}: ${esc(c.name)} – ${ok ? 'richtig' : 'dein Tipp: ' + esc(byId(p).name)}">${face(c, mark + tip)}</div></li>`;
+      const tip = ok ? '' : `<span class="sm-tip">Dein Tipp: ${p ? `<s>${esc(guess)}</s>` : 'leer'}</span>`;
+      return `<li><div class="sm-card cost-${c.cost} ${cls}" aria-label="Platz ${i + 1}: ${esc(c.name)} – ${ok ? 'richtig' : 'dein Tipp: ' + esc(guess)}">${face(c, mark + tip)}</div></li>`;
     }).join('');
     const perfect = exact === SLOTS;
     const speed = perfect ? Math.round(P_SPEED * Math.max(0, 1 - used / SPEED_MS)) : 0;
@@ -242,7 +254,7 @@
 
     const lost = !training() && exact < MIN_EXACT;
     if (lost) loseHeart();
-    ui.title.textContent = perfect ? 'Perfekter Shop!' : exact >= MIN_EXACT ? 'Gut gemerkt!' : lost ? 'Ein Herz weg!' : 'Knapp daneben!';
+    ui.title.textContent = perfect ? 'Perfekter Shop!' : exact >= MIN_EXACT ? 'Gut gemerkt!' : timeUp ? 'Zeit abgelaufen!' : lost ? 'Ein Herz weg!' : 'Knapp daneben!';
     ui.title.className = 'sm-title ' + (perfect ? 'is-ok' : exact >= MIN_EXACT ? 'is-near' : 'is-bad');
     ui.sub.textContent = perfect
       ? `+${pts} Punkte (inkl. ${P_PERFECT} Bonus${speed ? ` und ${speed} Tempo` : ''})`

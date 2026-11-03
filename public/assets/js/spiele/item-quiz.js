@@ -60,6 +60,7 @@
   window.ArcadeQuiz({
     title: 'Item-Quiz',
     kicker: `10 Fragen · ${data.items.length} Rezepte · Set ${esc(data.set)}`,
+    time: [6000, 3500],
     intro: 'Zwei Komponenten – welches Item entsteht? Oder umgekehrt: Woraus wird es gebaut? Je schneller du richtig liegst, desto mehr Punkte.',
     preview: `<div class="qz-recipe is-preview" aria-hidden="true">${A.shuffle(data.components).slice(0, 2).map(c => icon(c)).join('<span class="qz-op">+</span>')}<span class="qz-op">=</span><span class="qz-mystery">?</span></div>`,
     // je fünf Fragen beider Arten in zufälliger Reihenfolge, kein Item doppelt

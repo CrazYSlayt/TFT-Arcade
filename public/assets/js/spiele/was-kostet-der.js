@@ -10,15 +10,16 @@
 
   const ROUNDS = 10;            // Champions pro Runde
   const BASE = 100;             // Punkte für eine richtige Antwort
-  const BONUS = 50;             // Tempo-Bonus: voll bis FULL_MS, danach linear weniger bis ZERO_MS
-  const FULL_MS = 1000, ZERO_MS = 6000;
+  const BONUS = 50;             // Tempo-Bonus: voll bis FULL_MS, danach linear weniger bis zum Zeitlimit
+  const FULL_MS = 800;
+  const LIMIT_FIRST = 4000, LIMIT_LAST = 2500;   // Zeitlimit pro Champion, schrumpft bis zum letzten; abgelaufen = falsch
   const NEXT_OK = 1100, NEXT_WRONG = 2300;   // Pause bis zum nächsten Champion
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const esc = A.esc;
   const coin = n => `<span class="kq-coin">${n}</span>`;
 
   let state = 'start', deck = [], idx = 0, score = 0, bonusSum = 0, correct = 0, answers = [];
-  let shownAt = null, locked = false, timer = null, raf = null, ui = {};
+  let shownAt = null, limit = LIMIT_FIRST, locked = false, timer = null, raf = null, late = 0, ui = {};
 
   // ───────── Startbildschirm ─────────
   function intro() {
@@ -27,7 +28,7 @@
       <p class="game-kicker">${ROUNDS} Champions · Set ${esc(data.set)}</p>
       <h2 class="game-title">Was kostet der?</h2>
       <div class="kq-preview" aria-hidden="true">${[1, 2, 3, 4, 5].map(n => `<span class="kq-chip cost-${n}">${coin(n)}</span>`).join('')}</div>
-      <p class="game-text">Je schneller du richtig liegst, desto mehr Punkte. Tipp: Die Tasten <kbd>1</kbd>–<kbd>5</kbd> sind am schnellsten.</p>
+      <p class="game-text">Pro Champion bleiben dir ${LIMIT_FIRST / 1000} Sekunden, zum Schluss nur noch ${(LIMIT_LAST / 1000).toLocaleString('de-DE')}. Je schneller du richtig liegst, desto mehr Punkte. Tipp: Die Tasten <kbd>1</kbd>–<kbd>5</kbd> sind am schnellsten.</p>
       <button class="btn btn-gold btn-lg" type="button" data-game-start>Los geht’s</button>
     </div>`;
     stage.querySelector('[data-game-start]').addEventListener('click', start);
@@ -38,7 +39,7 @@
     clearTimeout(timer);
     deck = A.shuffle(data.champions).slice(0, ROUNDS);
     deck.forEach(c => { const im = new Image(); im.src = A.asset(c.img); });   // Bilder vorladen
-    idx = 0; score = 0; bonusSum = 0; correct = 0; answers = [];
+    idx = 0; score = 0; bonusSum = 0; correct = 0; answers = []; late = 0;
     state = 'play';
     stage.innerHTML = `<div class="kq">
       <div class="hud">
@@ -79,33 +80,47 @@
     ui.figure.classList.remove('is-ok', 'is-bad');
     ui.dots.forEach((d, i) => d.classList.toggle('is-now', i === idx));
     ui.buttons.forEach(b => { b.disabled = false; b.classList.remove('is-right', 'is-wrong', 'is-answer'); });
-    // Uhr für den Tempo-Bonus startet erst, wenn das Bild zu sehen ist
-    const ready = () => { if (shownAt === null && state === 'play' && deck[idx] === c) { shownAt = performance.now(); tick(); } };
+    ui.bonus.style.transform = 'scaleX(1)';
+    limit = Math.round(LIMIT_FIRST - (LIMIT_FIRST - LIMIT_LAST) * idx / (ROUNDS - 1));
+    // Uhr startet erst, wenn das Bild zu sehen ist; das Zeitlimit endet per Timer (verlässlich)
+    const ready = () => {
+      if (shownAt !== null || state !== 'play' || deck[idx] !== c) return;
+      shownAt = performance.now();
+      clearTimeout(timer);
+      timer = setTimeout(() => { if (state === 'play' && deck[idx] === c && !locked) answer(0); }, limit);
+      tick();
+    };
     ui.img.onload = ready;
     ui.img.onerror = ready;
     ui.img.src = A.asset(c.img);
     if (ui.img.complete) ready();
   }
 
-  const bonusFor = ms => Math.round(BONUS * Math.max(0, Math.min(1, 1 - (ms - FULL_MS) / (ZERO_MS - FULL_MS))));
+  const bonusFor = ms => Math.round(BONUS * Math.max(0, Math.min(1, 1 - (ms - FULL_MS) / (limit - FULL_MS))));
 
-  // Bonus-Balken schrumpft mit der Zeit
+  // Zeitbalken schrumpft; im letzten Drittel rot und pulsierend
   function tick() {
     cancelAnimationFrame(raf);
     const step = () => {
       if (locked || shownAt === null) return;
-      ui.bonus.style.transform = `scaleX(${bonusFor(performance.now() - shownAt) / BONUS})`;
-      raf = requestAnimationFrame(step);
+      const left = Math.max(0, limit - (performance.now() - shownAt));
+      ui.bonus.style.transform = `scaleX(${left / limit})`;
+      ui.bonus.parentElement.classList.toggle('is-hurry', left < limit / 3);
+      if (left > 0) raf = requestAnimationFrame(step);
     };
     step();
   }
 
+  // cost = 0: Zeit abgelaufen
   function answer(cost) {
     if (state !== 'play' || locked) return;
     locked = true;
+    clearTimeout(timer);
     cancelAnimationFrame(raf);
+    ui.bonus.parentElement.classList.remove('is-hurry');
+    if (!cost) late++;
     const c = deck[idx], ok = cost === c.cost;
-    const bonus = ok ? bonusFor(shownAt === null ? ZERO_MS : performance.now() - shownAt) : 0;
+    const bonus = ok ? bonusFor(shownAt === null ? limit : performance.now() - shownAt) : 0;
     const pts = ok ? BASE + bonus : 0;
     score += pts; bonusSum += bonus; if (ok) correct++;
     answers.push({ champ: c, cost, ok });
@@ -123,7 +138,7 @@
     ui.score.textContent = score.toLocaleString('de-DE');
     ui.feedback.textContent = ok
       ? `Richtig! +${pts} Punkte${bonus ? ` (davon ${bonus} Tempo-Bonus)` : ''}`
-      : `Leider daneben – ${c.name} kostet ${c.cost} Gold.`;
+      : `${cost ? 'Leider daneben' : 'Zeit abgelaufen'} – ${c.name} kostet ${c.cost} Gold.`;
     ui.feedback.className = 'game-msg ' + (ok ? 'is-ok' : 'is-bad');
     timer = setTimeout(next, reduced ? (ok ? 1400 : 2600) : (ok ? NEXT_OK : NEXT_WRONG));
   }
@@ -144,8 +159,8 @@
       value: score,
       title,
       lines: [
-        `${correct} von ${ROUNDS} richtig · Tempo-Bonus ${bonusSum} Punkte`,
-        ...(wrong.length ? ['Daneben: ' + wrong.map(a => `${a.champ.name} (${a.champ.cost} statt ${a.cost} Gold)`).join(', ')] : []),
+        `${correct} von ${ROUNDS} richtig · Tempo-Bonus ${bonusSum} Punkte${late ? ` · ${late}× zu langsam` : ''}`,
+        ...(wrong.length ? ['Daneben: ' + wrong.map(a => `${a.champ.name} (${a.cost ? `${a.cost} statt ${a.champ.cost}` : `${a.champ.cost}`} Gold)`).join(', ')] : []),
       ],
       shareText: `Was kostet der? ${score.toLocaleString('de-DE')} Punkte, ${correct}/${ROUNDS} richtig – schlägst du mich? #TFTArcade`,
       onReplay: start,

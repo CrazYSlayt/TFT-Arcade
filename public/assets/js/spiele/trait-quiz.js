@@ -16,15 +16,20 @@
   const traitPrompt = t => `<div class="qz-subject">${badge(t, true)}<span class="qz-subject-name">${esc(t.name)}</span></div>`;
   const champTile = c => `<img class="qz-champ cost-${c.cost}" src="${A.asset(c.img)}" alt="" width="960" height="480"><span class="qz-name">${esc(c.name)}</span>`;
 
-  // „Welche Stufen?“: richtige Stufen gegen verschobene und fremde Stufen
+  // „Welche Stufen?“: nur Reihen gleicher Länge (sonst verrät die Anzahl die Antwort) –
+  // eine Stufe um 1 verschoben, alle verschoben oder die Stufen eines anderen Traits
   function steps(t) {
-    const right = bpText(t.bp), seen = new Set([right]), wrong = [];
-    const add = bp => { const s = bpText(bp); if (bp.every(x => x >= 1) && !seen.has(s)) { seen.add(s); wrong.push(s); } };
-    add(t.bp.map(x => x + 1));
-    add(t.bp.map(x => x - 1));
-    A.shuffle(stepped).filter(x => x.bp.length === t.bp.length).forEach(x => add(x.bp));
-    A.shuffle(stepped).forEach(x => add(x.bp));
-    const opts = A.shuffle([right, ...A.shuffle(wrong).slice(0, 3)]);
+    const right = bpText(t.bp), seen = new Set([right]), near = [], other = [];
+    const ok = bp => bp.every((x, i) => x >= 1 && (!i || x > bp[i - 1]));
+    const add = (bp, list) => { const s = bpText(bp); if (ok(bp) && !seen.has(s)) { seen.add(s); list.push(s); } };
+    t.bp.forEach((x, i) => [1, -1].forEach(d => add(t.bp.map((y, j) => j === i ? y + d : y), near)));
+    add(t.bp.map(x => x + 1), near);
+    add(t.bp.map(x => x - 1), near);
+    A.shuffle(stepped).filter(x => x.bp.length === t.bp.length).forEach(x => add(x.bp, other));
+    // zwei knapp daneben, eine fremde Reihe – falls zu wenige, auffüllen
+    const pick = [...A.shuffle(near).slice(0, 2), ...other.slice(0, 1)];
+    for (const s of [...A.shuffle(near), ...other]) if (pick.length < 3 && !pick.includes(s)) pick.push(s);
+    const opts = A.shuffle([right, ...pick.slice(0, 3)]);
     return {
       label: 'Welche Stufen?',
       prompt: traitPrompt(t),
@@ -39,8 +44,10 @@
   // „Wer gehört dazu?“: ein Champion mit dem Trait, drei ohne (bevorzugt gleiche Kosten)
   function whoHas(t) {
     const right = champ[A.shuffle(t.champs.filter(id => champ[id]))[0]];
+    // falsche Champions: bevorzugt mit einem gemeinsamen Trait mit dem richtigen, sonst gleiche Kosten
     const without = A.shuffle(data.champions.filter(c => !hasTrait(c, t)));
-    const wrong = [...without.filter(c => c.cost === right.cost), ...without.filter(c => c.cost !== right.cost)].slice(0, 3);
+    const shares = c => c.traits.some(([n]) => right.traits.some(([m]) => m === n));
+    const wrong = [...without.filter(shares), ...without.filter(c => !shares(c) && c.cost === right.cost), ...without.filter(c => !shares(c) && c.cost !== right.cost)].slice(0, 3);
     const opts = A.shuffle([right, ...wrong]);
     return {
       label: 'Wer gehört dazu?',
@@ -71,6 +78,7 @@
   window.ArcadeQuiz({
     title: 'Trait-Quiz',
     kicker: `10 Fragen · ${traits.length} Traits · Set ${esc(data.set)}`,
+    time: [7000, 4000],
     intro: 'Ab wie vielen Champions greift ein Trait, wer gehört dazu, welchen Trait hat dieser Champion? Je schneller du richtig liegst, desto mehr Punkte.',
     preview: `<div class="qz-preview" aria-hidden="true">${A.shuffle(stepped).slice(0, 4).map(t => badge(t)).join('')}</div>`,
     // vier Stufen-Fragen, je drei der anderen Arten, in zufälliger Reihenfolge; kein Trait wird zweimal gefragt

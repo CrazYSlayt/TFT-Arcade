@@ -11,9 +11,10 @@
 
   const SIZES = [5, 5, 6, 6, 7, 7, 8, 8];   // Champions pro Board, Runde für Runde
   const ROUNDS = SIZES.length, HEARTS = 3;
-  const MAX_MISS = 2;                       // mehr fehlende Champions kosten ein Herz
-  const MS_PER_CHAMP = 1300, MS_FASTER = 60, TRAINING_PER_CHAMP = 1700;   // Merkzeit je Champion (gewertet: jede Runde etwas weniger)
-  const P_CHAMP = 10, P_PERFECT = 30, P_SPEED = 20, SPEED_MS = 20000;
+  const MAX_MISS = 1;                       // mehr fehlende Champions kosten ein Herz
+  const MS_PER_CHAMP = 1050, MS_FASTER = 45, TRAINING_PER_CHAMP = 1700;   // Merkzeit je Champion (gewertet: jede Runde etwas weniger)
+  const RECALL_MS = 18000;                  // gewertet: Zeit zum Nachbauen, danach wird mit dem geprüft, was steht
+  const P_CHAMP = 10, P_PERFECT = 30, P_SPEED = 20, SPEED_MS = RECALL_MS;
   const esc = A.esc;
   const heart = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.4C.9 8 3.1 4 7 4c2.1 0 3.6 1.1 5 2.9C13.4 5.1 14.9 4 17 4c3.9 0 6.1 4 4.6 7.6C19.5 16.4 12 21 12 21z"/></svg>';
   const secWord = s => s === 1 ? '1 Sekunde' : `${s} Sekunden`;
@@ -73,7 +74,7 @@
       <ol class="cm-preview" aria-hidden="true">${[1, 2, 3, 4, 5].map(n => `<li class="cost-${n}"></li>`).join('')}</ol>
       <p class="game-text">${t
         ? 'Üb in Ruhe: mehr Zeit zum Merken, Fehler kosten keine Herzen.'
-        : `Präg dir das Board ein – Champions und aktive Traits. Dann baust du es aus dem Gedächtnis nach. Das Board wächst von ${SIZES[0]} auf ${SIZES[ROUNDS - 1]} Champions; fehlen mehr als ${MAX_MISS}, kostet das ein Herz.`}</p>
+        : `Präg dir das Board ein – Champions und aktive Traits. Dann baust du es in ${RECALL_MS / 1000} Sekunden aus dem Gedächtnis nach. Das Board wächst von ${SIZES[0]} auf ${SIZES[ROUNDS - 1]} Champions; fehlt mehr als ${MAX_MISS === 1 ? 'einer' : MAX_MISS}, kostet das ein Herz.`}</p>
       <button class="btn btn-gold btn-lg" type="button" data-game-start>Los geht’s</button>
     </div>`;
     stage.querySelector('[data-game-start]').addEventListener('click', start);
@@ -187,15 +188,24 @@
     ui.hint.textContent = 'Klick auf einen Champion auf dem Board nimmt ihn wieder herunter.';
     render();
     recallAt = performance.now();
+    // gewertet: Zeitlimit, danach wird mit dem geprüft, was auf dem Board steht
+    if (!training()) { const r = round; timer = setTimeout(() => { if (state === 'recall' && round === r) check(true); }, RECALL_MS); }
     speedBar();
     const first = ui.options.querySelector('.cm-opt');
     if (first) first.focus({ preventScroll: true });
   }
 
+  // Balken = verbleibende Zeit (zugleich Tempo-Bonus); gewertet im letzten Drittel rot, in den letzten 3 Sekunden tickt es
   function speedBar() {
+    let lastSec = null;
     const step = () => {
       if (state !== 'recall') return;
-      ui.timer.style.transform = `scaleX(${Math.max(0, 1 - (performance.now() - recallAt) / SPEED_MS)})`;
+      const left = Math.max(0, SPEED_MS - (performance.now() - recallAt)), s = Math.ceil(left / 1000);
+      ui.timer.style.transform = `scaleX(${left / SPEED_MS})`;
+      if (!training()) {
+        ui.timer.parentElement.classList.toggle('is-hurry', left < SPEED_MS / 3);
+        if (s !== lastSec) { if (s <= 3 && s > 0 && lastSec !== null) A.sound('tick'); lastSec = s; }
+      }
       raf = requestAnimationFrame(step);
     };
     step();
@@ -230,10 +240,13 @@
   }
 
   // ───────── Auflösung ─────────
-  function check() {
-    if (state !== 'recall' || picks.length !== board.length) return;
+  // timeUp: Zeitlimit abgelaufen – leere Plätze zählen als vergessen
+  function check(timeUp) {
+    if (state !== 'recall' || (!timeUp && picks.length !== board.length)) return;
     state = 'reveal';
+    clearTimeout(timer);
     cancelAnimationFrame(raf);
+    ui.timer.parentElement.classList.remove('is-hurry');
     const used = performance.now() - recallAt, ids = board.map(c => c.id);
     const right = picks.filter(id => ids.includes(id)).length, miss = board.length - right, perfect = !miss;
     // Board zeigen, wie es war: richtig gemerkt = grün, vergessen = rot; falsch gesetzte stehen in der Auswahl rot
@@ -252,7 +265,7 @@
 
     const lost = !training() && miss > MAX_MISS;
     if (lost) loseHeart();
-    ui.title.textContent = perfect ? 'Perfektes Board!' : !lost ? 'Gut gemerkt!' : 'Ein Herz weg!';
+    ui.title.textContent = perfect ? 'Perfektes Board!' : !lost ? 'Gut gemerkt!' : timeUp ? 'Zeit abgelaufen!' : 'Ein Herz weg!';
     ui.title.className = 'sm-title ' + (perfect ? 'is-ok' : miss <= MAX_MISS ? 'is-near' : 'is-bad');
     ui.sub.textContent = `${right} von ${board.length} Champions richtig · +${pts} Punkte${perfect ? ` (inkl. ${P_PERFECT} Bonus${speed ? ` und ${speed} Tempo` : ''})` : ''}`;
     A.sound(miss <= MAX_MISS ? 'ok' : 'bad');
