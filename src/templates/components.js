@@ -111,16 +111,11 @@ const avatarPicker = () => `<fieldset class="hs-avatars">
     <legend class="hs-label">Such dir einen Avatar aus</legend>
     <div class="hs-avatar-grid">${AVATARE.map((a, i) => `<label class="hs-av" title="${esc(a.name)}"><input type="radio" name="avatar" value="${a.id}"${i ? '' : ' checked'}>${avatarImg(a.id, a.name)}</label>`).join('')}</div>
   </fieldset>`;
-// Bestenliste der Spielseite: Reiter Heute/Gesamt (Heute nur, wenn es dafür Daten gibt), darunter der eigene Rekord
+// Bestenliste der Spielseite (die ersten Plätze), darunter der eigene Rekord
 function leaderboard(g, ctx) {
-  const modes = rankedModes(g), data = ctx.boards[g.id] || {};
-  const today = !!data[modes[0].id + ':heute'], period = today ? 'heute' : 'gesamt';
-  const key = m => period === 'heute' ? m.id + ':heute' : m.id;
-  const lists = modes.map((m, i) => `<ol class="board-list" data-board="${m.id}"${i ? ' hidden' : ''}>${boardRows(g, ctx, key(m), 'li', SIDE_ROWS)}</ol>`).join('');
-  const tabs = ['heute', 'gesamt'].map(p => `<button class="board-tab" type="button" data-board-period="${p}" aria-pressed="${p === period}">${p === 'heute' ? 'Heute' : 'Gesamt'}</button>`).join('');
-  return `<section class="panel board" aria-labelledby="board-h" ${boardAttrs(g)} data-period="${period}" data-show="${SIDE_ROWS}">
+  const lists = rankedModes(g).map((m, i) => `<ol class="board-list" data-board="${m.id}"${i ? ' hidden' : ''}>${boardRows(g, ctx, m.id, 'li', SIDE_ROWS)}</ol>`).join('');
+  return `<section class="panel board" aria-labelledby="board-h" ${boardAttrs(g)} data-show="${SIDE_ROWS}">
   <div class="board-head"><h2 id="board-h">${ui('trophy')}Bestenliste</h2><span class="board-demo" title="Vorschau mit erfundenen Namen">Beispieldaten</span></div>
-  <div class="board-tabs" role="group" aria-label="Zeitraum">${tabs}</div>
   ${lists}
   ${boardJson(g, ctx)}
   <div class="board-record" data-record-box="${g.id}" data-type="${g.record.type}" data-lower="${g.record.lowerIsBetter ? 1 : 0}">

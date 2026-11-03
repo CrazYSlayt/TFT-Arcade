@@ -104,7 +104,7 @@
     val.parentElement.classList.toggle('is-empty', !r);
     let sub = 'Noch kein Rekord – spiel eine Runde!';
     if (r && root) {
-      const lower = root.dataset.lower === '1', better = boardRowsFor(root, mode, root.dataset.period).filter(x => !x.mine && (lower ? x.value < r.value : x.value > r.value));
+      const lower = root.dataset.lower === '1', better = boardRowsFor(root, mode).filter(x => !x.mine && (lower ? x.value < r.value : x.value > r.value));
       const target = better[better.length - 1], diff = target && Math.abs(target.value - r.value);
       sub = !target ? 'Damit stehst du ganz oben!' : `Nur noch ${plain ? diff.toLocaleString('de-DE') : fmt(diff, box.dataset.type)} bis Platz ${better.length}.`;
     }
@@ -129,20 +129,17 @@
   };
   let lastEntryId = null;
 
-  // sortierte Liste eines Modus (Gleichstand: wer zuerst da war, bleibt vorn – wie am Automaten).
-  // period 'heute': Beispieldaten unter „<Modus>:heute“ und nur eigene Einträge von heute
-  const sameDay = (a, b) => new Date(a).toDateString() === new Date(b).toDateString();
-  function boardRowsFor(root, mode, period) {
-    const today = period === 'heute';
+  // sortierte Liste eines Modus (Gleichstand: wer zuerst da war, bleibt vorn – wie am Automaten)
+  function boardRowsFor(root, mode) {
     let demo = [];
-    try { demo = JSON.parse($('[data-board-data]', root).textContent)[today ? mode + ':heute' : mode] || []; } catch (e) { demo = []; }
-    const lower = root.dataset.lower === '1', now = Date.now();
+    try { demo = JSON.parse($('[data-board-data]', root).textContent)[mode] || []; } catch (e) { demo = []; }
+    const lower = root.dataset.lower === '1';
     const rows = demo.map(([name, value, avatar]) => ({ name, value, avatar }))
-      .concat(entries.list(root.dataset.boardRoot, mode).filter(e => !today || sameDay(e.date, now)).map(e => ({ ...e, mine: true })));
+      .concat(entries.list(root.dataset.boardRoot, mode).map(e => ({ ...e, mine: true })));
     rows.sort((a, b) => (lower ? a.value - b.value : b.value - a.value) || (a.date || 0) - (b.date || 0));
     return rows.slice(0, Number(root.dataset.size) || 10);
   }
-  // Platz, den ein neuer Wert in der Gesamtliste bekäme – null, wenn er nicht hineinpasst
+  // Platz, den ein neuer Wert bekäme – null, wenn er nicht in die Liste passt
   function rankFor(root, mode, value) {
     const lower = root.dataset.lower === '1', size = Number(root.dataset.size) || 10;
     const rank = boardRowsFor(root, mode).filter(r => lower ? r.value <= value : r.value >= value).length + 1;
@@ -172,11 +169,11 @@
     $$('[data-board]', root).forEach(list => {
       list.hidden = list.dataset.board !== mode;
       if (list.hidden) return;
-      const tr = list.tagName === 'TBODY', all = boardRowsFor(root, mode, root.dataset.period);
+      const tr = list.tagName === 'TBODY', all = boardRowsFor(root, mode);
       // Seitenbereich: nur die ersten Plätze – der eigene neue Eintrag bleibt sichtbar, auch wenn er weiter unten steht
       const rows = all.map((r, i) => ({ ...r, place: i + 1 })).filter((r, i) => !show || i < show || r.id === lastEntryId);
       list.innerHTML = rows.length ? '' : (tr ? '<tr class="empty"><td colspan="3">Noch keine Einträge.</td></tr>'
-        : `<li class="empty">${root.dataset.period === 'heute' ? 'Heute noch keine Einträge – sei die erste Person!' : 'Noch keine Einträge.'}</li>`);
+        : '<li class="empty">Noch keine Einträge.</li>');
       rows.forEach(r => {
         const row = document.createElement(tr ? 'tr' : 'li');
         if (r.mine) row.className = 'is-you' + (r.id === lastEntryId ? ' is-new' : '');
@@ -194,7 +191,6 @@
       });
     });
     $$('[data-board-tab]', root).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.boardTab === mode)));
-    $$('[data-board-period]', root).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.boardPeriod === root.dataset.period)));
   }
   const renderBoards = () => $$('[data-board-root]').forEach(renderBoard);
 
@@ -227,8 +223,6 @@
       showStage();
       document.dispatchEvent(new CustomEvent('arcade:mode', { detail: { mode: i.value } }));
     }));
-    // Reiter Heute/Gesamt
-    $$('[data-board-period]').forEach(b => b.addEventListener('click', () => { root.dataset.period = b.dataset.boardPeriod; sync(); }));
     // „Neu starten“: Ergebniskarte weg, Spielfläche zurück, das Spielskript startet eine neue Runde
     const restart = $('[data-restart]');
     if (restart) restart.addEventListener('click', () => {

@@ -111,7 +111,7 @@ function stage(g, c) {
 // Namenseintrag wie am Arcade-Automaten: erscheint, wenn das Ergebnis für die Top 10 reicht (arcade.js)
 const highscoreEntry = () => `<form class="hs-entry" data-hs-form hidden>
     <p class="hs-title">Neuer Highscore!</p>
-    <p class="hs-rank">Platz <b data-hs-rank>1</b> der Gesamt-Bestenliste</p>
+    <p class="hs-rank">Platz <b data-hs-rank>1</b> in der Bestenliste</p>
     ${avatarPicker()}
     <label class="hs-label" for="hs-name">Trag deinen Namen ein</label>
     <div class="hs-row">
@@ -120,7 +120,7 @@ const highscoreEntry = () => `<form class="hs-entry" data-hs-form hidden>
     </div>
     <p class="hs-hint">2–12 Zeichen: Buchstaben, Zahlen, Leerzeichen, _ . und -</p>
   </form>
-  <p class="hs-done" data-hs-done hidden>${ui('check')}<span>Eingetragen auf Platz <b data-hs-place>1</b> der Gesamtliste!</span> <a class="text-link" href="/bestenliste" data-hs-link>Zur Bestenliste${ui('arrow')}</a></p>`;
+  <p class="hs-done" data-hs-done hidden>${ui('check')}<span>Eingetragen auf Platz <b data-hs-place>1</b>!</span> <a class="text-link" href="/bestenliste" data-hs-link>Zur Bestenliste${ui('arrow')}</a></p>`;
 
 // Auswertung nach einer Runde – das Spielskript füllt und zeigt sie über Arcade.finishRound()
 const result = g => `<div class="result" id="auswertung" tabindex="-1" hidden>
