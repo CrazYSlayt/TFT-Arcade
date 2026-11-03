@@ -50,6 +50,9 @@ function validate() {
     for (const s of g.scripts || []) if (!fs.existsSync(path.join(PUB, s))) err.push(`${w}: Skript ${s} fehlt`);
     seo(w, g.seo);
   }
+  for (const a of require('./src/config/avatare')) {
+    if (!fs.existsSync(path.join(PUB, 'assets', 'img', 'avatare', a.id + '.webp'))) err.push(`Avatar ${a.id}: Bild avatare/${a.id}.webp fehlt`);
+  }
   for (const d of dailies) {
     const g = games.find(x => x.id === d.game);
     if (!g || g.status === 'bald') err.push(`Tageschallenge „${d.title}“: Spiel ${d.game} fehlt oder hat keine Seite`);

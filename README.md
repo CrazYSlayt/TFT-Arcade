@@ -10,6 +10,7 @@ Die digitale Kirmes für TFT-Fans: Minispiele, Quiz und Challenges rund um Teamf
 - Jede Änderung in `src/` oder `public/` baut die Seite automatisch neu, danach einfach im Browser neu laden.
 - `npm run check` baut die Seite und prüft alle SEO-Regeln und Links.
 - Buden-Rahmen der Spielkarten (eine Farbe je Kategorie): Original `quellen/rahmen/buden-rahmen.png` → `powershell -File tools/rahmen-schneiden.ps1` (ausschneiden) → `node tools/rahmen-webp.js` (WebP, `public/assets/img/rahmen/`). Fenster, Namensleiste und Kreis sind in `arcade.css` (Spielkarten) in % des Rahmens hinterlegt.
+- Avatare (Charaktere für die Bestenlisten): Original `quellen/avatare/charaktere.png` (2 × 5, freigestellt) → `powershell -File tools/avatare-schneiden.ps1` (ausschneiden, Schleier entfernen) → `node tools/rahmen-webp.js 256 256 avatare` (WebP, `public/assets/img/avatare/`). Namen in `src/config/avatare.js`, Hintergrundfarben `.av-<id>` in `arcade.css`.
 - `npm run champions` übernimmt die Champions des Live-Sets aus den TFTClimb-Daten (`../TFT/data`) und lädt die Bilder einmalig von CommunityDragon (→ `public/assets/img/champions/`, `public/assets/js/spiele/daten/champions.js`). Nach jedem Set- oder Patch-Wechsel einmal ausführen, sobald TFTClimb aktualisiert ist.
 
 ## Spiele

@@ -756,11 +756,15 @@ main > :not(.scene) { position: relative; z-index: 1; }
 .board-list li.is-you .rank { color: #032622; background: var(--teal); }
 .board-list .who { font-size: 1.05rem; color: #fff; }
 .board-list .val { font: 400 1.25rem/1 var(--f-display); color: var(--gold); }
-/* Platzhalter-Avatare (Anfangsbuchstabe); werden durch Bilder ersetzt, sobald es Avatar-Grafiken gibt */
-.avatar { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; font: 400 1.2rem/1 var(--f-display); color: #fff; border: 2px solid rgba(255, 220, 160, .7); box-shadow: 0 3px 8px rgba(0, 0, 0, .5); }
-.av-0 { background: radial-gradient(circle at 35% 30%, #8fb8ff, #3557c9); } .av-1 { background: radial-gradient(circle at 35% 30%, #d8a8ff, #7a3fc9); }
-.av-2 { background: radial-gradient(circle at 35% 30%, #7ff3c6, #1f9a73); } .av-3 { background: radial-gradient(circle at 35% 30%, #ffb08f, #c9452f); }
-.av-4 { background: radial-gradient(circle at 35% 30%, #ffe28f, #c98a1f); } .av-5 { background: radial-gradient(circle at 35% 30%, #8ff0ff, #1f8ac9); }
+/* Avatare: Charakter (public/assets/img/avatare, src/config/avatare.js) im farbigen Kreis, Farbe je Charakter über --av */
+.avatar {
+  --av: #6b3fa0; position: relative; display: block; flex: none; width: 44px; height: 44px; overflow: hidden; border-radius: 50%;
+  background: radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--av) 45%, #fff), var(--av) 55%, color-mix(in srgb, var(--av) 55%, #000));
+  border: 2px solid rgba(255, 220, 160, .75); box-shadow: 0 3px 8px rgba(0, 0, 0, .5);
+}
+.avatar img { position: absolute; left: 50%; bottom: -4%; width: 112%; height: auto; max-width: none; transform: translateX(-50%); }
+.av-kronenpinguin { --av: #7a45b8; } .av-flatterbaer { --av: #c0753a; } .av-schuerfi { --av: #c9921f; } .av-puschel { --av: #e27aa8; } .av-schnabeltier { --av: #25a596; }
+.av-wolkenschaf { --av: #9a7fd8; } .av-federritter { --av: #3a5fd0; } .av-runengolem { --av: #1d8fc0; } .av-greifling { --av: #5c8fe2; } .av-zottelbock { --av: #c4502f; }
 /* eigener Rekord unten in der Bestenliste */
 .board-record { position: relative; margin-top: 12px; padding: 14px 0 4px; padding-right: 96px; border-top: 1px solid rgba(255, 214, 120, .3); }
 .br-kicker { display: flex; align-items: center; gap: 8px; margin: 0; font: 400 1.25rem/1 var(--f-display); color: #fff1d6; }
@@ -769,8 +773,8 @@ main > :not(.scene) { position: relative; z-index: 1; }
 .br-value b { font-size: 2rem; font-weight: 400; }
 .br-value.is-empty { display: none; }
 .br-sub { margin: 0; font-size: .95rem; color: var(--muted); }
-.br-pengu { position: absolute; right: -6px; bottom: -4px; display: grid; place-items: center; width: 92px; height: 92px; color: rgba(255, 201, 74, .25); }
-.br-pengu .ui { width: 80px; height: 80px; stroke: none; transform: rotate(10deg); }
+/* eigener Avatar steht rechts neben dem Rekord und ragt etwas über den Rahmen */
+.br-figur { position: absolute; right: -14px; bottom: -22px; width: 116px; height: 116px; filter: drop-shadow(0 8px 12px rgba(0, 0, 0, .6)); animation: bob 3.4s ease-in-out infinite; }
 .board-all { align-self: flex-start; margin-top: 10px; font-size: .92rem; }
 .who { overflow: hidden; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .val { font-weight: 700; font-variant-numeric: tabular-nums; color: #fff; }
@@ -976,6 +980,16 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
 .hs-rank { margin: 0 0 14px; color: var(--muted); }
 .hs-rank b { color: #fff; }
 .hs-label { display: block; margin-bottom: 8px; font-weight: 700; }
+/* Avatar-Auswahl: zehn runde Charaktere, der gewählte leuchtet golden und hüpft */
+.hs-avatars { margin: 0 0 14px; padding: 0; border: 0; }
+.hs-avatars legend { padding: 0; }
+.hs-avatar-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; justify-items: center; }
+.hs-av { position: relative; cursor: pointer; }
+.hs-av input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.hs-av .avatar { width: 58px; height: 58px; opacity: .6; transition: transform .2s, opacity .2s, box-shadow .2s, border-color .2s; }
+.hs-av:hover .avatar { opacity: 1; transform: translateY(-2px); }
+.hs-av input:checked + .avatar { opacity: 1; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(255, 201, 74, .45), 0 0 18px rgba(255, 201, 74, .6); animation: bob 1.6s ease-in-out infinite; }
+.hs-av input:focus-visible + .avatar { outline: 3px solid var(--teal); outline-offset: 2px; }
 .hs-row { display: flex; gap: 10px; }
 .hs-input {
   flex: 1; min-width: 0; padding: .75em .9em; border-radius: 10px; border: 2px solid rgba(255, 201, 74, .6);
@@ -1027,6 +1041,7 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
 .hs-table th:last-child, .hs-table td.val { text-align: right; }
 .hs-table td { padding: 9px 8px; white-space: nowrap; }
 .hs-table td.who { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hs-table .avatar { display: inline-block; width: 30px; height: 30px; margin: -8px 10px -6px 0; vertical-align: middle; border-width: 1.5px; }
 /* .rank ist im Seitenbereich ein runder Kreis – in der Tabelle eine normale Zelle */
 .hs-table td.rank { display: table-cell; width: auto; height: auto; border-radius: 0; background: none; font: inherit; color: inherit; }
 .hs-table td.rank::after { content: '.'; }

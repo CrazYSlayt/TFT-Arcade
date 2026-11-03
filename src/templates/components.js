@@ -1,6 +1,7 @@
 // TFT Arcade – wiederverwendbare Bausteine: Buden, Spielkarten, Breadcrumb, Tageschallenge, Bestenliste, Seitenbereich
 const { esc, fmtValue, json } = require('./helpers');
 const { art, ui } = require('./icons');
+const AVATARE = require('../config/avatare');
 
 const STATUS = {
   live: { badge: 'Spielbereit', button: 'Spielen' },
@@ -89,22 +90,27 @@ function daily(ctx, { level = 2, compact = false } = {}) {
 // Modi mit ranked: false (z. B. Training) haben keine Bestenliste.
 const BOARD_SIZE = 10, SIDE_ROWS = 5;
 const rankedModes = g => g.modes.filter(m => m.ranked !== false);
-const boardAttrs = g => `data-board-root="${g.id}" data-type="${g.record.type}" data-lower="${g.record.lowerIsBetter ? 1 : 0}" data-mode="${rankedModes(g)[0].id}" data-size="${BOARD_SIZE}"`;
+const boardAttrs = g => `data-board-root="${g.id}" data-type="${g.record.type}" data-lower="${g.record.lowerIsBetter ? 1 : 0}" data-mode="${rankedModes(g)[0].id}" data-size="${BOARD_SIZE}" data-avatars="${AVATARE.map(a => a.id).join(',')}"`;
 const boardJson = (g, ctx) => `<script type="application/json" data-board-data>${json(ctx.boards[g.id] || {})}</script>`;
 
-// Platzhalter-Avatar: Anfangsbuchstabe auf einer Farbe, die sich aus dem Namen ergibt (gleiche Regel wie avatar() in arcade.js)
-const AVATAR_COLORS = 6;
-const avatarOf = name => [...name].reduce((h, ch) => (h * 31 + ch.codePointAt(0)) >>> 0, 7) % AVATAR_COLORS;
-const avatar = name => `<span class="avatar av-${avatarOf(name)}" aria-hidden="true">${esc([...name][0].toUpperCase())}</span>`;
+// Avatar: runder Charakter (src/config/avatare.js). Einträge ohne gewählten Avatar (Beispieldaten) bekommen einen festen
+// über ihren Namen – gleiche Regel wie avatarFor() in arcade.js
+const avatarOf = name => AVATARE[[...name].reduce((h, ch) => (h * 31 + ch.codePointAt(0)) >>> 0, 7) % AVATARE.length].id;
+const avatarImg = (id, alt = '') => `<span class="avatar av-${id}"><img src="/assets/img/avatare/${id}.webp" alt="${esc(alt)}" width="256" height="256" loading="lazy" decoding="async"></span>`;
 
-// Zeilen eines Modus: kind 'li' (Liste im Seitenbereich, mit Avatar) oder 'tr' (Tabelle der Hall of Fame)
+// Zeilen eines Modus: kind 'li' (Liste im Seitenbereich) oder 'tr' (Tabelle der Hall of Fame), beide mit Avatar
 function boardRows(g, ctx, mode, kind, max = BOARD_SIZE) {
   const rows = ((ctx.boards[g.id] || {})[mode] || []).slice(0, max);
   if (!rows.length) return kind === 'tr' ? '<tr class="empty"><td colspan="3">Noch keine Einträge.</td></tr>' : '<li class="empty">Noch keine Einträge.</li>';
-  if (kind === 'tr') return rows.map(([name, v], r) => `<tr data-v="${v}"><td class="rank">${r + 1}</td><td class="who">${esc(name)}</td><td class="val">${fmtValue(v, g.record.type)}</td></tr>`).join('');
-  return rows.map(([name, v], r) => `<li data-v="${v}"><span class="rank">${r + 1}</span>${avatar(name)}<span class="who">${esc(name)}</span><span class="val">${g.record.type === 'punkte' ? v.toLocaleString('de-DE') : fmtValue(v, g.record.type)}</span></li>`).join('');
+  if (kind === 'tr') return rows.map(([name, v, av], r) => `<tr data-v="${v}"><td class="rank">${r + 1}</td><td class="who">${avatarImg(av || avatarOf(name))}${esc(name)}</td><td class="val">${fmtValue(v, g.record.type)}</td></tr>`).join('');
+  return rows.map(([name, v, av], r) => `<li data-v="${v}"><span class="rank">${r + 1}</span>${avatarImg(av || avatarOf(name))}<span class="who">${esc(name)}</span><span class="val">${g.record.type === 'punkte' ? v.toLocaleString('de-DE') : fmtValue(v, g.record.type)}</span></li>`).join('');
 }
 
+// Avatar-Auswahl beim Highscore-Eintrag (Radio-Felder; arcade.js merkt sich die Wahl)
+const avatarPicker = () => `<fieldset class="hs-avatars">
+    <legend class="hs-label">Such dir einen Avatar aus</legend>
+    <div class="hs-avatar-grid">${AVATARE.map((a, i) => `<label class="hs-av" title="${esc(a.name)}"><input type="radio" name="avatar" value="${a.id}"${i ? '' : ' checked'}>${avatarImg(a.id, a.name)}</label>`).join('')}</div>
+  </fieldset>`;
 // Bestenliste der Spielseite: Reiter Heute/Gesamt (Heute nur, wenn es dafür Daten gibt), darunter der eigene Rekord
 function leaderboard(g, ctx) {
   const modes = rankedModes(g), data = ctx.boards[g.id] || {};
@@ -121,7 +127,7 @@ function leaderboard(g, ctx) {
     <p class="br-kicker">${ui('crown')}Dein Rekord</p>
     <p class="br-value"><b data-record-value>–</b> <span>${g.record.type === 'zeit' ? '' : 'Punkte'}</span></p>
     <p class="br-sub" data-record-sub>Noch kein Rekord – spiel eine Runde!</p>
-    <span class="br-pengu" aria-hidden="true">${ui('crown')}</span>
+    <img class="br-figur" data-record-avatar src="/assets/img/avatare/${AVATARE[0].id}.webp" alt="" width="256" height="256" loading="lazy" decoding="async">
   </div>
   <a class="text-link board-all" href="/bestenliste#${g.id}">Ganze Bestenliste${ui('arrow')}</a>
 </section>`;
@@ -152,4 +158,4 @@ function aside(g, ctx) {
   return infoPanel(g, ctx);
 }
 
-module.exports = { gameCard, booth, crumbs, daily, aside, badge, boardAttrs, boardJson, boardRows, rankedModes, STATUS };
+module.exports = { gameCard, booth, crumbs, daily, aside, badge, boardAttrs, boardJson, boardRows, rankedModes, avatarPicker, STATUS };

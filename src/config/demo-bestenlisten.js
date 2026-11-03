@@ -1,5 +1,6 @@
 // TFT Arcade – Beispieldaten für die Bestenlisten (Prototyp, auf der Seite als „Demo“ markiert).
-// Schlüssel: Spiel-id → Modus-id → Einträge [Name, Wert]. Werte im Format des Rekords (Zeit in Sekunden, Punkte als Zahl).
+// Schlüssel: Spiel-id → Modus-id → Einträge [Name, Wert, Avatar?]. Werte im Format des Rekords (Zeit in Sekunden, Punkte als Zahl).
+// Avatar: id aus src/config/avatare.js – fehlt er, ergibt er sich fest aus dem Namen.
 // „<Modus>:heute“ = Liste für den Reiter „Heute“ auf der Spielseite (fehlt sie, zeigt „Heute“ nur eigene Einträge von heute).
 // Eigene Einträge nach einer Runde mischt arcade.js dazu (vorerst nur im Browser). Sobald es ein Backend gibt, ersetzt es diese Datei.
 module.exports = {
@@ -19,8 +20,8 @@ module.exports = {
       ['NoItemNina', 890], ['Lvl8Lotte', 820], ['BankBert', 740], ['GoldGoblin', 650], ['TopFourTim', 560],
     ],
     'gewertet:heute': [
-      ['PoroMaster', 920], ['LuluMain', 860], ['TactixTom', 540], ['ArcadeAnnie', 480], ['ShopDiff', 420],
-      ['GoldGoblin', 360], ['Lvl8Lotte', 310],
+      ['PoroMaster', 920, 'kronenpinguin'], ['LuluMain', 860, 'wolkenschaf'], ['TactixTom', 540, 'federritter'],
+      ['ArcadeAnnie', 480, 'puschel'], ['ShopDiff', 420, 'schnabeltier'], ['GoldGoblin', 360, 'schuerfi'], ['Lvl8Lotte', 310, 'greifling'],
     ],
   },
   'was-kostet-der': {
@@ -29,7 +30,8 @@ module.exports = {
       ['RerollRitter', 1190], ['HexHanna', 1104], ['TopFourTim', 1012], ['LuckyLoot', 930], ['ZwölfZinsen', 845],
     ],
     'klassisch:heute': [
-      ['PenguPilot', 1344], ['LuckyLoot', 1210], ['ShopDiff', 1095], ['ArcadeAnnie', 980], ['TactixTom', 870],
+      ['PenguPilot', 1344, 'runengolem'], ['LuckyLoot', 1210, 'zottelbock'], ['ShopDiff', 1095, 'schnabeltier'],
+      ['ArcadeAnnie', 980, 'puschel'], ['TactixTom', 870, 'flatterbaer'],
     ],
   },
   'champion-quiz': {

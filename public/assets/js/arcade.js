@@ -109,6 +109,8 @@
       sub = !target ? 'Damit stehst du ganz oben!' : `Nur noch ${plain ? diff.toLocaleString('de-DE') : fmt(diff, box.dataset.type)} bis Platz ${better.length}.`;
     }
     $('[data-record-sub]', box).textContent = sub;
+    const fig = $('[data-record-avatar]', box);
+    if (fig) fig.src = avatarSrc(myAvatar());
   }
 
   // ───────── Bestenlisten: Beispieldaten + eigene Namenseinträge ─────────
@@ -117,8 +119,8 @@
   const entries = {
     all() { return store.get('eintraege', {}); },
     list(game, mode) { const a = entries.all(); return (a[game] && a[game][mode]) || []; },
-    add(game, mode, name, value) {
-      const a = entries.all(), e = { id: Date.now().toString(36), name, value, date: Date.now() };
+    add(game, mode, name, value, avatar) {
+      const a = entries.all(), e = { id: Date.now().toString(36), name, value, date: Date.now(), avatar };
       a[game] = a[game] || {};
       (a[game][mode] = a[game][mode] || []).push(e);
       store.set('eintraege', a);
@@ -135,7 +137,7 @@
     let demo = [];
     try { demo = JSON.parse($('[data-board-data]', root).textContent)[today ? mode + ':heute' : mode] || []; } catch (e) { demo = []; }
     const lower = root.dataset.lower === '1', now = Date.now();
-    const rows = demo.map(([name, value]) => ({ name, value }))
+    const rows = demo.map(([name, value, avatar]) => ({ name, value, avatar }))
       .concat(entries.list(root.dataset.boardRoot, mode).filter(e => !today || sameDay(e.date, now)).map(e => ({ ...e, mine: true })));
     rows.sort((a, b) => (lower ? a.value - b.value : b.value - a.value) || (a.date || 0) - (b.date || 0));
     return rows.slice(0, Number(root.dataset.size) || 10);
@@ -147,8 +149,22 @@
     return rank <= size ? rank : null;
   }
 
-  // Platzhalter-Avatar wie avatar() in src/templates/components.js
-  const avatarOf = name => [...name].reduce((h, ch) => (h * 31 + ch.codePointAt(0)) >>> 0, 7) % 6;
+  // Avatar eines Eintrags: selbst gewählt – sonst fest über den Namen (gleiche Regel wie avatarOf() in src/templates/components.js)
+  function avatarFor(root, r) {
+    const list = (root.dataset.avatars || '').split(',');
+    if (r.avatar && list.includes(r.avatar)) return r.avatar;
+    return list[[...r.name].reduce((h, ch) => (h * 31 + ch.codePointAt(0)) >>> 0, 7) % list.length];
+  }
+  const avatarSrc = id => asset(`assets/img/avatare/${id}.webp`);
+  function avatarEl(id) {
+    const span = document.createElement('span'), img = document.createElement('img');
+    span.className = 'avatar av-' + id;
+    img.src = avatarSrc(id); img.alt = ''; img.width = 256; img.height = 256; img.decoding = 'async';
+    span.appendChild(img);
+    return span;
+  }
+  // zuletzt gewählter Avatar (auch für „Dein Rekord“)
+  const myAvatar = () => store.get('avatar', 'kronenpinguin');
 
   // zeichnet die Liste des aktiven Modus neu (Liste im Seitenbereich mit Avatar oder Tabelle der Hall of Fame)
   function renderBoard(root) {
@@ -169,14 +185,10 @@
           const cell = document.createElement(tr ? 'td' : 'span');
           cell.className = cls;
           cell.textContent = text;
+          // Avatar: in der Liste eigene Spalte nach dem Platz, in der Tabelle vor dem Namen
+          if (tr && cls === 'who') cell.prepend(avatarEl(avatarFor(root, r)));
           row.appendChild(cell);
-          if (!tr && cls === 'rank') {
-            const av = document.createElement('span');
-            av.className = 'avatar av-' + avatarOf(r.name);
-            av.setAttribute('aria-hidden', 'true');
-            av.textContent = [...r.name][0].toUpperCase();
-            row.appendChild(av);
-          }
+          if (!tr && cls === 'rank') row.appendChild(avatarEl(avatarFor(root, r)));
         });
         list.appendChild(row);
       });
@@ -387,6 +399,9 @@
     $('[data-hs-rank]', form).textContent = rank;
     input.value = store.get('name', '');
     input.oninput = () => input.setCustomValidity('');
+    // Avatar: der zuletzt gewählte ist vorausgewählt
+    const pick = $(`input[name="avatar"][value="${CSS.escape(myAvatar())}"]`, form);
+    if (pick) pick.checked = true;
     form.onsubmit = ev => {
       ev.preventDefault();
       const name = input.value.trim().replace(/\s+/g, ' ');
@@ -395,8 +410,11 @@
         input.reportValidity();
         return;
       }
+      const chosen = $('input[name="avatar"]:checked', form), avatar = chosen ? chosen.value : myAvatar();
       store.set('name', name);
-      const e = entries.add(root.dataset.boardRoot, mode, name, value);
+      store.set('avatar', avatar);
+      const e = entries.add(root.dataset.boardRoot, mode, name, value, avatar);
+      renderRecordBox();
       lastEntryId = e.id;
       renderBoards();
       const place = boardRowsFor(root, mode).findIndex(r => r.id === e.id) + 1;

@@ -1,14 +1,16 @@
 // TFT Arcade – wandelt die ausgeschnittenen Buden-Rahmen (tools/cache/rahmen/*.png, von tools/rahmen-schneiden.ps1)
 // in WebP mit Transparenz um und bringt alle vier auf dieselbe Größe (die des ersten PNGs) → public/assets/img/rahmen/<farbe>.webp
 // Umwandlung per Chrome im Hintergrund (Canvas → WebP, gesteuert über die DevTools-Schnittstelle),
-// damit kein Bildprogramm installiert sein muss.  Aufruf: node tools/rahmen-webp.js
+// damit kein Bildprogramm installiert sein muss.  Aufruf: node tools/rahmen-webp.js [Breite Höhe] [Ordner]
+// Ordner (Standard „rahmen“): tools/cache/<Ordner>/*.png → public/assets/img/<Ordner>/*.webp – z. B. „avatare“ (tools/avatare-schneiden.ps1)
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const { spawn } = require('child_process');
 
-const SRC = path.join(__dirname, 'cache', 'rahmen');
-const OUT = path.join(__dirname, '..', 'public', 'assets', 'img', 'rahmen');
+const DIR = process.argv[4] || 'rahmen';
+const SRC = path.join(__dirname, 'cache', DIR);
+const OUT = path.join(__dirname, '..', 'public', 'assets', 'img', DIR);
 const Q = 0.86, PORT = 9333;
 const CHROME = ['C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'].find(f => fs.existsSync(f));
 
@@ -16,7 +18,7 @@ const names = fs.readdirSync(SRC).filter(f => f.endsWith('.png')).map(f => f.sli
 // Zielgröße: node tools/rahmen-webp.js <Breite> <Höhe> – sonst die Größe des ersten PNGs (Breite/Höhe stehen im PNG-Kopf ab Byte 16)
 const head = fs.readFileSync(path.join(SRC, names[0] + '.png'));
 const W = Number(process.argv[2]) || head.readUInt32BE(16), H = Number(process.argv[3]) || head.readUInt32BE(20);
-console.log(`Zielgröße ${W}×${H} – im CSS (Spielkarten) muss aspect-ratio ${W} / ${H} stehen`);
+console.log(`Zielgröße ${W}×${H}` + (DIR === 'rahmen' ? ` – im CSS (Spielkarten) muss aspect-ratio ${W} / ${H} stehen` : ''));
 const pngs = Object.fromEntries(names.map(n => [n, 'data:image/png;base64,' + fs.readFileSync(path.join(SRC, n + '.png')).toString('base64')]));
 const script = `(async () => {
   const pngs = ${JSON.stringify(pngs)}, res = {};
@@ -55,7 +57,7 @@ async function main() {
       fs.writeFileSync(path.join(OUT, n + '.webp'), buf);
       console.log(`  ${n}.webp  ${(buf.length / 1024).toFixed(0)} KB`);
     }
-    console.log(`✔ ${Object.keys(data).length} Rahmen → public/assets/img/rahmen/`);
+    console.log(`✔ ${Object.keys(data).length} Bilder → public/assets/img/${DIR}/`);
   } finally {
     chrome.kill();
     await sleep(500);
