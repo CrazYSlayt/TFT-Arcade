@@ -15,7 +15,7 @@
   const HINT_MS = 5000;                           // gewertet: alle 5 Sekunden ein neuer Hinweis …
   const LAST_MS = 6000;                           // … nach dem letzten noch 6 Sekunden, dann ist die Runde verloren
   const NEXT_MS = 2600;
-  const DAILY = 'tagesraetsel';
+  const DAILY = 'daily';
   const champs = data.champions.filter(c => c.traits.length);
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -25,18 +25,18 @@
   const traitChip = ([name, icon]) => `<span class="cr-trait">${icon ? `<img src="${A.asset(icon)}" alt="">` : ''}${esc(name)}</span>`;
   // Name des Champions in der Fähigkeit verdecken („Karma-Verbindung“ → „???-Verbindung“)
   const hideName = (text, c) => c.name.split(/[\s'’]+/).filter(w => w.length > 2).reduce((t, w) => t.replace(new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '???'), text);
-  const rangeText = r => !r ? 'Reichweite unbekannt' : r <= 1 ? 'Nahkampf' : `Fernkampf · Reichweite ${r}`;
+  const rangeText = r => !r ? 'Range unknown' : r <= 1 ? 'Melee' : `Ranged · range ${r}`;
 
   // sechs Hinweise, vom schwersten zum leichtesten
   function hintsFor(c) {
     const own = A.shuffle(c.traits);
     return [
-      { label: 'Rolle', html: `<b>${esc(c.role || 'Unbekannt')}</b><small>${rangeText(c.range)}</small>` },
-      { label: 'Kosten', html: `${coin(c.cost)}<b>${c.cost} Gold</b>` },
-      { label: 'Ein Trait', html: traitChip(own[0]) },
-      { label: 'Fähigkeit', html: `<b>„${esc(hideName(c.ability || '???', c))}“</b>` },
-      { label: 'Alle Traits', html: c.traits.map(traitChip).join('') },
-      { label: 'Bild', html: '<b>Splash-Art unscharf</b><small>siehe links</small>', pic: true },
+      { label: 'Role', html: `<b>${esc(c.role || 'Unknown')}</b><small>${rangeText(c.range)}</small>` },
+      { label: 'Cost', html: `${coin(c.cost)}<b>${c.cost} gold</b>` },
+      { label: 'One trait', html: traitChip(own[0]) },
+      { label: 'Ability', html: `<b>“${esc(hideName(c.ability || '???', c))}”</b>` },
+      { label: 'All traits', html: c.traits.map(traitChip).join('') },
+      { label: 'Image', html: '<b>Blurred splash art</b><small>see the image</small>', pic: true },
     ];
   }
 
@@ -64,14 +64,14 @@
     clearTimeout(timer); cancelAnimationFrame(raf);
     const daily = isDaily(), today = A.today(), done = daily && dailyStore()[today.day];
     stage.innerHTML = `<div class="game-intro">
-      <p class="game-kicker">${daily ? `Tagesrätsel · ${today.label}` : `${ROUNDS} Champions · Set ${esc(data.set)}`}</p>
-      <h2 class="game-title">Wer ist dieser Champ?</h2>
-      <ol class="cr-preview" aria-hidden="true">${['Rolle', 'Kosten', 'Trait', 'Fähigkeit', 'Traits', 'Bild'].map(x => `<li>${x}</li>`).join('')}</ol>
+      <p class="game-kicker">${daily ? `Daily Puzzle · ${today.label}` : `${ROUNDS} champions · Set ${esc(data.set)}`}</p>
+      <h2 class="game-title">Who Is This Champ?</h2>
+      <ol class="cr-preview" aria-hidden="true">${['Role', 'Cost', 'Trait', 'Ability', 'Traits', 'Image'].map(x => `<li>${x}</li>`).join('')}</ol>
       <p class="game-text">${daily
-        ? (done ? `Heute schon ${done.won ? `gelöst – mit ${done.hints} ${done.hints === 1 ? 'Hinweis' : 'Hinweisen'}` : 'versucht'}. Das nächste Rätsel kommt in ${clock(today.left)} Stunden.${dailyStreak() > 1 ? ` Serie: ${dailyStreak()} Tage.` : ''}`
-          : 'Ein Champion für alle, eine Chance pro Tag. Deck Hinweise auf, wann du willst – jeder falsche Tipp deckt ebenfalls einen auf.')
-        : 'Alle 5 Sekunden kommt ein Hinweis dazu. Tipp den Namen ein, sobald du ihn weißt: Je weniger Hinweise, desto mehr Punkte. Ein falscher Tipp deckt sofort den nächsten Hinweis auf.'}</p>
-      ${done ? `<button class="btn btn-ghost btn-lg" type="button" data-cr-share>Ergebnis teilen</button>` : `<button class="btn btn-gold btn-lg" type="button" data-game-start>${daily ? 'Rätsel starten' : 'Los geht’s'}</button>`}
+        ? (done ? `${done.won ? `Solved today with ${done.hints} ${done.hints === 1 ? 'clue' : 'clues'}` : 'Already tried today'}. The next puzzle arrives in ${clock(today.left)} hours.${dailyStreak() > 1 ? ` Streak: ${dailyStreak()} days.` : ''}`
+          : 'One champion for everyone, one try per day. Reveal clues whenever you like, and every wrong guess reveals one too.')
+        : 'A new clue appears every 5 seconds. Type the name as soon as you know it: fewer clues mean more points. A wrong guess reveals the next clue right away.'}</p>
+      ${done ? `<button class="btn btn-ghost btn-lg" type="button" data-cr-share>Share result</button>` : `<button class="btn btn-gold btn-lg" type="button" data-game-start>${daily ? 'Start puzzle' : 'Let’s go'}</button>`}
     </div>`;
     const go = stage.querySelector('[data-game-start]');
     if (go) go.addEventListener('click', start);
@@ -91,11 +91,11 @@
     stage.innerHTML = `<div class="cr${daily ? ' is-daily' : ''}">
       <div class="hud">
         <div class="hud-side">
-          ${daily ? `<span class="hud-pill">Tagesrätsel <b>${A.today().label}</b></span>` : `<span class="hud-pill">Champion <b data-cr-n>1</b><i>/ ${deck.length}</i></span>
+          ${daily ? `<span class="hud-pill">Daily Puzzle <b>${A.today().label}</b></span>` : `<span class="hud-pill">Champion <b data-cr-n>1</b><i>/ ${deck.length}</i></span>
           <ol class="game-dots" aria-hidden="true">${deck.map(() => '<li></li>').join('')}</ol>`}
         </div>
-        <span class="hud-pill hud-score">${daily ? 'Hinweise' : 'Punkte'} <b data-cr-score>${daily ? 1 : 0}</b></span>
-        <div class="hud-side cr-hud-right"><span class="hud-pill">Wert <b data-cr-worth>${POINTS[0]}</b></span></div>
+        <span class="hud-pill hud-score">${daily ? 'Clues' : 'Points'} <b data-cr-score>${daily ? 1 : 0}</b></span>
+        <div class="hud-side cr-hud-right"><span class="hud-pill">Worth <b data-cr-worth>${POINTS[0]}</b></span></div>
       </div>
       ${daily ? '' : '<div class="hud-bar" aria-hidden="true"><span data-cr-bar></span></div>'}
       <div class="cr-main">
@@ -105,13 +105,13 @@
       <p class="game-msg" data-cr-msg aria-live="polite"></p>
       <form class="cr-guess" data-cr-form autocomplete="off">
         <div class="cr-field">
-          <input class="cr-input" data-cr-input type="text" placeholder="Champion eintippen …" aria-label="Champion eintippen" aria-autocomplete="list" aria-controls="cr-suggest" spellcheck="false">
+          <input class="cr-input" data-cr-input type="text" placeholder="Type a champion …" aria-label="Type a champion" aria-autocomplete="list" aria-controls="cr-suggest" spellcheck="false">
           <ul class="cr-suggest" id="cr-suggest" role="listbox" data-cr-suggest hidden></ul>
         </div>
-        <button class="btn btn-gold" type="submit" data-cr-go>Tippen</button>
-        <button class="btn btn-ghost" type="button" data-cr-hint>Hinweis</button>
+        <button class="btn btn-gold" type="submit" data-cr-go>Guess</button>
+        <button class="btn btn-ghost" type="button" data-cr-hint>Clue</button>
       </form>
-      <ul class="cr-tries" data-cr-tries aria-label="Deine Tipps"></ul>
+      <ul class="cr-tries" data-cr-tries aria-label="Your guesses"></ul>
     </div>`;
     const q = s => stage.querySelector(s);
     ui = { n: q('[data-cr-n]'), score: q('[data-cr-score]'), worth: q('[data-cr-worth]'), bar: q('[data-cr-bar]'), pic: q('[data-cr-pic]'),
@@ -136,10 +136,10 @@
     ui.img.hidden = true;
     ui.img.src = A.asset(c.img);
     ui.tries.innerHTML = '';
-    ui.input.value = ''; ui.input.disabled = false; ui.go.disabled = false; ui.go.textContent = 'Tippen';
+    ui.input.value = ''; ui.input.disabled = false; ui.go.disabled = false; ui.go.textContent = 'Guess';
     ui.suggest.hidden = true;
     ui.msg.className = 'game-msg';
-    ui.msg.innerHTML = 'Wer ist es? Tipp den Namen ein.';
+    ui.msg.innerHTML = 'Who is it? Type the name.';
     renderHints(true);
     ui.input.focus({ preventScroll: true });
     phase();
@@ -215,7 +215,7 @@
     const items = [...ui.suggest.querySelectorAll('li')];
     const pick = !ui.suggest.hidden && items[active] ? champs.find(c => c.id === items[active].dataset.id)
       : champs.find(c => norm(c.name) === norm(ui.input.value)) || matches(ui.input.value)[0];
-    if (!pick) { ui.msg.className = 'game-msg is-bad'; ui.msg.textContent = ui.input.value.trim() ? 'Diesen Champion gibt es im Set nicht.' : 'Tipp zuerst einen Namen ein.'; return; }
+    if (!pick) { ui.msg.className = 'game-msg is-bad'; ui.msg.textContent = ui.input.value.trim() ? 'That champion isn’t in this set.' : 'Type a name first.'; return; }
     guess(pick);
   }
 
@@ -227,13 +227,13 @@
     tries.push(c);
     // Rückmeldung zum falschen Tipp: teurer oder billiger, gemeinsame Traits
     const shared = c.traits.filter(([n]) => goal.traits.some(([m]) => m === n)).length;
-    const dir = c.cost === goal.cost ? 'gleiche Kosten' : goal.cost > c.cost ? 'gesucht ist teurer' : 'gesucht ist billiger';
+    const dir = c.cost === goal.cost ? 'same cost' : goal.cost > c.cost ? 'target costs more' : 'target costs less';
     const li = document.createElement('li');
-    li.innerHTML = `<img class="cost-${c.cost}" src="${A.asset(c.img)}" alt="" width="960" height="480"><span><b>${esc(c.name)}</b><small>${dir} · ${shared ? `${shared} gemeinsame${shared > 1 ? '' : 'r'} Trait${shared > 1 ? 's' : ''}` : 'kein gemeinsamer Trait'}</small></span>`;
+    li.innerHTML = `<img class="cost-${c.cost}" src="${A.asset(c.img)}" alt="" width="960" height="480"><span><b>${esc(c.name)}</b><small>${dir} · ${shared ? `${shared} shared trait${shared > 1 ? 's' : ''}` : 'no shared trait'}</small></span>`;
     ui.tries.prepend(li);
     A.sound('bad');
     ui.msg.className = 'game-msg is-bad';
-    ui.msg.textContent = `${c.name} ist es nicht${shown < goal.hints.length ? ' – ein neuer Hinweis ist aufgedeckt.' : '.'}`;
+    ui.msg.textContent = `Not ${c.name}${shown < goal.hints.length ? ' – a new clue is revealed.' : '.'}`;
     ui.form.classList.remove('is-shake'); void ui.form.offsetWidth; ui.form.classList.add('is-shake');
     reveal(true);
   }
@@ -242,13 +242,13 @@
     const pts = POINTS[shown - 1];
     score += pts; solved++; hintSum += shown;
     results.push({ c: deck[idx], ok: true, hints: shown });
-    end(true, `Richtig – ${deck[idx].name}! +${pts} Punkte mit ${shown} ${shown === 1 ? 'Hinweis' : 'Hinweisen'}.`);
-    if (!isDaily()) ui.score.textContent = score.toLocaleString('de-DE');
+    end(true, `Correct – ${deck[idx].name}! +${pts} points with ${shown} ${shown === 1 ? 'clue' : 'clues'}.`);
+    if (!isDaily()) ui.score.textContent = score.toLocaleString('en-US');
   }
   function lose(timeUp) {
     hintSum += shown;
     results.push({ c: deck[idx], ok: false, hints: shown });
-    end(false, `${timeUp ? 'Zeit abgelaufen' : 'Keine Hinweise mehr'} – gesucht war ${deck[idx].name}.`);
+    end(false, `${timeUp ? 'Time’s up' : 'No clues left'} – it was ${deck[idx].name}.`);
   }
 
   function end(ok, text) {
@@ -267,7 +267,7 @@
     ui.msg.className = 'game-msg ' + (ok ? 'is-ok' : 'is-bad');
     ui.msg.textContent = text;
     ui.input.disabled = true; ui.hintBtn.disabled = true;
-    ui.go.textContent = isDaily() ? 'Auswertung' : idx + 1 < deck.length ? 'Weiter' : 'Auswertung';
+    ui.go.textContent = isDaily() ? 'See results' : idx + 1 < deck.length ? 'Next' : 'See results';
     ui.go.focus({ preventScroll: true });
     A.sound(ok ? 'ok' : 'lose');
     if (isDaily()) {
@@ -288,7 +288,7 @@
   // ───────── Auswertung ─────────
   function dailyShare(r) {
     const boxes = Array.from({ length: 6 }, (_, i) => i < r.hints - 1 ? '🟥' : i === r.hints - 1 ? (r.won ? '🟩' : '🟥') : '⬛').join('');
-    return `Wer ist dieser Champ? Tagesrätsel ${A.today().label}: ${boxes} ${r.won ? `${r.hints}/6 Hinweise` : 'nicht gelöst'} #TFTArcade`;
+    return `Who Is This Champ? Daily Puzzle ${A.today().label}: ${boxes} ${r.won ? `${r.hints}/6 clues` : 'not solved'} #TFTArcade`;
   }
   function finish() {
     state = 'done';
@@ -296,8 +296,8 @@
       const r = dailyStore()[A.today().day], streak = dailyStreak();
       A.finishRound({
         valueText: r.won ? `${r.hints} / 6` : '–',
-        title: r.won ? (r.hints <= 2 ? 'Wahnsinn – fast ohne Hinweise!' : 'Gelöst!') : 'Heute nicht …',
-        lines: [`Gesucht war ${results[0].c.name}.`, r.won ? `${r.hints} ${r.hints === 1 ? 'Hinweis' : 'Hinweise'}, ${r.tries} ${r.tries === 1 ? 'falscher Tipp' : 'falsche Tipps'}.` : 'Morgen gibt es ein neues Rätsel.', ...(streak > 1 ? [`Serie: ${streak} Tage in Folge gelöst.`] : [])],
+        title: r.won ? (r.hints <= 2 ? 'Amazing – barely any clues!' : 'Solved!') : 'Not today …',
+        lines: [`It was ${results[0].c.name}.`, r.won ? `${r.hints} ${r.hints === 1 ? 'clue' : 'clues'}, ${r.tries} wrong ${r.tries === 1 ? 'guess' : 'guesses'}.` : 'There’s a new puzzle tomorrow.', ...(streak > 1 ? [`Streak: ${streak} days in a row.`] : [])],
         shareText: dailyShare(r),
         onReplay: intro,
       });
@@ -306,9 +306,9 @@
     const missed = results.filter(r => !r.ok).map(r => r.c.name);
     A.finishRound({
       value: score,
-      title: solved === deck.length ? 'Alle erkannt!' : solved >= 7 ? 'Starke Runde!' : solved >= 4 ? 'Gar nicht schlecht!' : 'Da geht noch was!',
-      lines: [`${solved} von ${deck.length} erraten · im Schnitt ${(hintSum / deck.length).toLocaleString('de-DE', { maximumFractionDigits: 1 })} Hinweise`, ...(missed.length ? ['Nicht erkannt: ' + missed.join(', ')] : [])],
-      shareText: `Wer ist dieser Champ? ${score.toLocaleString('de-DE')} Punkte, ${solved}/${deck.length} erraten – schaffst du mehr? #TFTArcade`,
+      title: solved === deck.length ? 'You got them all!' : solved >= 7 ? 'Great round!' : solved >= 4 ? 'Not bad at all!' : 'There’s room to improve!',
+      lines: [`${solved} of ${deck.length} guessed · ${(hintSum / deck.length).toLocaleString('en-US', { maximumFractionDigits: 1 })} clues on average`, ...(missed.length ? ['Missed: ' + missed.join(', ')] : [])],
+      shareText: `Who Is This Champ? ${score.toLocaleString('en-US')} points, ${solved}/${deck.length} guessed – can you beat that? #TFTArcade`,
       onReplay: start,
     });
   }

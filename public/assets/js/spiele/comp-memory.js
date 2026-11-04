@@ -17,7 +17,7 @@
   const P_CHAMP = 10, P_PERFECT = 30, P_SPEED = 20, SPEED_MS = RECALL_MS;
   const esc = A.esc;
   const heart = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.4C.9 8 3.1 4 7 4c2.1 0 3.6 1.1 5 2.9C13.4 5.1 14.9 4 17 4c3.9 0 6.1 4 4.6 7.6C19.5 16.4 12 21 12 21z"/></svg>';
-  const secWord = s => s === 1 ? '1 Sekunde' : `${s} Sekunden`;
+  const secWord = s => s === 1 ? '1 second' : `${s} seconds`;
   const champ = Object.fromEntries(data.champions.map(c => [c.id, c]));
   const traitOf = Object.fromEntries(data.traits.map(t => [t.name, t]));
 
@@ -55,11 +55,11 @@
     return Object.entries(count).map(([n, k]) => {
       const t = traitOf[n], bp = t ? t.bp : [1], level = bp.filter(x => k >= x).length;
       return { name: n, icon: t && t.icon, k, level, next: bp.find(x => x > k), max: bp.length };
-    }).filter(x => x.level > 0).sort((a, b) => b.level - a.level || b.k - a.k || a.name.localeCompare(b.name, 'de'));
+    }).filter(x => x.level > 0).sort((a, b) => b.level - a.level || b.k - a.k || a.name.localeCompare(b.name, 'en'));
   }
   const tier = x => x.max === 1 ? 'is-unique' : x.level >= x.max ? 'is-gold' : x.level >= 2 ? 'is-silver' : 'is-bronze';
   const traitChips = list => activeTraits(list).map(x => `<li class="cm-trait ${tier(x)}">${x.icon ? `<img src="${A.asset(x.icon)}" alt="">` : ''}<b>${x.k}</b>${esc(x.name)}</li>`).join('')
-    || '<li class="cm-trait is-empty">Noch keine aktiven Traits</li>';
+    || '<li class="cm-trait is-empty">No active traits yet</li>';
 
   const hex = (c, extra = '') => `<span class="cm-hex cost-${c.cost}"><span class="cm-hex-in"><img src="${A.asset(c.img)}" alt=""></span></span>${extra}<span class="cm-name">${esc(c.name)}</span>`;
 
@@ -69,13 +69,13 @@
     state = 'start';
     const t = training();
     stage.innerHTML = `<div class="game-intro">
-      <p class="game-kicker">${t ? 'Training · ohne Wertung' : `Gewertet · ${ROUNDS} Runden · ${HEARTS} Herzen`}</p>
-      <h2 class="game-title">Comp-Memory</h2>
+      <p class="game-kicker">${t ? 'Training · unranked' : `Ranked · ${ROUNDS} rounds · ${HEARTS} hearts`}</p>
+      <h2 class="game-title">Comp Memory</h2>
       <ol class="cm-preview" aria-hidden="true">${[1, 2, 3, 4, 5].map(n => `<li class="cost-${n}"></li>`).join('')}</ol>
       <p class="game-text">${t
-        ? 'Üb in Ruhe: mehr Zeit zum Merken, Fehler kosten keine Herzen.'
-        : `Präg dir das Board ein – Champions und aktive Traits. Dann baust du es in ${RECALL_MS / 1000} Sekunden aus dem Gedächtnis nach. Das Board wächst von ${SIZES[0]} auf ${SIZES[ROUNDS - 1]} Champions; fehlt mehr als ${MAX_MISS === 1 ? 'einer' : MAX_MISS}, kostet das ein Herz.`}</p>
-      <button class="btn btn-gold btn-lg" type="button" data-game-start>Los geht’s</button>
+        ? 'Take your time: you get longer to memorize, and mistakes don’t cost hearts.'
+        : `Memorize the board: champions and active traits. Then rebuild it from memory in ${RECALL_MS / 1000} seconds. The board grows from ${SIZES[0]} to ${SIZES[ROUNDS - 1]} champions; miss more than ${MAX_MISS === 1 ? 'one' : MAX_MISS} and you lose a heart.`}</p>
+      <button class="btn btn-gold btn-lg" type="button" data-game-start>Let’s go</button>
     </div>`;
     stage.querySelector('[data-game-start]').addEventListener('click', start);
   }
@@ -93,22 +93,22 @@
     stage.innerHTML = `<div class="sm cm">
       <div class="hud">
         <div class="hud-side">
-          <span class="hud-pill">Runde <b data-cm-round>1</b><i>/ ${ROUNDS}</i></span>
-          <span class="hud-hearts" data-cm-hearts aria-label="${HEARTS} Herzen"${training() ? ' hidden' : ''}>${heart.repeat(HEARTS)}</span>
+          <span class="hud-pill">Round <b data-cm-round>1</b><i>/ ${ROUNDS}</i></span>
+          <span class="hud-hearts" data-cm-hearts aria-label="${HEARTS} hearts"${training() ? ' hidden' : ''}>${heart.repeat(HEARTS)}</span>
         </div>
-        <span class="hud-pill hud-score">Punkte <b data-cm-score>0</b></span>
+        <span class="hud-pill hud-score">Points <b data-cm-score>0</b></span>
         <div class="hud-side"></div>
       </div>
       <div class="hud-bar" aria-hidden="true"><span data-cm-timer></span></div>
       <div class="sm-head">
-        <h2 class="sm-title" data-cm-title>Merk dir dieses Board!</h2>
+        <h2 class="sm-title" data-cm-title>Memorize this board!</h2>
         <p class="sm-sub" data-cm-sub aria-live="polite"></p>
       </div>
       <div class="cm-board">
-        <ul class="cm-traits" data-cm-traits aria-label="Aktive Traits"></ul>
+        <ul class="cm-traits" data-cm-traits aria-label="Active traits"></ul>
         <ol class="cm-hexes" data-cm-hexes aria-label="Board"></ol>
       </div>
-      <div class="cm-options" data-cm-options role="group" aria-label="Champions zur Auswahl"></div>
+      <div class="cm-options" data-cm-options role="group" aria-label="Champions to choose from"></div>
       <div class="sm-cta">
         <button class="btn btn-gold sm-action" type="button" data-cm-action disabled></button>
         <p class="sm-hint" data-cm-hint></p>
@@ -138,11 +138,11 @@
     ui.hexes.className = 'cm-hexes is-deal';
     ui.hexes.innerHTML = board.map((c, i) => `<li style="--i:${i}">${hex(c)}</li>`).join('');
     ui.traits.innerHTML = traitChips(board);
-    ui.title.textContent = 'Merk dir dieses Board!';
+    ui.title.textContent = 'Memorize this board!';
     ui.title.className = 'sm-title';
     ui.sub.textContent = '';
-    setAction('Gleich wird das Board abgeräumt …', false);
-    ui.hint.textContent = `${board.length} Champions – die Reihenfolge ist egal.`;
+    setAction('The board is about to be cleared …', false);
+    ui.hint.textContent = `${board.length} champions – the order doesn’t matter.`;
     ui.timer.style.transform = 'scaleX(1)';
     A.sound('flip');
     const imgs = [...ui.hexes.querySelectorAll('img')];
@@ -160,7 +160,7 @@
       const left = Math.max(0, ms - (performance.now() - t0)), s = Math.ceil(left / 1000);
       ui.timer.style.transform = `scaleX(${left / ms})`;
       if (s !== lastSec) {
-        ui.sub.textContent = `Noch ${secWord(s)}`;
+        ui.sub.textContent = `${secWord(s)} left`;
         if (s <= 3 && s > 0 && lastSec !== null) A.sound('tick');
         lastSec = s;
       }
@@ -181,11 +181,11 @@
     state = 'recall';
     cancelAnimationFrame(raf);
     ui.hexes.className = 'cm-hexes';
-    ui.title.textContent = 'Wer stand auf dem Board?';
+    ui.title.textContent = 'Who was on the board?';
     ui.options.hidden = false;
     ui.options.innerHTML = options.map(c => `<button class="cm-opt" type="button" data-id="${c.id}">${hex(c)}</button>`).join('');
     ui.options.querySelectorAll('.cm-opt').forEach(b => b.addEventListener('click', () => toggle(b.dataset.id)));
-    ui.hint.textContent = 'Klick auf einen Champion auf dem Board nimmt ihn wieder herunter.';
+    ui.hint.textContent = 'Click a champion on the board to take it off again.';
     render();
     recallAt = performance.now();
     // gewertet: Zeitlimit, danach wird mit dem geprüft, was auf dem Board steht
@@ -217,15 +217,15 @@
     ui.hexes.innerHTML = Array.from({ length: n }, (_, i) => {
       const c = picks[i] && champ[picks[i]];
       return c
-        ? `<li><button class="cm-slot is-pick" type="button" data-id="${c.id}" aria-label="${esc(c.name)} – vom Board nehmen">${hex(c)}</button></li>`
+        ? `<li><button class="cm-slot is-pick" type="button" data-id="${c.id}" aria-label="${esc(c.name)} – take off the board">${hex(c)}</button></li>`
         : `<li><span class="cm-slot is-empty" aria-hidden="true"><span class="cm-hex"><span class="cm-hex-in"></span></span><span class="cm-name">&nbsp;</span></span></li>`;
     }).join('');
     ui.hexes.querySelectorAll('.cm-slot.is-pick').forEach(b => b.addEventListener('click', () => toggle(b.dataset.id)));
     ui.traits.innerHTML = traitChips(picks.map(id => champ[id]));
     ui.options.querySelectorAll('.cm-opt').forEach(b => b.classList.toggle('is-chosen', picks.includes(b.dataset.id)));
     const left = n - picks.length;
-    ui.sub.innerHTML = left ? `Noch <b>${left}</b> ${left === 1 ? 'Champion fehlt' : 'Champions fehlen'} auf dem Board.` : 'Board voll – prüfen oder tauschen.';
-    setAction(left ? `Noch ${left} ${left === 1 ? 'Platz' : 'Plätze'} frei` : 'Prüfen', !left);
+    ui.sub.innerHTML = left ? `<b>${left}</b> ${left === 1 ? 'champion' : 'champions'} still missing from the board.` : 'Board full – check or swap.';
+    setAction(left ? `${left} ${left === 1 ? 'slot' : 'slots'} left` : 'Check', !left);
   }
 
   // Auswahl: rauf aufs Board (solange Platz ist) bzw. wieder herunter
@@ -261,17 +261,17 @@
     const speed = perfect ? Math.round(P_SPEED * Math.max(0, 1 - used / SPEED_MS)) : 0;
     const pts = right * P_CHAMP + (perfect ? P_PERFECT + speed : 0);
     score += pts; totals.right += right; totals.all += board.length; if (perfect) totals.perfect++;
-    ui.score.textContent = score.toLocaleString('de-DE');
+    ui.score.textContent = score.toLocaleString('en-US');
 
     const lost = !training() && miss > MAX_MISS;
     if (lost) loseHeart();
-    ui.title.textContent = perfect ? 'Perfektes Board!' : !lost ? 'Gut gemerkt!' : timeUp ? 'Zeit abgelaufen!' : 'Ein Herz weg!';
+    ui.title.textContent = perfect ? 'Perfect board!' : !lost ? 'Well remembered!' : timeUp ? 'Time’s up!' : 'You lost a heart!';
     ui.title.className = 'sm-title ' + (perfect ? 'is-ok' : miss <= MAX_MISS ? 'is-near' : 'is-bad');
-    ui.sub.textContent = `${right} von ${board.length} Champions richtig · +${pts} Punkte${perfect ? ` (inkl. ${P_PERFECT} Bonus${speed ? ` und ${speed} Tempo` : ''})` : ''}`;
+    ui.sub.textContent = `${right} of ${board.length} champions correct · +${pts} points${perfect ? ` (incl. ${P_PERFECT} bonus${speed ? ` and ${speed} speed` : ''})` : ''}`;
     A.sound(miss <= MAX_MISS ? 'ok' : 'bad');
     const over = hearts === 0 || round + 1 >= ROUNDS;
-    setAction(over ? 'Zur Auswertung' : 'Nächste Runde', true);
-    ui.hint.textContent = over ? '' : 'Enter geht auch.';
+    setAction(over ? 'See results' : 'Next round', true);
+    ui.hint.textContent = over ? '' : 'Enter works too.';
     ui.action.focus({ preventScroll: true });
   }
 
@@ -279,7 +279,7 @@
     hearts--;
     const all = [...ui.hearts.querySelectorAll('svg')];
     if (all[hearts]) all[hearts].classList.add('is-lost');
-    ui.hearts.setAttribute('aria-label', `${hearts} ${hearts === 1 ? 'Herz' : 'Herzen'}`);
+    ui.hearts.setAttribute('aria-label', `${hearts} ${hearts === 1 ? 'heart' : 'hearts'}`);
   }
 
   function nextRound() {
@@ -293,16 +293,16 @@
     stop();
     const played = Math.min(round, ROUNDS);
     const share = totals.all ? totals.right / totals.all : 0;
-    const title = hearts === 0 ? 'Keine Herzen mehr!' : totals.perfect === ROUNDS ? 'Fotografisches Gedächtnis!' : share >= .85 ? 'Starkes Gedächtnis!' : share >= .6 ? 'Gar nicht schlecht!' : 'Da geht noch was!';
+    const title = hearts === 0 ? 'Out of hearts!' : totals.perfect === ROUNDS ? 'Photographic memory!' : share >= .85 ? 'Great memory!' : share >= .6 ? 'Not bad at all!' : 'There’s room to improve!';
     A.sound(hearts === 0 ? 'lose' : 'win');
     A.finishRound({
       value: score,
       title,
       lines: [
-        `${played} von ${ROUNDS} Runden · ${totals.perfect} ${totals.perfect === 1 ? 'Board' : 'Boards'} perfekt`,
-        `${totals.right} von ${totals.all} Champions richtig gemerkt`,
+        `${played} of ${ROUNDS} rounds · ${totals.perfect} perfect ${totals.perfect === 1 ? 'board' : 'boards'}`,
+        `${totals.right} of ${totals.all} champions remembered`,
       ],
-      shareText: `Comp-Memory: ${score.toLocaleString('de-DE')} Punkte, ${totals.perfect}/${ROUNDS} perfekte Boards – merkst du dir mehr? #TFTArcade`,
+      shareText: `Comp Memory: ${score.toLocaleString('en-US')} points, ${totals.perfect}/${ROUNDS} perfect boards – can you remember more? #TFTArcade`,
       onReplay: start,
     });
   }

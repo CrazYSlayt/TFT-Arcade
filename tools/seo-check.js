@@ -50,7 +50,7 @@ for (const f of files) {
   if (!desc) bad('Meta-Beschreibung fehlt');
   else if (text(desc).length > 134) bad(`Meta-Beschreibung ${text(desc).length} > 134 Zeichen`);
   if (!/<link rel="canonical" href="[^"]+">/.test(html)) bad('canonical fehlt');
-  if (!/<html lang="de"[ >]/.test(html)) bad('lang fehlt');
+  if (!/<html lang="(en|de)"[ >]/.test(html)) bad('lang fehlt');
 
   // relative Pfade (assets/…, ../assets/…) vom Ordner der Seite aus auflösen
   const dir = path.posix.dirname(rel);

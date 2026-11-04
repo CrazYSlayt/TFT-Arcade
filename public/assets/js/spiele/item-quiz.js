@@ -31,13 +31,13 @@
   function forward(it) {
     const opts = A.shuffle([it, ...distractItems(it)]);
     return {
-      label: 'Was ergibt das?',
+      label: 'What does this make?',
       prompt: `<div class="qz-recipe">${icon(comp[it.comp[0]])}<span class="qz-op">+</span>${icon(comp[it.comp[1]])}<span class="qz-op">=</span><span class="qz-mystery">?</span></div>`,
-      ask: `<b>${esc(comp[it.comp[0]].name)}</b> + <b>${esc(comp[it.comp[1]].name)}</b> ergibt …`,
+      ask: `<b>${esc(comp[it.comp[0]].name)}</b> + <b>${esc(comp[it.comp[1]].name)}</b> makes …`,
       layout: 'tiles',
       options: opts.map(o => ({ html: `${icon(o)}<span class="qz-name">${esc(o.name)}</span>`, label: o.name })),
       answer: opts.indexOf(it),
-      solution: `${recipeText(it)} ergibt ${it.name}.`,
+      solution: `${recipeText(it)} makes ${it.name}.`,
       item: it,
     };
   }
@@ -46,11 +46,11 @@
   function backward(it) {
     const opts = A.shuffle([it.comp, ...distractRecipes(it)]);
     return {
-      label: 'Woraus besteht das?',
+      label: 'What is it made of?',
       prompt: `<div class="qz-recipe">${icon(it, ' is-big')}</div>`,
-      ask: `Woraus baust du <b>${esc(it.name)}</b>?`,
+      ask: `What do you build <b>${esc(it.name)}</b> from?`,
       layout: 'recipes',
-      options: opts.map(r => ({ html: `<span class="qz-pair">${icon(comp[r[0]])}<span class="qz-op">+</span>${icon(comp[r[1]])}</span><span class="qz-name">${esc(comp[r[0]].name)} + ${esc(comp[r[1]].name)}</span>`, label: `${comp[r[0]].name} und ${comp[r[1]].name}` })),
+      options: opts.map(r => ({ html: `<span class="qz-pair">${icon(comp[r[0]])}<span class="qz-op">+</span>${icon(comp[r[1]])}</span><span class="qz-name">${esc(comp[r[0]].name)} + ${esc(comp[r[1]].name)}</span>`, label: `${comp[r[0]].name} and ${comp[r[1]].name}` })),
       answer: opts.indexOf(it.comp),
       solution: `${it.name} = ${recipeText(it)}.`,
       item: it,
@@ -58,17 +58,17 @@
   }
 
   window.ArcadeQuiz({
-    title: 'Item-Quiz',
-    kicker: `10 Fragen · ${data.items.length} Rezepte · Set ${esc(data.set)}`,
+    title: 'Item Quiz',
+    kicker: `10 questions · ${data.items.length} recipes · Set ${esc(data.set)}`,
     time: [6000, 3500],
-    intro: 'Zwei Komponenten – welches Item entsteht? Oder umgekehrt: Woraus wird es gebaut? Je schneller du richtig liegst, desto mehr Punkte.',
+    intro: 'Two components: which item do they make? Or the other way round: what is it built from? The faster you’re right, the more points you score.',
     preview: `<div class="qz-recipe is-preview" aria-hidden="true">${A.shuffle(data.components).slice(0, 2).map(c => icon(c)).join('<span class="qz-op">+</span>')}<span class="qz-op">=</span><span class="qz-mystery">?</span></div>`,
     // je fünf Fragen beider Arten in zufälliger Reihenfolge, kein Item doppelt
     questions: () => {
       const kinds = A.shuffle([forward, forward, forward, forward, forward, backward, backward, backward, backward, backward]);
       return A.shuffle(data.items).slice(0, 10).map((it, i) => kinds[i](it));
     },
-    wrongLine: list => 'Zum Merken: ' + list.map(q => `${q.item.name} = ${recipeText(q.item)}`).join(' · '),
-    shareText: (score, correct, n) => `Item-Quiz: ${score.toLocaleString('de-DE')} Punkte, ${correct}/${n} Rezepte richtig – kennst du mehr? #TFTArcade`,
+    wrongLine: list => 'Worth remembering: ' + list.map(q => `${q.item.name} = ${recipeText(q.item)}`).join(' · '),
+    shareText: (score, correct, n) => `Item Quiz: ${score.toLocaleString('en-US')} points, ${correct}/${n} recipes correct – do you know more? #TFTArcade`,
   });
 })();

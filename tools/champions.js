@@ -58,12 +58,17 @@ async function main() {
   fs.mkdirSync(path.dirname(DATA_OUT), { recursive: true });
   fs.mkdirSync(TRAIT_OUT, { recursive: true });
 
-  // Eigenschaften: englischer Name (so stehen sie beim Champion) → deutscher Name + Symbol
+  // Die Seite ist englisch: Namen aus den Spieldaten (n = englisch), Fähigkeiten aus tft-data-<Set>-en.js
+  const enFile = path.join(CLIMB, `tft-data-${d.set}-en.js`);
+  const en = fs.existsSync(enFile) ? load(enFile).TFT_DATA_EN || {} : {};
+  const abilityOf = c => (((en.champions || {})[c.api] || {}).n) || null;
+
+  // Eigenschaften: Name (so stehen sie beim Champion) + Symbol
   const traits = {};
   for (const t of d.traits || []) {
     const id = slug(t.n);
     const ok = t.icon && await download(d.cdn + t.icon.toLowerCase(), path.join(TRAIT_OUT, id + '.png'));
-    traits[t.n] = { id, name: t.de || t.n, icon: ok ? `assets/img/traits/${id}.png` : null, bp: t.bp || [], champs: [] };
+    traits[t.n] = { id, name: t.n, icon: ok ? `assets/img/traits/${id}.png` : null, bp: t.bp || [], champs: [] };
   }
 
   // Rollen je Champion (rollen-<Set>.js, aus dem TFT-Client) – fehlt die Datei, bleibt die Rolle leer
@@ -83,9 +88,9 @@ async function main() {
     const own = (c.t || []).map(n => traits[n]).filter(Boolean);
     own.forEach(t => t.champs.push(id));
     list.push({
-      id, name: c.de || c.n, cost: c.c, img: `assets/img/champions/${id}.jpg`, traits: own.map(t => t.icon ? [t.name, t.icon] : [t.name]),
+      id, name: c.n, cost: c.c, img: `assets/img/champions/${id}.jpg`, traits: own.map(t => t.icon ? [t.name, t.icon] : [t.name]),
       // für das Champion-Rätsel: Rolle (aus Riots Empfehlungen), Reichweite in Feldern, Name der Fähigkeit
-      role: roleLabel(roles[c.n]), range: (c.st && c.st.range) || null, ability: (c.ab && c.ab.n) || null,
+      role: roleLabel(roles[c.n]), range: (c.st && c.st.range) || null, ability: abilityOf(c),
     });
   }
 
@@ -98,11 +103,11 @@ async function main() {
   const keep = new Set(list.map(c => c.id + '.jpg'));
   for (const f of fs.readdirSync(IMG_OUT)) if (!keep.has(f)) fs.rmSync(path.join(IMG_OUT, f));
 
-  list.sort((a, b) => a.cost - b.cost || a.name.localeCompare(b.name, 'de'));
+  list.sort((a, b) => a.cost - b.cost || a.name.localeCompare(b.name, 'en'));
   // Traits mit Champions; bp = Stufen (ab so vielen Champions aktiv)
   const traitList = Object.values(traits).filter(t => t.champs.length)
     .map(t => ({ id: t.id, name: t.name, icon: t.icon, bp: t.bp, champs: t.champs }))
-    .sort((a, b) => a.name.localeCompare(b.name, 'de'));
+    .sort((a, b) => a.name.localeCompare(b.name, 'en'));
   const out = { set: d.set, version: d.version, generated: d.generated, champions: list, traits: traitList };
   fs.writeFileSync(DATA_OUT, `// TFT Arcade – Champions und Traits des Live-Sets (automatisch erzeugt mit tools/champions.js, nicht von Hand bearbeiten)\n// Quelle: TFTClimb-Spieldaten / CommunityDragon ${d.version} · Set ${d.set}\nwindow.TFT_ARCADE_CHAMPIONS = ${JSON.stringify(out)};\n`);
   const tiles = jobs.filter(j => j.mode === 'tile').length;
@@ -112,11 +117,11 @@ async function main() {
   shopData(d, list);
 }
 
-// Riots Rollen-Schlüssel (z. B. „MagicTank“, „AttackSpecialist_Ammo“) → kurze deutsche Bezeichnung wie „AP-Tank“
-const ROLE_KIND = { Assassin: 'Assassine', Caster: 'Zauberer', Fighter: 'Kämpfer', Marksman: 'Schütze', Specialist: 'Spezialist', Tank: 'Tank' };
+// Riots Rollen-Schlüssel (z. B. „MagicTank“, „AttackSpecialist_Ammo“) → kurze Bezeichnung wie „AP Tank“
+const ROLE_KINDS = ['Assassin', 'Caster', 'Fighter', 'Marksman', 'Specialist', 'Tank'];
 function roleLabel(key) {
   const m = /^(Attack|Magic)([A-Za-z]+?)(?:_.*)?$/.exec(key || '');
-  return m && ROLE_KIND[m[2]] ? `${m[1] === 'Attack' ? 'AD' : 'AP'}-${ROLE_KIND[m[2]]}` : null;
+  return m && ROLE_KINDS.includes(m[2]) ? `${m[1] === 'Attack' ? 'AD' : 'AP'} ${m[2]}` : null;
 }
 
 // Shop-Regeln (Odds pro Level, Kopien pro Champion, XP) aus TFTClimbs custom-<Set>.js → daten/shop.js
@@ -139,8 +144,8 @@ async function itemData(d) {
   const pick = async (i) => {
     const id = short(i.id);
     const ok = i.icon && await download(d.cdn + i.icon.toLowerCase(), path.join(ITEM_CACHE, id + '.png'));
-    if (!ok) console.warn(`  ✖ kein Symbol für ${i.de || i.en}`);
-    return ok ? { id, name: i.de || i.en, img: `assets/img/items/${id}.webp` } : null;
+    if (!ok) console.warn(`  ✖ kein Symbol für ${i.en || i.de}`);
+    return ok ? { id, name: i.en || i.de, img: `assets/img/items/${id}.webp` } : null;
   };
   const components = (await Promise.all(d.items.filter(i => i.cat === 'component' && used.has(i.id)).map(pick))).filter(Boolean);
   const known = new Set(components.map(c => c.id));
@@ -154,7 +159,7 @@ async function itemData(d) {
   // Symbole in WebP umwandeln (alle gleich groß, über Chrome – siehe tools/rahmen-webp.js)
   for (const f of fs.readdirSync(ITEM_CACHE)) if (![...components, ...items].some(x => x.id + '.png' === f)) fs.rmSync(path.join(ITEM_CACHE, f));
   execFileSync(process.execPath, [path.join(__dirname, 'rahmen-webp.js'), '128', '128', 'items'], { stdio: 'inherit', cwd: ROOT });
-  items.sort((a, b) => a.name.localeCompare(b.name, 'de'));
+  items.sort((a, b) => a.name.localeCompare(b.name, 'en'));
   const out = { set: d.set, version: d.version, components, items };
   fs.writeFileSync(ITEM_DATA_OUT, `// TFT Arcade – Komponenten und baubare Items des Live-Sets (automatisch erzeugt mit tools/champions.js, nicht von Hand bearbeiten)\n// Quelle: TFTClimb-Spieldaten / CommunityDragon ${d.version} · Set ${d.set}\nwindow.TFT_ARCADE_ITEMS = ${JSON.stringify(out)};\n`);
   console.log(`✔ ${components.length} Komponenten, ${items.length} Items → ${path.relative(ROOT, ITEM_DATA_OUT)}`);

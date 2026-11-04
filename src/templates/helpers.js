@@ -3,8 +3,8 @@ const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g,
 
 // Rekord-/Bestenlisten-Werte wie auf der Seite angezeigt (gleiche Regeln wie fmt() in public/assets/js/arcade.js)
 function fmtValue(value, type) {
-  if (type === 'zeit') return value.toFixed(1).replace('.', ',') + ' s';
-  if (type === 'punkte') return value.toLocaleString('de-DE') + ' Pkt.';
+  if (type === 'zeit') return value.toFixed(1) + ' s';
+  if (type === 'punkte') return value.toLocaleString('en-US') + ' pts';
   return String(value);
 }
 

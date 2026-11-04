@@ -1,3 +1,3 @@
 // TFT Arcade – Shop-Regeln des Live-Sets (automatisch erzeugt mit tools/champions.js aus TFTClimbs custom-18.js, nicht von Hand bearbeiten)
 // odds[Level-1][Kosten-1] = Chance pro Shop-Slot in % · bag = Kopien pro Champion · xp[i] = XP von Level i+1 auf i+2 · distinct = Champions pro Kosten
-window.TFT_ARCADE_SHOP = {"set":18,"version":"16.21","bag":[30,25,18,10,9],"odds":[[100,0,0,0,0],[100,0,0,0,0],[75,25,0,0,0],[55,30,15,0,0],[45,33,20,2,0],[30,40,25,5,0],[16,30,43,10,1],[15,20,32,30,3],[10,17,25,33,15],[5,10,20,40,25],[1,2,12,50,35]],"xp":[2,2,6,10,20,36,56,68,68],"distinct":[14,13,14,14,10]};
+window.TFT_ARCADE_SHOP = {"set":18,"version":"16.22","bag":[30,25,18,10,9],"odds":[[100,0,0,0,0],[100,0,0,0,0],[75,25,0,0,0],[55,30,15,0,0],[45,33,20,2,0],[30,40,25,5,0],[16,30,43,10,1],[15,20,32,30,3],[10,17,25,33,15],[5,10,20,40,25],[1,2,12,50,35]],"xp":[2,2,6,10,20,36,56,68,68],"distinct":[14,13,14,14,10]};

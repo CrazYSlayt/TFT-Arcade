@@ -26,10 +26,10 @@
     state = 'start';
     stage.innerHTML = `<div class="game-intro">
       <p class="game-kicker">${ROUNDS} Champions · Set ${esc(data.set)}</p>
-      <h2 class="game-title">Was kostet der?</h2>
+      <h2 class="game-title">What Does It Cost?</h2>
       <div class="kq-preview" aria-hidden="true">${[1, 2, 3, 4, 5].map(n => `<span class="kq-chip cost-${n}">${coin(n)}</span>`).join('')}</div>
-      <p class="game-text">Pro Champion bleiben dir ${LIMIT_FIRST / 1000} Sekunden, zum Schluss nur noch ${(LIMIT_LAST / 1000).toLocaleString('de-DE')}. Je schneller du richtig liegst, desto mehr Punkte. Tipp: Die Tasten <kbd>1</kbd>–<kbd>5</kbd> sind am schnellsten.</p>
-      <button class="btn btn-gold btn-lg" type="button" data-game-start>Los geht’s</button>
+      <p class="game-text">You get ${LIMIT_FIRST / 1000} seconds per champion, down to ${(LIMIT_LAST / 1000).toLocaleString('en-US')} at the end. The faster you’re right, the more points you score. Tip: the keys <kbd>1</kbd>–<kbd>5</kbd> are the fastest.</p>
+      <button class="btn btn-gold btn-lg" type="button" data-game-start>Let’s go</button>
     </div>`;
     stage.querySelector('[data-game-start]').addEventListener('click', start);
   }
@@ -47,7 +47,7 @@
           <span class="hud-pill">Champion <b data-kq-n>1</b><i>/ ${ROUNDS}</i></span>
           <ol class="game-dots" aria-hidden="true">${deck.map(() => '<li></li>').join('')}</ol>
         </div>
-        <span class="hud-pill hud-score">Punkte <b data-kq-score>0</b></span>
+        <span class="hud-pill hud-score">Points <b data-kq-score>0</b></span>
         <div class="hud-side"></div>
       </div>
       <div class="hud-bar" aria-hidden="true"><span data-kq-bonus></span></div>
@@ -56,8 +56,8 @@
         <figcaption class="kq-name" data-kq-name></figcaption>
       </figure>
       <p class="game-msg" data-kq-feedback aria-live="polite"></p>
-      <div class="kq-costs" role="group" aria-label="Kosten wählen">
-        ${[1, 2, 3, 4, 5].map(n => `<button class="kq-cost cost-${n}" type="button" data-cost="${n}" aria-label="${n} Gold" aria-keyshortcuts="${n}">${coin(n)}<span class="kq-gold">Gold</span></button>`).join('')}
+      <div class="kq-costs" role="group" aria-label="Pick the cost">
+        ${[1, 2, 3, 4, 5].map(n => `<button class="kq-cost cost-${n}" type="button" data-cost="${n}" aria-label="${n} gold" aria-keyshortcuts="${n}">${coin(n)}<span class="kq-gold">gold</span></button>`).join('')}
       </div>
     </div>`;
     const q = s => stage.querySelector(s);
@@ -73,9 +73,9 @@
     locked = false; shownAt = null;
     ui.n.textContent = idx + 1;
     ui.name.textContent = c.name;
-    ui.img.alt = `Splash-Art von ${c.name}`;
+    ui.img.alt = `Splash art of ${c.name}`;
     // vor der Antwort steht hier die Frage, danach die Auflösung
-    ui.feedback.innerHTML = `Wie viel Gold kostet <b>${esc(c.name)}</b>?`;
+    ui.feedback.innerHTML = `How much gold does <b>${esc(c.name)}</b> cost?`;
     ui.feedback.className = 'game-msg';
     ui.figure.classList.remove('is-ok', 'is-bad');
     ui.dots.forEach((d, i) => d.classList.toggle('is-now', i === idx));
@@ -135,10 +135,10 @@
     A.sound(ok ? 'ok' : 'bad');
     if (!ok) ui.bonus.style.transform = 'scaleX(0)';
     ui.dots[idx].classList.add(ok ? 'is-ok' : 'is-bad');
-    ui.score.textContent = score.toLocaleString('de-DE');
+    ui.score.textContent = score.toLocaleString('en-US');
     ui.feedback.textContent = ok
-      ? `Richtig! +${pts} Punkte${bonus ? ` (davon ${bonus} Tempo-Bonus)` : ''}`
-      : `${cost ? 'Leider daneben' : 'Zeit abgelaufen'} – ${c.name} kostet ${c.cost} Gold.`;
+      ? `Correct! +${pts} points${bonus ? ` (${bonus} speed bonus)` : ''}`
+      : `${cost ? 'Not quite' : 'Time’s up'} – ${c.name} costs ${c.cost} gold.`;
     ui.feedback.className = 'game-msg ' + (ok ? 'is-ok' : 'is-bad');
     timer = setTimeout(next, reduced ? (ok ? 1400 : 2600) : (ok ? NEXT_OK : NEXT_WRONG));
   }
@@ -154,15 +154,15 @@
   function finish() {
     state = 'done';
     const wrong = answers.filter(a => !a.ok);
-    const title = correct === ROUNDS ? 'Perfekte Runde!' : correct >= 7 ? 'Starke Runde!' : correct >= 4 ? 'Gar nicht schlecht!' : 'Da geht noch was!';
+    const title = correct === ROUNDS ? 'Perfect round!' : correct >= 7 ? 'Great round!' : correct >= 4 ? 'Not bad at all!' : 'There’s room to improve!';
     A.finishRound({
       value: score,
       title,
       lines: [
-        `${correct} von ${ROUNDS} richtig · Tempo-Bonus ${bonusSum} Punkte${late ? ` · ${late}× zu langsam` : ''}`,
-        ...(wrong.length ? ['Daneben: ' + wrong.map(a => `${a.champ.name} (${a.cost ? `${a.cost} statt ${a.champ.cost}` : `${a.champ.cost}`} Gold)`).join(', ')] : []),
+        `${correct} of ${ROUNDS} correct · speed bonus ${bonusSum} points${late ? ` · ${late}× too slow` : ''}`,
+        ...(wrong.length ? ['Missed: ' + wrong.map(a => `${a.champ.name} (${a.cost ? `${a.cost} instead of ${a.champ.cost}` : `${a.champ.cost}`} gold)`).join(', ')] : []),
       ],
-      shareText: `Was kostet der? ${score.toLocaleString('de-DE')} Punkte, ${correct}/${ROUNDS} richtig – schlägst du mich? #TFTArcade`,
+      shareText: `What Does It Cost? ${score.toLocaleString('en-US')} points, ${correct}/${ROUNDS} correct – can you beat me? #TFTArcade`,
       onReplay: start,
     });
   }

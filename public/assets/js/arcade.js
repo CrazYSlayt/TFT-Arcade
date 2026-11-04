@@ -20,8 +20,8 @@
 
   // Werte wie auf der Seite (gleiche Regeln wie fmtValue() in src/templates/helpers.js)
   function fmt(value, type) {
-    if (type === 'zeit') return value.toFixed(1).replace('.', ',') + ' s';
-    if (type === 'punkte') return value.toLocaleString('de-DE') + ' Pkt.';
+    if (type === 'zeit') return value.toFixed(1) + ' s';
+    if (type === 'punkte') return value.toLocaleString('en-US') + ' pts';
     return String(value);
   }
   // Seitenlink wie im HTML (/quiz); per Doppelklick geöffnet (file://) → quiz.html relativ zu dist/ (vgl. FILE_LINKS in layout.js)
@@ -30,7 +30,7 @@
     const m = href.match(/^([^?#]*)(.*)$/), root = document.documentElement.getAttribute('data-root') || '';
     return root + (m[1] === '/' ? 'index.html' : m[1].slice(1) + '.html') + m[2];
   }
-  const fmtDate = ts => new Date(ts).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const fmtDate = ts => new Date(ts).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
 
   // ───────── Helfer für die Spielskripte ─────────
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -68,7 +68,7 @@
     $$('[data-record-slot]').forEach(el => {
       const lower = el.dataset.lower === '1', r = records.best(el.dataset.recordSlot, lower);
       if (!r) return;
-      el.lastElementChild.textContent = 'Rekord: ' + fmt(r.value, el.dataset.type);
+      el.lastElementChild.textContent = 'Record: ' + fmt(r.value, el.dataset.type);
       el.hidden = false;
     });
   }
@@ -100,13 +100,13 @@
     const mode = boardMode(), r = records.get(box.dataset.recordBox, mode), root = box.closest('[data-board-root]');
     const plain = box.dataset.type === 'punkte';
     const val = $('[data-record-value]', box);
-    val.textContent = r ? (plain ? r.value.toLocaleString('de-DE') : fmt(r.value, box.dataset.type)) : '–';
+    val.textContent = r ? (plain ? r.value.toLocaleString('en-US') : fmt(r.value, box.dataset.type)) : '–';
     val.parentElement.classList.toggle('is-empty', !r);
-    let sub = 'Noch kein Rekord – spiel eine Runde!';
+    let sub = 'No record yet – play a round!';
     if (r && root) {
       const lower = root.dataset.lower === '1', better = boardRowsFor(root, mode).filter(x => !x.mine && (lower ? x.value < r.value : x.value > r.value));
       const target = better[better.length - 1], diff = target && Math.abs(target.value - r.value);
-      sub = !target ? 'Damit stehst du ganz oben!' : `Nur noch ${plain ? diff.toLocaleString('de-DE') : fmt(diff, box.dataset.type)} bis Platz ${better.length}.`;
+      sub = !target ? 'That puts you at the top!' : `Just ${plain ? diff.toLocaleString('en-US') : fmt(diff, box.dataset.type)} away from rank ${better.length}.`;
     }
     $('[data-record-sub]', box).textContent = sub;
     const fig = $('[data-record-avatar]', box);
@@ -172,12 +172,12 @@
       const tr = list.tagName === 'TBODY', all = boardRowsFor(root, mode);
       // Seitenbereich: nur die ersten Plätze – der eigene neue Eintrag bleibt sichtbar, auch wenn er weiter unten steht
       const rows = all.map((r, i) => ({ ...r, place: i + 1 })).filter((r, i) => !show || i < show || r.id === lastEntryId);
-      list.innerHTML = rows.length ? '' : (tr ? '<tr class="empty"><td colspan="3">Noch keine Einträge.</td></tr>'
-        : '<li class="empty">Noch keine Einträge.</li>');
+      list.innerHTML = rows.length ? '' : (tr ? '<tr class="empty"><td colspan="3">No entries yet.</td></tr>'
+        : '<li class="empty">No entries yet.</li>');
       rows.forEach(r => {
         const row = document.createElement(tr ? 'tr' : 'li');
         if (r.mine) row.className = 'is-you' + (r.id === lastEntryId ? ' is-new' : '');
-        const cells = [['rank', r.place], ['who', r.name], ['val', !tr && type === 'punkte' ? r.value.toLocaleString('de-DE') : fmt(r.value, type)]];
+        const cells = [['rank', r.place], ['who', r.name], ['val', !tr && type === 'punkte' ? r.value.toLocaleString('en-US') : fmt(r.value, type)]];
         cells.forEach(([cls, text]) => {
           const cell = document.createElement(tr ? 'td' : 'span');
           cell.className = cls;
@@ -209,15 +209,15 @@
 
   function initGamePage() {
     if (!page) return;
-    // Modus aus der Adresse (?modus=tageschallenge), z. B. vom Ticket der Tageschallenge
-    const want = new URLSearchParams(location.search).get('modus');
+    // Modus aus der Adresse (?mode=daily), z. B. vom Ticket der Tageschallenge
+    const want = new URLSearchParams(location.search).get('mode');
     const radio = want && $(`[data-modes] input[value="${CSS.escape(want)}"]`);
     if (radio) radio.checked = true;
     const root = $('[data-board-root]');
     const sync = () => { if (root) { root.dataset.mode = boardMode(); renderBoard(root); } renderRecordBox(); };
     $$('[data-modes] input').forEach(i => i.addEventListener('change', () => {
       const u = new URL(location.href);
-      u.searchParams.set('modus', i.value);
+      u.searchParams.set('mode', i.value);
       history.replaceState(null, '', u);
       sync();
       showStage();
@@ -239,12 +239,12 @@
     }
     // Ton an/aus (gemerkt im Browser)
     $$('[data-sound]').forEach(b => {
-      const show = () => { b.setAttribute('aria-pressed', String(soundOn)); b.setAttribute('aria-label', soundOn ? 'Ton an – klicken zum Ausschalten' : 'Ton aus – klicken zum Einschalten'); };
+      const show = () => { b.setAttribute('aria-pressed', String(soundOn)); b.setAttribute('aria-label', soundOn ? 'Sound on – click to turn off' : 'Sound off – click to turn on'); };
       b.addEventListener('click', () => { soundOn = !soundOn; store.set('ton', soundOn); show(); sound('click'); });
       show();
     });
     // „Ergebnis teilen“ unter der Spielfläche: letztes Ergebnis – oder eine Einladung, falls noch keine Runde gespielt ist
-    $$('[data-share-last]').forEach(b => b.addEventListener('click', () => share(lastShare || `Ich spiele gerade ${page.dataset.gameTitle} in der TFT Arcade – kannst du mich schlagen? #TFTArcade`)));
+    $$('[data-share-last]').forEach(b => b.addEventListener('click', () => share(lastShare || `I’m playing ${page.dataset.gameTitle} at TFT Arcade – can you beat me? #TFTArcade`)));
     sync(); renderHistory();
   }
 
@@ -299,7 +299,7 @@
       const li = document.createElement('li');
       li.textContent = e.text;
       const s = document.createElement('small');
-      s.textContent = new Date(e.date).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) + ' Uhr';
+      s.textContent = new Date(e.date).toLocaleString('en-US', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
       li.appendChild(s);
       ol.appendChild(li);
     });
@@ -333,7 +333,7 @@
   async function share(message, url) {
     const link = url || (location.origin + location.pathname);
     const ok = await copy(`${message}\n${link}`);
-    toast(ok ? 'Ergebnis kopiert – jetzt einfach einfügen!' : 'Kopieren nicht möglich – bitte manuell markieren.');
+    toast(ok ? 'Result copied – just paste it!' : 'Couldn’t copy – please select it manually.');
     return ok;
   }
 
@@ -350,12 +350,12 @@
       isRecord = records.save(box.dataset.recordBox, mode, o.value, box.dataset.lower === '1');
       renderRecordBox(); renderBoards();
     }
-    $('[data-result-title]', el).textContent = o.title || 'Runde vorbei!';
+    $('[data-result-title]', el).textContent = o.title || 'Round over!';
     $('[data-result-value]', el).textContent = typeof o.value === 'number' && box ? fmt(o.value, box.dataset.type) : (o.valueText || '');
     $('[data-result-record]', el).hidden = !isRecord;
     const ul = $('[data-result-lines]', el), label = $('[data-modes] input:checked + span');
     ul.innerHTML = '';
-    const lines = (o.lines || []).concat(ranked ? [] : [`${label ? label.textContent : 'Dieser Modus'} zählt nicht für Rekord und Bestenliste.`]);
+    const lines = (o.lines || []).concat(ranked ? [] : [`${label ? label.textContent : 'This mode'} doesn’t count for records or the leaderboard.`]);
     lines.forEach(l => { const li = document.createElement('li'); li.textContent = l; ul.appendChild(li); });
     lastShare = o.shareText || null;
     sound(isRecord ? 'win' : 'flip');
@@ -368,7 +368,7 @@
       if (o.onReplay) o.onReplay();
       if (stage) stage.scrollIntoView({ block: 'nearest' });
     };
-    $('[data-result-share]', el).onclick = () => share(o.shareText || `${page.dataset.gameTitle}: ${$('[data-result-value]', el).textContent} – schaffst du das? #TFTArcade`);
+    $('[data-result-share]', el).onclick = () => share(o.shareText || `${page.dataset.gameTitle}: ${$('[data-result-value]', el).textContent} – can you beat that? #TFTArcade`);
     el.hidden = false;
     const entry = ranked ? highscoreEntry(el, mode, o.value) : hideEntry(el);
     (entry || el).focus({ preventScroll: true });
@@ -400,7 +400,7 @@
       ev.preventDefault();
       const name = input.value.trim().replace(/\s+/g, ' ');
       if (!NAME_OK.test(name)) {
-        input.setCustomValidity('2–12 Zeichen: Buchstaben, Zahlen, Leerzeichen, _ . und -');
+        input.setCustomValidity('2–12 characters: letters, numbers, spaces, _ . and -');
         input.reportValidity();
         return;
       }
@@ -413,10 +413,10 @@
       renderBoards();
       const place = boardRowsFor(root, mode).findIndex(r => r.id === e.id) + 1;
       $('[data-hs-place]', done).textContent = place;
-      $('[data-hs-link]', done).setAttribute('href', pageLink('/bestenliste') + '#' + root.dataset.boardRoot);
+      $('[data-hs-link]', done).setAttribute('href', pageLink('/leaderboard') + '#' + root.dataset.boardRoot);
       form.hidden = true; form.onsubmit = null;
       done.hidden = false;
-      toast(`${name} steht jetzt auf Platz ${place}!`);
+      toast(`${name} is now rank ${place}!`);
     };
     form.hidden = false;
     return input;
@@ -434,7 +434,7 @@
     const p = berlinParts(new Date());
     return {
       day: Math.floor(Date.UTC(p.year, p.month - 1, p.day) / 864e5),
-      label: `${String(p.day).padStart(2, '0')}.${String(p.month).padStart(2, '0')}.`,
+      label: new Date(Date.UTC(p.year, p.month - 1, p.day, 12)).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }),
       left: 86400 - (p.hour * 3600 + p.minute * 60 + p.second),
     };
   }
@@ -451,7 +451,7 @@
     set('[data-daily-title]', d.title);
     set('[data-daily-text]', d.text);
     set('[data-daily-game]', d.gameTitle);
-    set('[data-daily-date]', new Date(Date.UTC(now.year, now.month - 1, now.day, 12)).toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }));
+    set('[data-daily-date]', new Date(Date.UTC(now.year, now.month - 1, now.day, 12)).toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }));
     $('[data-daily-link]').setAttribute('href', pageLink(d.href));
     const out = $('[data-daily-countdown]');
     const pad = n => String(n).padStart(2, '0');

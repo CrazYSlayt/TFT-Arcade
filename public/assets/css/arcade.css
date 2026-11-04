@@ -1139,6 +1139,7 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
 .ts-goal-pic { position: relative; width: 100%; aspect-ratio: 16 / 10; overflow: hidden; border-radius: 12px; border: 3px solid var(--k); box-shadow: 0 0 20px -4px var(--k); }
 .ts-goal-pic img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
 .ts-goal-stars { position: absolute; left: 50%; top: 6px; transform: translateX(-50%); padding: 1px 8px; border-radius: 999px; font-size: 1rem; letter-spacing: 2px; color: #e8ecf4; background: rgba(8, 3, 16, .8); }
+.ts-goal-stars:empty { display: none; }
 .ts-goal-stars.s3 { color: #ffd23f; text-shadow: 0 0 8px rgba(255, 210, 63, .9); }
 .ts-goal-name { font: 400 1.35rem/1.1 var(--f-display); color: #fff1d6; }
 .ts-pips { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; width: 100%; margin: 0; padding: 0; list-style: none; }
@@ -1161,14 +1162,10 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
 .ts-lvl b { color: var(--gold); }
 .ts-sellhint { margin-left: auto; font: 700 .78rem/1 var(--f-cond); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
 .ts-shopbar.is-sell .ts-sellhint { color: #ff9aa4; }
-.ts-shop-main { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 10px; }
-.rs-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px 6px; border-radius: 12px; cursor: pointer; font: 700 .95rem/1.1 var(--f-body); color: #fff; border: 2px solid rgba(255, 220, 160, .45); background: rgba(8, 3, 16, .55); transition: transform .12s, border-color .15s, background .2s; }
-.rs-btn small { display: flex; align-items: center; gap: 4px; font: 700 .75rem/1 var(--f-cond); letter-spacing: .08em; color: var(--muted); }
-.rs-btn .kq-coin { --k: #ffbf3a; width: 20px; height: 20px; font-size: .75rem; }
-.rs-btn:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--gold); }
-.rs-btn:active:not(:disabled) { transform: translateY(1px); }
-.rs-btn.is-roll { border-color: var(--teal); background: rgba(70, 227, 210, .1); }
-.rs-btn.is-poor, .rs-btn:disabled { opacity: .45; }
+.ts-roll { display: inline-flex; align-items: center; gap: 7px; padding: 5px 8px 5px 14px; border-radius: 999px; cursor: pointer; font: 700 .92rem/1.1 var(--f-body); color: #fff; border: 2px solid var(--teal); background: rgba(70, 227, 210, .12); transition: transform .12s, background .15s; }
+.ts-roll .kq-coin { --k: #ffbf3a; width: 20px; height: 20px; font-size: .75rem; }
+.ts-roll:hover { transform: translateY(-1px); background: rgba(70, 227, 210, .24); }
+.ts-roll:active { transform: translateY(1px); }
 .rs-shop { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
 .rs-shop.is-deal li { animation: sm-deal .3s cubic-bezier(.3, 1.4, .5, 1) both; animation-delay: calc(var(--i, 0) * 30ms); }
 .rs-sold { min-height: 150px; border-radius: 12px; background: rgba(255, 255, 255, .03); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06); }
@@ -1176,7 +1173,7 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
 .rs-card:hover { transform: translateY(-3px); box-shadow: 0 0 24px -2px var(--k); }
 .rs-card:active { transform: translateY(1px); }
 .rs-card.is-target::after { content: ''; position: absolute; inset: 0; border-radius: 9px; box-shadow: inset 0 0 0 3px var(--gold); pointer-events: none; animation: smpulse 1.2s ease-in-out infinite; }
-.rs-pic { display: block; aspect-ratio: 16 / 9; overflow: hidden; }
+.rs-pic { display: block; aspect-ratio: 5 / 2; overflow: hidden; }
 .rs-pic img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
 .rs-row { display: flex; align-items: center; justify-content: space-between; gap: 4px; padding: 5px 7px 2px; }
 .rs-name { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font: 400 clamp(.85rem, 1.1vw, 1.05rem)/1.1 var(--f-display); }
@@ -1416,7 +1413,7 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
   .ts-bench { gap: 3px; }
   .ts-slot { border-radius: 6px; }
   .ts-stars { font-size: .6rem; padding: 0 3px; }
-  .ts-shop-main { grid-template-columns: 1fr; }
+  .ts-roll { flex: 1 0 100%; justify-content: center; padding-block: 10px; }
   .ts-sellhint { display: none; }
   .rs-shop { gap: 5px; }
   .rs-card, .rs-sold { min-height: 0; }

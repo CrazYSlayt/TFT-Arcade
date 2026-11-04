@@ -19,7 +19,7 @@
   const esc = A.esc;
   const coin = n => `<span class="kq-coin">${n}</span>`;
   const heart = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.4C.9 8 3.1 4 7 4c2.1 0 3.6 1.1 5 2.9C13.4 5.1 14.9 4 17 4c3.9 0 6.1 4 4.6 7.6C19.5 16.4 12 21 12 21z"/></svg>';
-  const secWord = s => s === 1 ? '1 Sekunde' : `${s} Sekunden`;
+  const secWord = s => s === 1 ? '1 second' : `${s} seconds`;
 
   let state = 'start', round = 0, score = 0, hearts = HEARTS, shop = [], options = [], picks = [], active = 0;
   let totals = { exact: 0, near: 0, perfect: 0 }, raf = null, timer = null, recallAt = 0, ui = {};
@@ -33,13 +33,13 @@
     state = 'start';
     const t = training();
     stage.innerHTML = `<div class="game-intro">
-      <p class="game-kicker">${t ? 'Training · ohne Wertung' : `Gewertet · ${ROUNDS} Runden · ${HEARTS} Herzen`}</p>
-      <h2 class="game-title">Shop-Memory</h2>
+      <p class="game-kicker">${t ? 'Training · unranked' : `Ranked · ${ROUNDS} rounds · ${HEARTS} hearts`}</p>
+      <h2 class="game-title">Shop Memory</h2>
       <ol class="sm-preview" aria-hidden="true">${[1, 2, 3, 4, 5].map(n => `<li class="cost-${n}"></li>`).join('')}</ol>
       <p class="game-text">${t
-        ? `Üb in Ruhe: Der Shop bleibt jede Runde ${TRAINING_MS / 1000} Sekunden sichtbar, Fehler kosten keine Herzen.`
-        : `Präg dir den Shop ein – dann wird er verdeckt. Jede Runde bleibt weniger Zeit (${SHOW_FIRST / 1000} bis ${SHOW_LAST / 1000} Sekunden), zum Zurücklegen hast du ${RECALL_MS / 1000} Sekunden. Weniger als ${MIN_EXACT} Champions am richtigen Platz kosten ein Herz.`}</p>
-      <button class="btn btn-gold btn-lg" type="button" data-game-start>Los geht’s</button>
+        ? `Take your time: the shop stays visible for ${TRAINING_MS / 1000} seconds every round, and mistakes don’t cost hearts.`
+        : `Memorize the shop before it’s covered. You get less time every round (${SHOW_FIRST / 1000} down to ${SHOW_LAST / 1000} seconds) and ${RECALL_MS / 1000} seconds to rebuild it. Fewer than ${MIN_EXACT} champions in the right slot costs a heart.`}</p>
+      <button class="btn btn-gold btn-lg" type="button" data-game-start>Let’s go</button>
     </div>`;
     stage.querySelector('[data-game-start]').addEventListener('click', start);
   }
@@ -57,19 +57,19 @@
     stage.innerHTML = `<div class="sm">
       <div class="hud">
         <div class="hud-side">
-          <span class="hud-pill">Runde <b data-sm-round>1</b><i>/ ${ROUNDS}</i></span>
-          <span class="hud-hearts" data-sm-hearts aria-label="${HEARTS} Herzen"${training() ? ' hidden' : ''}>${heart.repeat(HEARTS)}</span>
+          <span class="hud-pill">Round <b data-sm-round>1</b><i>/ ${ROUNDS}</i></span>
+          <span class="hud-hearts" data-sm-hearts aria-label="${HEARTS} hearts"${training() ? ' hidden' : ''}>${heart.repeat(HEARTS)}</span>
         </div>
-        <span class="hud-pill hud-score">Punkte <b data-sm-score>0</b></span>
+        <span class="hud-pill hud-score">Points <b data-sm-score>0</b></span>
         <div class="hud-side"></div>
       </div>
       <div class="hud-bar" aria-hidden="true"><span data-sm-timer></span></div>
       <div class="sm-head">
-        <h2 class="sm-title" data-sm-title>Merk dir diesen Shop!</h2>
+        <h2 class="sm-title" data-sm-title>Memorize this shop!</h2>
         <p class="sm-sub" data-sm-sub aria-live="polite"></p>
       </div>
       <ol class="sm-shop" data-sm-shop aria-label="Shop"></ol>
-      <div class="sm-options" data-sm-options role="group" aria-label="Champions zur Auswahl"></div>
+      <div class="sm-options" data-sm-options role="group" aria-label="Champions to choose from"></div>
       <div class="sm-cta">
         <button class="btn btn-gold sm-action" type="button" data-sm-action disabled></button>
         <p class="sm-hint" data-sm-hint></p>
@@ -116,11 +116,11 @@
     options.forEach(c => { const im = new Image(); im.src = A.asset(c.img); });
     ui.shop.className = 'sm-shop is-deal';
     ui.shop.innerHTML = shop.map((c, i) => `<li style="--i:${i}"><div class="sm-card cost-${c.cost}">${face(c)}</div></li>`).join('');
-    ui.title.textContent = 'Merk dir diesen Shop!';
+    ui.title.textContent = 'Memorize this shop!';
     ui.title.className = 'sm-title';
     ui.sub.textContent = '';
-    setAction('Gleich werden die Karten verdeckt …', false);
-    ui.hint.textContent = 'Präge dir Champions und Reihenfolge ein.';
+    setAction('The cards are about to be covered …', false);
+    ui.hint.textContent = 'Memorize the champions and their order.';
     ui.timer.style.transform = 'scaleX(1)';
     A.sound('flip');
     // Countdown startet erst, wenn alle fünf Bilder zu sehen sind (höchstens 1,5 s warten)
@@ -140,7 +140,7 @@
       const left = Math.max(0, ms - (performance.now() - t0)), s = Math.ceil(left / 1000);
       ui.timer.style.transform = `scaleX(${left / ms})`;
       if (s !== lastSec) {
-        ui.sub.textContent = `Noch ${secWord(s)}`;
+        ui.sub.textContent = `${secWord(s)} left`;
         if (s <= 3 && s > 0 && lastSec !== null) A.sound('tick');
         lastSec = s;
       }
@@ -162,11 +162,11 @@
     state = 'recall';
     cancelAnimationFrame(raf);
     ui.shop.className = 'sm-shop is-uncover';
-    ui.title.textContent = 'Wer stand wo?';
+    ui.title.textContent = 'Who was where?';
     ui.options.hidden = false;
     ui.options.innerHTML = options.map(c => `<button class="sm-opt cost-${c.cost}" type="button" data-id="${c.id}"><img src="${A.asset(c.img)}" alt=""><span>${esc(c.name)}</span></button>`).join('');
     ui.options.querySelectorAll('.sm-opt').forEach(b => b.addEventListener('click', () => pick(b.dataset.id)));
-    ui.hint.textContent = 'Klick auf einen belegten Platz macht ihn wieder frei.';
+    ui.hint.textContent = 'Click a filled slot to clear it.';
     renderSlots();
     recallAt = performance.now();
     // gewertet: Zeitlimit, danach wird mit dem geprüft, was liegt
@@ -198,14 +198,14 @@
     ui.shop.innerHTML = picks.map((id, i) => {
       const c = id && byId(id), on = i === active ? ' is-active' : '';
       return c
-        ? `<li><button class="sm-card cost-${c.cost} is-pick${on}" type="button" data-slot="${i}" aria-label="Platz ${i + 1}: ${esc(c.name)} – zum Entfernen klicken">${face(c)}</button></li>`
-        : `<li><button class="sm-card is-back${on}" type="button" data-slot="${i}" aria-label="Platz ${i + 1}: leer"><span class="sm-num">${i + 1}</span></button></li>`;
+        ? `<li><button class="sm-card cost-${c.cost} is-pick${on}" type="button" data-slot="${i}" aria-label="Slot ${i + 1}: ${esc(c.name)} – click to remove">${face(c)}</button></li>`
+        : `<li><button class="sm-card is-back${on}" type="button" data-slot="${i}" aria-label="Slot ${i + 1}: empty"><span class="sm-num">${i + 1}</span></button></li>`;
     }).join('');
     ui.shop.querySelectorAll('[data-slot]').forEach(b => b.addEventListener('click', () => slot(Number(b.dataset.slot))));
     ui.options.querySelectorAll('.sm-opt').forEach(b => { b.disabled = picks.includes(b.dataset.id); });
     const full = picks.every(Boolean);
-    ui.sub.innerHTML = full ? 'Alles belegt – prüfen oder Plätze ändern.' : `Wähle den Champion für <b>Platz ${active + 1}</b>.`;
-    setAction(full ? 'Prüfen' : `Noch ${picks.filter(p => !p).length} ${picks.filter(p => !p).length === 1 ? 'Platz' : 'Plätze'} frei`, full);
+    ui.sub.innerHTML = full ? 'All slots filled – check or change them.' : `Pick the champion for <b>slot ${active + 1}</b>.`;
+    setAction(full ? 'Check' : `${picks.filter(p => !p).length} ${picks.filter(p => !p).length === 1 ? 'slot' : 'slots'} left`, full);
   }
 
   function pick(id) {
@@ -238,31 +238,31 @@
     let exact = 0, near = 0;
     const ids = shop.map(c => c.id);
     ui.shop.innerHTML = shop.map((c, i) => {
-      const p = picks[i], ok = p === c.id, inShop = !ok && ids.includes(p), guess = p ? byId(p).name : 'leer';
+      const p = picks[i], ok = p === c.id, inShop = !ok && ids.includes(p), guess = p ? byId(p).name : 'empty';
       if (ok) exact++; else if (inShop) near++;
       const cls = ok ? 'is-ok' : inShop ? 'is-near' : 'is-bad';
       const mark = `<span class="sm-mark" aria-hidden="true">${ok ? '✓' : inShop ? '~' : '✗'}</span>`;
-      const tip = ok ? '' : `<span class="sm-tip">Dein Tipp: ${p ? `<s>${esc(guess)}</s>` : 'leer'}</span>`;
-      return `<li><div class="sm-card cost-${c.cost} ${cls}" aria-label="Platz ${i + 1}: ${esc(c.name)} – ${ok ? 'richtig' : 'dein Tipp: ' + esc(guess)}">${face(c, mark + tip)}</div></li>`;
+      const tip = ok ? '' : `<span class="sm-tip">Your pick: ${p ? `<s>${esc(guess)}</s>` : 'empty'}</span>`;
+      return `<li><div class="sm-card cost-${c.cost} ${cls}" aria-label="Slot ${i + 1}: ${esc(c.name)} – ${ok ? 'correct' : 'your pick: ' + esc(guess)}">${face(c, mark + tip)}</div></li>`;
     }).join('');
     const perfect = exact === SLOTS;
     const speed = perfect ? Math.round(P_SPEED * Math.max(0, 1 - used / SPEED_MS)) : 0;
     const pts = exact * P_EXACT + near * P_SHOP + (perfect ? P_PERFECT + speed : 0);
     score += pts; totals.exact += exact; totals.near += near; if (perfect) totals.perfect++;
-    ui.score.textContent = score.toLocaleString('de-DE');
+    ui.score.textContent = score.toLocaleString('en-US');
     ui.options.querySelectorAll('.sm-opt').forEach(b => { b.disabled = true; });
 
     const lost = !training() && exact < MIN_EXACT;
     if (lost) loseHeart();
-    ui.title.textContent = perfect ? 'Perfekter Shop!' : exact >= MIN_EXACT ? 'Gut gemerkt!' : timeUp ? 'Zeit abgelaufen!' : lost ? 'Ein Herz weg!' : 'Knapp daneben!';
+    ui.title.textContent = perfect ? 'Perfect shop!' : exact >= MIN_EXACT ? 'Well remembered!' : timeUp ? 'Time’s up!' : lost ? 'You lost a heart!' : 'So close!';
     ui.title.className = 'sm-title ' + (perfect ? 'is-ok' : exact >= MIN_EXACT ? 'is-near' : 'is-bad');
     ui.sub.textContent = perfect
-      ? `+${pts} Punkte (inkl. ${P_PERFECT} Bonus${speed ? ` und ${speed} Tempo` : ''})`
-      : `${exact} am richtigen Platz${near ? `, ${near} im Shop, aber falsch platziert` : ''} · +${pts} Punkte`;
+      ? `+${pts} points (incl. ${P_PERFECT} bonus${speed ? ` and ${speed} speed` : ''})`
+      : `${exact} in the right slot${near ? `, ${near} in the shop but misplaced` : ''} · +${pts} points`;
     A.sound(perfect || exact >= MIN_EXACT ? 'ok' : 'bad');
     const over = hearts === 0 || round + 1 >= ROUNDS;
-    setAction(over ? 'Zur Auswertung' : 'Nächste Runde', true);
-    ui.hint.textContent = over ? '' : 'Enter geht auch.';
+    setAction(over ? 'See results' : 'Next round', true);
+    ui.hint.textContent = over ? '' : 'Enter works too.';
     ui.action.focus({ preventScroll: true });
   }
 
@@ -270,7 +270,7 @@
     hearts--;
     const all = [...ui.hearts.querySelectorAll('svg')];
     if (all[hearts]) all[hearts].classList.add('is-lost');
-    ui.hearts.setAttribute('aria-label', `${hearts} ${hearts === 1 ? 'Herz' : 'Herzen'}`);
+    ui.hearts.setAttribute('aria-label', `${hearts} ${hearts === 1 ? 'heart' : 'hearts'}`);
   }
 
   function nextRound() {
@@ -284,16 +284,16 @@
     state = 'done';
     stop();
     const played = Math.min(round, ROUNDS), all = played * SLOTS;
-    const title = hearts === 0 ? 'Keine Herzen mehr!' : totals.perfect === ROUNDS ? 'Fotografisches Gedächtnis!' : totals.exact >= all * .7 ? 'Starkes Gedächtnis!' : totals.exact >= all * .4 ? 'Gar nicht schlecht!' : 'Da geht noch was!';
+    const title = hearts === 0 ? 'Out of hearts!' : totals.perfect === ROUNDS ? 'Photographic memory!' : totals.exact >= all * .7 ? 'Great memory!' : totals.exact >= all * .4 ? 'Not bad at all!' : 'There’s room to improve!';
     A.sound(hearts === 0 ? 'lose' : 'win');
     A.finishRound({
       value: score,
       title,
       lines: [
-        `${played} von ${ROUNDS} Runden · ${totals.perfect} ${totals.perfect === 1 ? 'Shop' : 'Shops'} perfekt`,
-        `${totals.exact} von ${all} Champions am richtigen Platz${totals.near ? ` · ${totals.near} im Shop, aber falsch platziert` : ''}`,
+        `${played} of ${ROUNDS} rounds · ${totals.perfect} perfect ${totals.perfect === 1 ? 'shop' : 'shops'}`,
+        `${totals.exact} of ${all} champions in the right slot${totals.near ? ` · ${totals.near} in the shop but misplaced` : ''}`,
       ],
-      shareText: `Shop-Memory: ${score.toLocaleString('de-DE')} Punkte, ${totals.perfect}/${ROUNDS} perfekte Shops – merkst du dir mehr? #TFTArcade`,
+      shareText: `Shop Memory: ${score.toLocaleString('en-US')} points, ${totals.perfect}/${ROUNDS} perfect shops – can you remember more? #TFTArcade`,
       onReplay: start,
     });
   }

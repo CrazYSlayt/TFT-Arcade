@@ -1,6 +1,6 @@
-// TFT Arcade – 3-Star Roll Simulator: auf Level 10 rollen, bis dein 5-Kosten-Champion drei Sterne hat.
-// Board aus Sechsecken (4 × 7) und Bank (9 Plätze) wie im Spiel: Einheiten per Ziehen oder Klick verschieben, aufs Shop-Feld ziehen = verkaufen.
-// Modi: „Training“ (ohne Uhr, Level wählbar, Ziel im Shop markiert, Trefferchance) · „Gegen die Uhr“ (gewertet: Bestzeit bis 3 Sterne)
+// TFT Arcade – 3-Star Roll Simulator: auf Level 10 rollen, bis ein 5-Kosten-Champion drei Sterne hat. Board und Bank sind zu Beginn leer.
+// Board aus Sechsecken (4 × 7) und Bank (9 Plätze) wie im Spiel: Einheiten per Ziehen oder Klick verschieben, aufs Shop-Feld ziehen oder E = verkaufen.
+// Modi: „Time Trial“ (gewertet: Bestzeit bis 3 Sterne) · „Training“ (Level wählbar, Ziel markiert, Trefferchance). Die Uhr läuft in beiden hoch.
 // Daten: window.TFT_ARCADE_CHAMPIONS (daten/champions.js) und window.TFT_ARCADE_SHOP (daten/shop.js – Odds, Kopien pro Champion aus TFTClimb)
 // Rahmen: window.Arcade (arcade.js) – Ergebniskarte, Rekord, Bestenliste und Ton
 (function () {
@@ -11,26 +11,23 @@
   if (!stage || !data || !S || !A) return;
   const esc = A.esc;
 
-  const SLOTS = 5, BENCH = 9, ROWS = 4, COLS = 7, REROLL = 2;
+  const SLOTS = 5, BENCH = 9, ROWS = 4, COLS = 7, REROLL = 2, COPIES = 9;
   const LEVEL = 10, LEVELS = [9, 10, 11];        // gewertet immer Level 10, im Training wählbar (11 nur über Augments)
-  const START_COPIES = 3;                         // der Ziel-5-Koster steht schon auf 2 Sternen
   const OTHERS = [0.3, 0.6];                      // Gegner halten 30–60 % der anderen 5-Koster (spätes Spiel), von 1–4-Kostern bis zu 40 %
-  const MAX_MS = 180000;                          // nach 3 Minuten ist die Runde vorbei
-  const TEAM = 7;                                 // weitere Einheiten auf dem Board zu Beginn
 
   const champs = data.champions;
   const byId = Object.fromEntries(champs.map(c => [c.id, c]));
   const byCost = [1, 2, 3, 4, 5].map(k => champs.filter(c => c.cost === k));
-  const rand = n => Math.floor(Math.random() * n);
   const coin = n => `<span class="kq-coin">${n}</span>`;
   const stars = n => '★'.repeat(n);
-  const pct = x => `${x.toLocaleString('de-DE', { maximumFractionDigits: x < 10 ? 1 : 0 })} %`;
-  const sec = ms => (ms / 1000).toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const pct = x => `${x.toLocaleString('en-US', { maximumFractionDigits: x < 10 ? 1 : 0 })}%`;
+  const sec = ms => (ms / 1000).toFixed(1);
   const copiesOf = star => 3 ** (star - 1);
   const sellValue = (c, star) => star === 1 ? c.cost : c.cost * copiesOf(star) - (c.cost > 1 ? 1 : 0);
 
-  let mode = 'training', state = 'start', level = LEVEL, trainLevel = LEVEL, pool = {}, shop = [], units = [], uidNext = 1, target = null;
+  let mode = 'rush', state = 'start', level = LEVEL, trainLevel = LEVEL, pool = {}, shop = [], units = [], uidNext = 1, target = null;
   let rolls = 0, spent = 0, wrong = 0, startAt = 0, timer = null, raf = null, selected = null, drag = null, ghost = null, ui = {};
+  const mouse = { x: -1, y: -1 };
   const ranked = () => mode !== 'training';
 
   // ───────── Einheiten auf Board und Bank ─────────
@@ -39,7 +36,6 @@
   const freeBench = () => { for (let i = 0; i < BENCH; i++) if (!unitAt('bench', i)) return i; return -1; };
   const targetUnit = () => units.filter(u => u.id === target.id).sort((a, b) => b.star - a.star)[0];
   const targetCopies = () => units.filter(u => u.id === target.id).reduce((s, u) => s + copiesOf(u.star), 0);
-  function add(id, star, at, pos) { const u = { uid: uidNext++, id, star, at, pos }; units.push(u); pool[id] -= copiesOf(star); return u; }
 
   // drei gleiche Einheiten werden eins – die neue steht dort, wo schon eine auf dem Board war, sonst auf dem vordersten Bankplatz
   function merge(id) {
@@ -80,7 +76,7 @@
     return (1 - (1 - p) ** SLOTS) * 100;
   }
 
-  // ───────── Aufbau: Ziel-5-Koster auf 2 Sternen, ein passendes Team auf dem Board, zwei Einheiten auf der Bank ─────────
+  // ───────── Aufbau: Board und Bank sind leer, alle neun Kopien des Ziels liegen im Pool ─────────
   function setup() {
     level = ranked() ? LEVEL : trainLevel;
     units = []; shop = []; uidNext = 1; selected = null;
@@ -92,19 +88,6 @@
       const share = c.id === target.id ? 0 : c.cost === 5 ? OTHERS[0] + Math.random() * (OTHERS[1] - OTHERS[0]) : Math.random() * 0.4;
       pool[c.id] = bag - Math.round(bag * share);
     });
-    add(target.id, 2, 'board', 3 * COLS + 3);
-    // Team: Champions mit gemeinsamem Trait zuerst, Kosten 3–5; Tanks und Kämpfer vorne, der Rest hinten
-    const shares = c => c.traits.some(([n]) => target.traits.some(([m]) => m === n));
-    const cand = A.shuffle(champs.filter(c => c.id !== target.id && c.cost >= 3));
-    const team = [...cand.filter(shares), ...cand.filter(c => !shares(c))].slice(0, TEAM);
-    const front = [1, 2, 3, 4, 5, 0, 6].map(i => i), back = [3 * COLS + 2, 3 * COLS + 4, 3 * COLS + 1, 3 * COLS + 5, 2 * COLS + 3, 2 * COLS + 2, 2 * COLS + 4];
-    team.forEach(c => {
-      const star = c.cost === 5 ? 1 : c.cost === 4 ? 1 + rand(2) : 2;
-      const tank = /Tank|Kämpfer/.test(c.role || '');
-      const pos = (tank ? front : back).find(p => !unitAt('board', p)) ?? [...front, ...back].find(p => !unitAt('board', p));
-      if (pool[c.id] >= copiesOf(star)) add(c.id, star, 'board', pos);
-    });
-    A.shuffle(champs.filter(c => c.cost <= 3 && !units.some(u => u.id === c.id))).slice(0, 2).forEach((c, i) => add(c.id, 1, 'bench', i));
     roll();
   }
 
@@ -114,15 +97,15 @@
     clearTimeout(timer); cancelAnimationFrame(raf);
     mode = A.currentMode();
     stage.innerHTML = `<div class="game-intro">
-      <p class="game-kicker">Set ${esc(data.set)} · echte Shop-Chancen · ${ranked() ? `Level ${LEVEL}` : 'Training'}</p>
-      <h2 class="game-title">3 Sterne auf einem 5-Koster</h2>
+      <p class="game-kicker">Set ${esc(data.set)} · real shop odds · ${ranked() ? `Level ${LEVEL}` : 'Training'}</p>
+      <h2 class="game-title">3 stars on a 5-cost</h2>
       <ol class="rs-preview" aria-hidden="true">${[1, 2, 3].map(() => `<li class="cost-5">${coin(5)}</li>`).join('')}</ol>
       <p class="game-text">${ranked()
-        ? 'Dein 5-Koster steht schon auf 2 Sternen – roll auf Level 10, bis er 3 Sterne hat. Gold ist egal, nur die Zeit zählt: Die Uhr startet mit deiner ersten Aktion.'
-        : 'Roll ohne Uhr, bis dein 5-Koster 3 Sterne hat. Das Ziel ist im Shop markiert, und du siehst die Chance auf eine Kopie im nächsten Shop.'}
-        Tasten: <kbd>D</kbd> rollen, <kbd>1</kbd>–<kbd>5</kbd> kaufen, <kbd>E</kbd> verkaufen. Einheiten ziehst du zwischen Board und Bank hin und her.</p>
+        ? 'Empty board, empty bench, one 5-cost target: roll on level 10 until you own all nine copies. Gold doesn’t matter, only your time does – the clock starts with the round.'
+        : 'Same round, no leaderboard: pick your level, the target is highlighted in the shop and you see your chance of hitting a copy in the next shop.'}
+        Keys: <kbd>D</kbd> reroll, <kbd>1</kbd>–<kbd>5</kbd> buy, <kbd>E</kbd> sell the unit under your cursor. Drag units between board and bench.</p>
       ${ranked() ? '' : `<div class="rs-levels" role="group" aria-label="Level">${LEVELS.map(l => `<button class="rs-level${l === trainLevel ? ' is-on' : ''}" type="button" data-level="${l}">Level ${l}${l === 11 ? '<small>Augment</small>' : ''}</button>`).join('')}</div>`}
-      <button class="btn btn-gold btn-lg" type="button" data-game-start>Los geht’s</button>
+      <button class="btn btn-gold btn-lg" type="button" data-game-start>Let’s go</button>
     </div>`;
     stage.querySelectorAll('[data-level]').forEach(b => b.addEventListener('click', () => { trainLevel = Number(b.dataset.level); intro(); }));
     stage.querySelector('[data-game-start]').addEventListener('click', start);
@@ -136,28 +119,30 @@
     const hexes = Array.from({ length: ROWS }, (_, r) => `<div class="ts-row${r % 2 ? ' is-odd' : ''}">${Array.from({ length: COLS }, (_, c) => `<div class="ts-hex" data-cell="board:${r * COLS + c}"></div>`).join('')}</div>`).join('');
     stage.innerHTML = `<div class="ts">
       <div class="hud">
-        <div class="hud-side"><span class="hud-pill">Zeit <b data-ts-clock>0,0</b></span></div>
+        <div class="hud-side"><span class="hud-pill">Time <b data-ts-clock>0.0</b></span></div>
         <span class="hud-pill hud-score">Rolls <b data-ts-rolls>0</b></span>
         <div class="hud-side cr-hud-right"><span class="hud-pill">Gold <b data-ts-spent>0</b></span></div>
       </div>
       <div class="ts-arena">
         <div class="ts-board" data-ts-board aria-label="Board">${hexes}</div>
-        <aside class="ts-goal" aria-label="Ziel">
-          <p class="rs-h">Ziel: 3 Sterne</p>
+        <aside class="ts-goal" aria-label="Target">
+          <p class="rs-h">Target: 3 stars</p>
           <div class="ts-goal-pic cost-5"><img src="${A.asset(target.img)}" alt="" width="960" height="480"><span class="ts-goal-stars" data-ts-goal-stars></span></div>
           <b class="ts-goal-name">${esc(target.name)}</b>
-          <ol class="ts-pips" data-ts-pips aria-label="Kopien">${Array.from({ length: 9 }, () => '<li></li>').join('')}</ol>
+          <ol class="ts-pips" data-ts-pips aria-label="Copies">${Array.from({ length: COPIES }, () => '<li></li>').join('')}</ol>
           <p class="ts-goal-info" data-ts-info></p>
         </aside>
       </div>
-      <div class="ts-bench" aria-label="Bank">${Array.from({ length: BENCH }, (_, i) => `<div class="ts-slot" data-cell="bench:${i}"></div>`).join('')}</div>
+      <div class="ts-bench" aria-label="Bench">${Array.from({ length: BENCH }, (_, i) => `<div class="ts-slot" data-cell="bench:${i}"></div>`).join('')}</div>
       <p class="game-msg" data-ts-msg aria-live="polite"></p>
       <div class="ts-shopbar" data-sellzone>
-        <div class="ts-shop-top"><span class="ts-lvl">Level <b>${level}</b></span><p class="rs-odds" data-ts-odds></p><span class="ts-sellhint" data-ts-sellhint>Hierher ziehen = verkaufen</span></div>
-        <div class="ts-shop-main">
-          <button class="rs-btn is-roll" type="button" data-ts-roll aria-keyshortcuts="D"><span>Neu rollen</span><small>${coin(REROLL)} · D</small></button>
-          <ul class="rs-shop" data-ts-shop></ul>
+        <div class="ts-shop-top">
+          <button class="ts-roll" type="button" data-ts-roll aria-keyshortcuts="D">Reroll ${coin(REROLL)}<kbd>D</kbd></button>
+          <span class="ts-lvl">Level <b>${level}</b></span>
+          <p class="rs-odds" data-ts-odds></p>
+          <span class="ts-sellhint">Drop here to sell</span>
         </div>
+        <ul class="rs-shop" data-ts-shop></ul>
       </div>
     </div>`;
     const q = s => stage.querySelector(s);
@@ -166,16 +151,14 @@
     ui.roll.addEventListener('click', reroll);
     ui.shop.addEventListener('click', e => { const b = e.target.closest('[data-slot]'); if (b && !drag) buy(Number(b.dataset.slot)); });
     stage.querySelectorAll('[data-cell]').forEach(cell => cell.addEventListener('click', () => { if (selected != null && !cell.querySelector('[data-uid]')) moveTo(selected, cellOf(cell)); }));
-    msg(`Dein Ziel: <b>${esc(target.name)}</b> – 6 Kopien fehlen noch.${ranked() ? ' Die Uhr startet mit dem ersten Rollen oder Kaufen.' : ''}`);
+    msg(`Your target: <b>${esc(target.name)}</b> – you need all ${COPIES} copies.`);
     render(true);
+    runClock();
   }
 
-  // Uhr (gewertet): startet mit der ersten Aktion, nach 3 Minuten ist Schluss
-  function begin() {
-    if (startAt) return;
+  // Uhr läuft ab dem Rundenstart hoch
+  function runClock() {
     startAt = performance.now();
-    if (!ranked()) return;
-    timer = setTimeout(() => finish(false), MAX_MS);
     const step = () => { if (state !== 'play') return; ui.clock.textContent = sec(performance.now() - startAt); raf = requestAnimationFrame(step); };
     step();
   }
@@ -185,7 +168,6 @@
   // ───────── Aktionen ─────────
   function reroll() {
     if (state !== 'play') return;
-    begin();
     rolls++; spent += REROLL;
     roll();
     A.sound('flip');
@@ -197,18 +179,17 @@
     const id = shop[i];
     if (!id) return;
     const c = byId[id], free = freeBench(), ones = units.filter(u => u.id === id && u.star === 1).length;
-    if (free < 0 && ones < 2) { msg('Die Bank ist voll – verkauf eine Einheit oder stell sie aufs Board.', 'is-bad'); A.sound('bad'); return; }
-    begin();
+    if (free < 0 && ones < 2) { msg('Your bench is full – sell a unit or move one to the board.', 'is-bad'); A.sound('bad'); return; }
     shop[i] = null; spent += c.cost;
     if (id !== target.id) wrong++;
     units.push({ uid: uidNext++, id, star: 1, at: 'bench', pos: free });
     const up = merge(id);
     if (id === target.id) {
-      msg(up === 3 ? `<b>${esc(c.name)}</b> hat 3 Sterne!` : `${esc(c.name)}: ${targetCopies()}/9 Kopien.`, 'is-ok');
+      msg(up === 3 ? `<b>${esc(c.name)}</b> is 3 stars!` : `${esc(c.name)}: ${targetCopies()}/${COPIES} copies.`, 'is-ok');
       A.sound(up === 3 ? 'win' : 'ok');
-    } else { msg(`${esc(c.name)} gekauft${up ? ` – jetzt ${up} Sterne` : ''}.`); A.sound('click'); }
+    } else { msg(`${esc(c.name)} bought${up ? ` – now ${up} stars` : ''}.`); A.sound('click'); }
     render(false);
-    if (targetUnit() && targetUnit().star >= 3) finish(true);
+    if (targetUnit() && targetUnit().star >= 3) finish();
   }
 
   function sell(uid) {
@@ -219,7 +200,7 @@
     units = units.filter(x => x !== u);
     pool[u.id] += copiesOf(u.star); spent -= v;
     if (selected === uid) selected = null;
-    msg(`${esc(c.name)} ${stars(u.star)} verkauft: +${v} Gold.${u.id === target.id ? ' Ups – das war dein Ziel!' : ''}`, u.id === target.id ? 'is-bad' : '');
+    msg(`${esc(c.name)} ${stars(u.star)} sold: +${v} gold.${u.id === target.id ? ' Oops – that was your target!' : ''}`, u.id === target.id ? 'is-bad' : '');
     A.sound('click');
     render(false);
   }
@@ -232,7 +213,7 @@
     selected = null;
     if (u.at === to.at && u.pos === to.pos) return render(false);
     const other = unitAt(to.at, to.pos);
-    if (to.at === 'board' && u.at === 'bench' && !other && onBoard() >= level) { msg(`Das Board ist voll (${level}/${level}) – tausch eine Einheit oder stell eine auf die Bank.`, 'is-bad'); A.sound('bad'); return render(false); }
+    if (to.at === 'board' && u.at === 'bench' && !other && onBoard() >= level) { msg(`Your board is full (${level}/${level}) – swap a unit or move one to the bench.`, 'is-bad'); A.sound('bad'); return render(false); }
     if (other) { other.at = u.at; other.pos = u.pos; }
     u.at = to.at; u.pos = to.pos;
     msg('');
@@ -247,6 +228,7 @@
     drag = { uid: Number(el.dataset.uid), x: e.clientX, y: e.clientY, el, moved: false };
   });
   document.addEventListener('pointermove', e => {
+    mouse.x = e.clientX; mouse.y = e.clientY;
     if (!drag) return;
     if (!drag.moved) {
       if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 6) return;
@@ -273,7 +255,7 @@
     if (!d.moved) { // Klick
       if (selected === d.uid) { selected = null; render(false); }
       else if (selected != null) { const u = units.find(x => x.uid === d.uid); moveTo(selected, { at: u.at, pos: u.pos }); }
-      else { selected = d.uid; render(false); msg('Ausgewählt – klick auf ein Feld zum Verschieben oder drück E zum Verkaufen.'); }
+      else { selected = d.uid; render(false); msg('Selected – click a hex to move it or press E to sell it.'); }
       return;
     }
     const t = dropTarget(e.clientX, e.clientY);
@@ -290,17 +272,22 @@
     const sz = el.closest('[data-sellzone]');
     return sz ? { el: sz, sell: true } : null;
   }
+  // Einheit unter dem Mauszeiger (über die Position, damit es auch direkt nach dem Neuzeichnen stimmt)
+  function hovered() {
+    const el = mouse.x >= 0 && document.elementFromPoint(mouse.x, mouse.y), u = el && el.closest('[data-uid]');
+    return u && stage.contains(u) ? Number(u.dataset.uid) : null;
+  }
 
   // ───────── Darstellung ─────────
   const unitHtml = u => {
     const c = byId[u.id];
-    return `<div class="ts-unit cost-${c.cost}${u.id === target.id ? ' is-goal' : ''}${selected === u.uid ? ' is-sel' : ''}" data-uid="${u.uid}" title="${esc(c.name)} ${stars(u.star)} – ziehen zum Verschieben, aufs Shop-Feld zum Verkaufen (+${sellValue(c, u.star)} Gold)">
+    return `<div class="ts-unit cost-${c.cost}${u.id === target.id ? ' is-goal' : ''}${selected === u.uid ? ' is-sel' : ''}" data-uid="${u.uid}" title="${esc(c.name)} ${stars(u.star)} – drag to move, press E or drop on the shop to sell (+${sellValue(c, u.star)} gold)">
       <span class="ts-unit-in"><img src="${A.asset(c.img)}" alt="" width="960" height="480" draggable="false"></span>
       <span class="ts-stars s${u.star}">${stars(u.star)}</span><span class="ts-name">${esc(c.name)}</span></div>`;
   };
   function card(c, i) {
     const goal = c.id === target.id;
-    return `<li><button class="rs-card cost-${c.cost}${goal && !ranked() ? ' is-target' : ''}" type="button" data-slot="${i}" aria-label="${esc(c.name)}, ${c.cost} Gold" aria-keyshortcuts="${i + 1}">
+    return `<li><button class="rs-card cost-${c.cost}${goal && !ranked() ? ' is-target' : ''}" type="button" data-slot="${i}" aria-label="${esc(c.name)}, ${c.cost} gold" aria-keyshortcuts="${i + 1}">
       <span class="rs-pic"><img src="${A.asset(c.img)}" alt="" width="960" height="480" draggable="false"></span>
       <span class="rs-row"><b class="rs-name">${esc(c.name)}</b><span class="rs-cost">${coin(c.cost)}</span></span>
       <span class="rs-traits">${c.traits.map(([n, icon]) => `<span>${icon ? `<img src="${A.asset(icon)}" alt="">` : ''}${esc(n)}</span>`).join('')}</span>
@@ -321,29 +308,29 @@
     ui.goalStars.textContent = best ? stars(best.star) : '';
     ui.goalStars.className = 'ts-goal-stars s' + (best ? best.star : 0);
     const inPool = Math.max(0, pool[target.id]) + shop.filter(x => x === target.id).length;
-    ui.info.innerHTML = `${have}/9 Kopien · noch <b>${inPool}</b> im Pool${ranked() ? '' : `<br>Chance pro Shop: <b>${pct(hitChance())}</b>`}`;
+    ui.info.innerHTML = `${have}/${COPIES} copies · <b>${inPool}</b> left in the pool${ranked() ? '' : `<br>Chance per shop: <b>${pct(hitChance())}</b>`}`;
     ui.shop.className = 'rs-shop' + (fresh ? ' is-deal' : '');
     ui.shop.innerHTML = shop.map((id, i) => id ? card(byId[id], i) : '<li class="rs-sold" aria-hidden="true"></li>').join('');
-    ui.odds.innerHTML = S.odds[level - 1].map((o, k) => `<span class="cost-${k + 1}"><i></i>${o} %</span>`).join('');
+    ui.odds.innerHTML = S.odds[level - 1].map((o, k) => `<span class="cost-${k + 1}"><i></i>${o}%</span>`).join('');
   }
 
   // ───────── Auswertung ─────────
-  function finish(won) {
+  function finish() {
     if (state !== 'play') return;
     state = 'done';
-    clearTimeout(timer); cancelAnimationFrame(raf);
-    const ms = startAt ? performance.now() - startAt : 0, secs = Math.round(ms / 100) / 10;
-    if (ranked()) ui.clock.textContent = sec(ms);
-    setTimeout(() => A.finishRound({
-      ...(won && ranked() ? { value: secs } : { valueText: won ? `${sec(ms)} s` : `${targetCopies()}/9` }),
-      title: won ? (secs < 40 ? 'Was für ein Highroll!' : secs < 75 ? 'Drei Sterne!' : 'Geschafft – endlich!') : 'Zeit abgelaufen',
+    cancelAnimationFrame(raf);
+    const ms = performance.now() - startAt, secs = Math.round(ms / 100) / 10;
+    ui.clock.textContent = sec(ms);
+    timer = setTimeout(() => A.finishRound({
+      ...(ranked() ? { value: secs } : { valueText: `${sec(ms)} s` }),
+      title: secs < 60 ? 'What a highroll!' : secs < 100 ? 'Three stars!' : 'Finally!',
       lines: [
-        `${target.name} ${won ? 'auf 3 Sternen' : `${targetCopies()}/9 Kopien`} · Level ${level}`,
-        `${rolls} Rolls · ${spent} Gold ausgegeben${wrong ? ` · ${wrong} ${wrong === 1 ? 'Fehlkauf' : 'Fehlkäufe'}` : ''}`,
+        `${target.name} is 3 stars · level ${level}`,
+        `${rolls} rolls · ${spent} gold spent${wrong ? ` · ${wrong} other ${wrong === 1 ? 'buy' : 'buys'}` : ''}`,
       ],
-      shareText: won ? `3-Star Roll Simulator: ${target.name} in ${sec(ms)} Sekunden und ${rolls} Rolls auf 3 Sternen – schaffst du’s schneller? #TFTArcade` : `3-Star Roll Simulator: ${target.name} nach ${rolls} Rolls nur ${targetCopies()}/9 – Pech gehabt! #TFTArcade`,
+      shareText: `3-Star Roll Simulator: ${target.name} 3 stars in ${sec(ms)} seconds and ${rolls} rolls – can you beat that? #TFTArcade`,
       onReplay: start,
-    }), won ? 900 : 0);
+    }), 900);
   }
 
   document.addEventListener('arcade:restart', start);
@@ -354,9 +341,8 @@
     if (state === 'play' && k === 'd') { e.preventDefault(); reroll(); }
     else if (state === 'play' && /^[1-5]$/.test(k)) { e.preventDefault(); buy(Number(k) - 1); }
     else if (state === 'play' && k === 'e') {
-      // E verkauft die ausgewählte Einheit – sonst die unter dem Mauszeiger
-      const hover = stage.querySelector('[data-uid]:hover');
-      const uid = selected != null ? selected : hover ? Number(hover.dataset.uid) : null;
+      // E verkauft die Einheit unter dem Mauszeiger – ohne Maus die ausgewählte (Klick)
+      const under = hovered(), uid = under != null ? under : selected;
       if (uid != null) { e.preventDefault(); sell(uid); }
     }
     else if (state === 'play' && e.key === 'Escape' && selected != null) { selected = null; render(false); }

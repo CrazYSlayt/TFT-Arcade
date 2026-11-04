@@ -3,14 +3,14 @@
 // Nach einer Runde wählt man beim Highscore-Eintrag einen davon; Beispiel-Einträge bekommen einen festen über ihren Namen.
 // Hintergrundfarbe des runden Avatars: .av-<id> in arcade.css
 module.exports = [
-  { id: 'kronenpinguin', name: 'Kronenpinguin' },
-  { id: 'flatterbaer', name: 'Flatterbär' },
-  { id: 'schuerfi', name: 'Schürfi' },
-  { id: 'puschel', name: 'Puschel' },
-  { id: 'schnabeltier', name: 'Schnabeltier' },
-  { id: 'wolkenschaf', name: 'Wolkenschaf' },
-  { id: 'federritter', name: 'Federritter' },
-  { id: 'runengolem', name: 'Runengolem' },
-  { id: 'greifling', name: 'Greifling' },
-  { id: 'zottelbock', name: 'Zottelbock' },
+  { id: 'kronenpinguin', name: 'Crown Penguin' },
+  { id: 'flatterbaer', name: 'Flutter Bear' },
+  { id: 'schuerfi', name: 'Digger' },
+  { id: 'puschel', name: 'Fluffball' },
+  { id: 'schnabeltier', name: 'Platypus' },
+  { id: 'wolkenschaf', name: 'Cloud Sheep' },
+  { id: 'federritter', name: 'Feather Knight' },
+  { id: 'runengolem', name: 'Rune Golem' },
+  { id: 'greifling', name: 'Grifflet' },
+  { id: 'zottelbock', name: 'Shaggy Goat' },
 ];

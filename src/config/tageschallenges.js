@@ -2,10 +2,10 @@
 // alle Besucher sehen am selben Tag dieselbe Challenge. Sie basieren auf einem vorhandenen Spielmodus (game + mode).
 // title = kurzer Slogan auf dem Ticket, text = die genaue Vorgabe
 module.exports = [
-  { game: '3-star-rush', mode: 'tageschallenge', title: '9 Kopien. 60 Sekunden. Schaffst du’s?', text: 'Bring den Ziel-Champion des Tages auf drei Sterne – in unter 60 Sekunden.' },
-  { game: '3-star-rush', mode: 'tageschallenge', title: 'Drei Sterne, höchstens 40 Rerolls.', text: 'Jeder Fehlkauf kostet dich 2 Sekunden. Spar dir die Panik-Rolls.' },
-  { game: '3-star-rush', mode: 'tageschallenge', title: 'Neun Kopien. Null Fehlkäufe.', text: 'Kein einziger falscher Kauf erlaubt. Schaffst du den perfekten Lauf?' },
-  { game: '3-star-rush', mode: 'tageschallenge', title: 'Knapper Pool. Gleiche Uhr.', text: 'Heute sind weniger Kopien im Umlauf – halt trotzdem durch!' },
-  { game: 'champion-quiz', mode: 'tagesraetsel', title: 'Ein Champion. Sechs Hinweise. Eine Chance.', text: 'Das Tagesrätsel: Heute suchen alle denselben Champion – wie viele Hinweise brauchst du?' },
-  { game: 'roll-simulator', mode: 'rush', title: 'Level 10. Ein 5-Koster. Drei Sterne.', text: 'Roll mit den echten Shop-Chancen, bis dein 5-Koster drei Sterne hat – schaffst du es unter einer Minute?' },
+  { game: '3-star-rush', mode: 'daily', title: '9 copies. 60 seconds. Can you do it?', text: 'Get today’s target champion to three stars in under 60 seconds.' },
+  { game: '3-star-rush', mode: 'daily', title: 'Three stars, 40 rerolls at most.', text: 'Every wrong buy costs you 2 seconds. Skip the panic rolls.' },
+  { game: '3-star-rush', mode: 'daily', title: 'Nine copies. Zero wrong buys.', text: 'Not a single wrong buy allowed. Can you pull off the perfect run?' },
+  { game: '3-star-rush', mode: 'daily', title: 'Tight pool. Same clock.', text: 'Fewer copies are in circulation today. Hang in there!' },
+  { game: 'champion-quiz', mode: 'daily', title: 'One champion. Six clues. One try.', text: 'The Daily Puzzle: everyone is after the same champion today. How many clues do you need?' },
+  { game: 'roll-simulator', mode: 'rush', title: 'Level 10. One 5-cost. Three stars.', text: 'Roll with the real shop odds until your 5-cost hits three stars. Can you do it in under a minute?' },
 ];

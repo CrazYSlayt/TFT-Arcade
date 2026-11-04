@@ -31,13 +31,13 @@
     for (const s of [...A.shuffle(near), ...other]) if (pick.length < 3 && !pick.includes(s)) pick.push(s);
     const opts = A.shuffle([right, ...pick.slice(0, 3)]);
     return {
-      label: 'Welche Stufen?',
+      label: 'Which breakpoints?',
       prompt: traitPrompt(t),
-      ask: `Ab wie vielen Champions greift <b>${esc(t.name)}</b>?`,
+      ask: `At how many champions does <b>${esc(t.name)}</b> activate?`,
       layout: 'text',
       options: opts.map(s => ({ html: `<span class="qz-steps">${s}</span>`, label: s.replace(/ · /g, ', ') })),
       answer: opts.indexOf(right),
-      solution: `${t.name} hat die Stufen ${right}.`,
+      solution: `${t.name} has the breakpoints ${right}.`,
     };
   }
 
@@ -50,13 +50,13 @@
     const wrong = [...without.filter(shares), ...without.filter(c => !shares(c) && c.cost === right.cost), ...without.filter(c => !shares(c) && c.cost !== right.cost)].slice(0, 3);
     const opts = A.shuffle([right, ...wrong]);
     return {
-      label: 'Wer gehört dazu?',
+      label: 'Who belongs to it?',
       prompt: traitPrompt(t),
-      ask: `Welcher Champion hat den Trait <b>${esc(t.name)}</b>?`,
+      ask: `Which champion has the trait <b>${esc(t.name)}</b>?`,
       layout: 'champs',
       options: opts.map(c => ({ html: champTile(c), label: c.name })),
       answer: opts.indexOf(right),
-      solution: `${right.name} gehört zu ${t.name}.`,
+      solution: `${right.name} belongs to ${t.name}.`,
     };
   }
 
@@ -65,21 +65,21 @@
     const own = traits.filter(t => hasTrait(c, t)), right = A.shuffle(own)[0];
     const opts = A.shuffle([right, ...A.shuffle(traits.filter(t => !own.includes(t))).slice(0, 3)]);
     return {
-      label: 'Welcher Trait?',
+      label: 'Which trait?',
       prompt: `<div class="qz-subject is-champ"><img class="qz-champ-big cost-${c.cost}" src="${A.asset(c.img)}" alt="" width="960" height="480"><span class="qz-subject-name">${esc(c.name)}</span></div>`,
-      ask: `Welchen dieser Traits hat <b>${esc(c.name)}</b>?`,
+      ask: `Which of these traits does <b>${esc(c.name)}</b> have?`,
       layout: 'tiles',
       options: opts.map(t => ({ html: `${badge(t)}<span class="qz-name">${esc(t.name)}</span>`, label: t.name })),
       answer: opts.indexOf(right),
-      solution: `${c.name} hat ${own.map(t => t.name).join(', ')}.`,
+      solution: `${c.name} has ${own.map(t => t.name).join(', ')}.`,
     };
   }
 
   window.ArcadeQuiz({
-    title: 'Trait-Quiz',
-    kicker: `10 Fragen · ${traits.length} Traits · Set ${esc(data.set)}`,
+    title: 'Trait Quiz',
+    kicker: `10 questions · ${traits.length} traits · Set ${esc(data.set)}`,
     time: [7000, 4000],
-    intro: 'Ab wie vielen Champions greift ein Trait, wer gehört dazu, welchen Trait hat dieser Champion? Je schneller du richtig liegst, desto mehr Punkte.',
+    intro: 'How many champions activate a trait, who belongs to it, and which trait does this champion have? The faster you’re right, the more points you score.',
     preview: `<div class="qz-preview" aria-hidden="true">${A.shuffle(stepped).slice(0, 4).map(t => badge(t)).join('')}</div>`,
     // vier Stufen-Fragen, je drei der anderen Arten, in zufälliger Reihenfolge; kein Trait wird zweimal gefragt
     questions: () => {
@@ -87,6 +87,6 @@
       const withChamps = A.shuffle(data.champions.filter(c => c.traits.length));
       return A.shuffle([...st.map(steps), ...who.map(whoHas), ...withChamps.slice(0, 3).map(whichTrait)]);
     },
-    shareText: (score, correct, n) => `Trait-Quiz: ${score.toLocaleString('de-DE')} Punkte, ${correct}/${n} richtig – kennst du die Synergien besser? #TFTArcade`,
+    shareText: (score, correct, n) => `Trait Quiz: ${score.toLocaleString('en-US')} points, ${correct}/${n} correct – do you know the synergies better? #TFTArcade`,
   });
 })();

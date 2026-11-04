@@ -5,7 +5,12 @@
   "trailingSlash": false,
   "redirects": [
     { "source": "/:path*", "has": [{ "type": "host", "value": "tftarcade.com" }], "destination": "https://www.tftarcade.com/:path*", "permanent": true },
-    { "source": "/:path*", "has": [{ "type": "host", "value": "tft-arcade.vercel.app" }], "destination": "https://www.tftarcade.com/:path*", "permanent": true }
+    { "source": "/:path*", "has": [{ "type": "host", "value": "tft-arcade.vercel.app" }], "destination": "https://www.tftarcade.com/:path*", "permanent": true },
+    { "source": "/simulatoren", "destination": "/simulators", "permanent": true },
+    { "source": "/simulatoren/:slug", "destination": "/simulators/:slug", "permanent": true },
+    { "source": "/quiz/tft-champion-kosten-quiz", "destination": "/quiz/tft-champion-cost-quiz", "permanent": true },
+    { "source": "/bestenliste", "destination": "/leaderboard", "permanent": true },
+    { "source": "/ueber-tft-arcade", "destination": "/about", "permanent": true }
   ],
   "headers": [
     {

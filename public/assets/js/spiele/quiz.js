@@ -22,7 +22,7 @@
     let shownAt = 0, limit = 0, locked = false, timer = null, raf = null, ui = {};
     // Zeitlimit der aktuellen Frage: von time[0] (erste) bis time[1] (letzte)
     const limitFor = i => Math.round(time[0] - (time[0] - time[1]) * i / Math.max(1, qs.length - 1));
-    const sec = ms => (ms / 1000).toLocaleString('de-DE', { maximumFractionDigits: 1 });
+    const sec = ms => (ms / 1000).toLocaleString('en-US', { maximumFractionDigits: 1 });
 
     function intro() {
       state = 'start';
@@ -30,8 +30,8 @@
         <p class="game-kicker">${cfg.kicker}</p>
         <h2 class="game-title">${A.esc(cfg.title)}</h2>
         ${cfg.preview || ''}
-        <p class="game-text">${cfg.intro} Pro Frage bleiben dir ${sec(time[0])} Sekunden, zum Schluss nur noch ${sec(time[1])}. Tipp: Die Tasten <kbd>1</kbd>–<kbd>4</kbd> sind am schnellsten.</p>
-        <button class="btn btn-gold btn-lg" type="button" data-game-start>Los geht’s</button>
+        <p class="game-text">${cfg.intro} You get ${sec(time[0])} seconds per question, down to ${sec(time[1])} at the end. Tip: the keys <kbd>1</kbd>–<kbd>4</kbd> are the fastest.</p>
+        <button class="btn btn-gold btn-lg" type="button" data-game-start>Let’s go</button>
       </div>`;
       stage.querySelector('[data-game-start]').addEventListener('click', start);
     }
@@ -44,17 +44,17 @@
       stage.innerHTML = `<div class="qz">
         <div class="hud">
           <div class="hud-side">
-            <span class="hud-pill">Frage <b data-qz-n>1</b><i>/ ${qs.length}</i></span>
+            <span class="hud-pill">Question <b data-qz-n>1</b><i>/ ${qs.length}</i></span>
             <ol class="game-dots" aria-hidden="true">${qs.map(() => '<li></li>').join('')}</ol>
           </div>
-          <span class="hud-pill hud-score">Punkte <b data-qz-score>0</b></span>
+          <span class="hud-pill hud-score">Points <b data-qz-score>0</b></span>
           <div class="hud-side"></div>
         </div>
         <div class="hud-bar" aria-hidden="true"><span data-qz-bonus></span></div>
         <p class="qz-label" data-qz-label></p>
         <div class="qz-prompt" data-qz-prompt></div>
         <p class="game-msg" data-qz-msg aria-live="polite"></p>
-        <div class="qz-options" data-qz-options role="group" aria-label="Antworten"></div>
+        <div class="qz-options" data-qz-options role="group" aria-label="Answers"></div>
       </div>`;
       const q = s => stage.querySelector(s);
       ui = { n: q('[data-qz-n]'), score: q('[data-qz-score]'), bonus: q('[data-qz-bonus]'), label: q('[data-qz-label]'),
@@ -128,8 +128,8 @@
       });
       if (!ok) ui.bonus.style.transform = 'scaleX(0)';
       ui.dots[idx].classList.add(ok ? 'is-ok' : 'is-bad');
-      ui.score.textContent = score.toLocaleString('de-DE');
-      ui.msg.textContent = ok ? `Richtig! +${pts} Punkte${bonus ? ` (davon ${bonus} Tempo-Bonus)` : ''}` : `${i < 0 ? 'Zeit abgelaufen' : 'Leider daneben'} – ${qq.solution}`;
+      ui.score.textContent = score.toLocaleString('en-US');
+      ui.msg.textContent = ok ? `Correct! +${pts} points${bonus ? ` (${bonus} speed bonus)` : ''}` : `${i < 0 ? 'Time’s up' : 'Not quite'} – ${qq.solution}`;
       ui.msg.className = 'game-msg ' + (ok ? 'is-ok' : 'is-bad');
       A.sound(ok ? 'ok' : 'bad');
       timer = setTimeout(next, reduced ? (ok ? 1400 : 2800) : (ok ? NEXT_OK : NEXT_WRONG));
@@ -147,8 +147,8 @@
       const n = qs.length;
       A.finishRound({
         value: score,
-        title: correct === n ? 'Perfekte Runde!' : correct >= n * .7 ? 'Starke Runde!' : correct >= n * .4 ? 'Gar nicht schlecht!' : 'Da geht noch was!',
-        lines: [`${correct} von ${n} richtig · Tempo-Bonus ${bonusSum} Punkte${late ? ` · ${late}× zu langsam` : ''}`, ...(wrong.length && cfg.wrongLine ? [cfg.wrongLine(wrong)] : [])],
+        title: correct === n ? 'Perfect round!' : correct >= n * .7 ? 'Great round!' : correct >= n * .4 ? 'Not bad at all!' : 'There’s room to improve!',
+        lines: [`${correct} of ${n} correct · speed bonus ${bonusSum} points${late ? ` · ${late}× too slow` : ''}`, ...(wrong.length && cfg.wrongLine ? [cfg.wrongLine(wrong)] : [])],
         shareText: cfg.shareText(score, correct, n),
         onReplay: start,
       });

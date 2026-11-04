@@ -4,18 +4,18 @@ const { esc } = require('./helpers');
 const { art, ui } = require('./icons');
 const { gameCard, booth, crumbs, daily, aside, badge, boardAttrs, boardJson, boardRows, rankedModes, avatarPicker } = require('./components');
 
-const HOME = { label: 'Spielhalle', href: '/' };
+const HOME = { label: 'Arcade', href: '/' };
 
 // ───────── Startseite ─────────
 function home(ctx) {
-  // Alle Spiele stehen im Raster; „Alle Spiele“ zeigt die hervorgehobenen, die Filter-Pillen (arcade.js) einen Bereich
-  // „Alle Spiele“ = höchstens vier hervorgehobene (spielbare zuerst), damit alles auf einen Bildschirm passt
+  // Alle Spiele stehen im Raster; „All games“ zeigt die hervorgehobenen, die Filter-Pillen (arcade.js) einen Bereich
+  // „All games“ = höchstens vier hervorgehobene (spielbare zuerst), damit alles auf einen Bildschirm passt
   const order = { live: 0, bau: 1, bald: 2 };
   const byStatus = (a, b) => order[a.status] - order[b.status];
   const top = ctx.games.filter(g => g.featured).sort(byStatus).slice(0, 4);
   const all = [...top, ...ctx.games.filter(g => !top.includes(g)).sort(byStatus)];
   const cards = all.map(g => gameCard(g, ctx, { attrs: top.includes(g) ? ' data-featured' : ' hidden' })).join('');
-  const pills = [`<button class="pill" type="button" data-filter="alle" aria-pressed="true">Alle Spiele</button>`,
+  const pills = [`<button class="pill" type="button" data-filter="alle" aria-pressed="true">All games</button>`,
     ...site.nav.map(id => { const c = ctx.categories.find(x => x.id === id); return `<button class="pill" type="button" data-filter="${c.id}" aria-pressed="false">${esc(c.name)}</button>`; })].join('');
   const star = `<svg class="deco-star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.5 1.3 6.5L12 17l-5.9 3.3 1.3-6.5-4.9-4.5 6.6-.8z"/></svg>`;
   // home-stage: Hero, Spielkarten und Tageschallenge füllen genau den ersten Bildschirm, das Ticket schließt unten ab
@@ -25,18 +25,18 @@ function home(ctx) {
 <section class="hero">
   <div class="wrap wrap-wide hero-in">
     <h1 class="hero-title">
-      <span class="ribbon">${star}<span>TFT Arcade · Dein Highroll wartet</span>${star}</span>
-      <span class="hero-main"><span class="hero-line">Nur noch</span> <span class="hero-line">${star}eine <span class="swoosh">Runde.</span></span></span>
+      <span class="ribbon">${star}<span>TFT Arcade · Your highroll awaits</span>${star}</span>
+      <span class="hero-main"><span class="hero-line">Just one</span> <span class="hero-line">${star}more <span class="swoosh">round.</span></span></span>
     </h1>
-    <p class="hero-sub">Roll, rätsel und stell dein Glück auf die Probe.</p>
-    <a class="btn btn-gold btn-xl" href="#attraktionen">Spielhalle entdecken${ui('arrow')}</a>
+    <p class="hero-sub">Roll, solve and put your luck to the test.</p>
+    <a class="btn btn-gold btn-xl" href="#games">Explore the arcade${ui('arrow')}</a>
   </div>
 </section>
 
-<section class="games-section" id="attraktionen" aria-labelledby="att-h">
+<section class="games-section" id="games" aria-labelledby="att-h">
   <div class="wrap wrap-wide">
-    <h2 class="deco-title" id="att-h">${star}<span>Woran willst du dich versuchen?</span>${star}</h2>
-    <div class="pills" role="group" aria-label="Spiele nach Bereich filtern">${pills}<a class="pill pill-more" href="/" data-filter-more hidden>Ganzen Bereich ansehen${ui('arrow')}</a></div>
+    <h2 class="deco-title" id="att-h">${star}<span>What will you try next?</span>${star}</h2>
+    <div class="pills" role="group" aria-label="Filter games by section">${pills}<a class="pill pill-more" href="/" data-filter-more hidden>See the whole section${ui('arrow')}</a></div>
     <div class="cards-fit"><div class="cards cards-4" data-filter-grid>${cards}</div></div>
   </div>
 </section>
@@ -48,9 +48,9 @@ function home(ctx) {
     scene: 'home',
     bodyClass: 'is-home',
     seo: {
-      title: 'TFT Arcade – Minispiele, Quiz & Challenges zu TFT',
-      desc: 'TFT Arcade: Minispiele, Quiz und Challenges rund um Teamfight Tactics. Roll Simulator, Champion-Quiz & mehr – ohne Anmeldung.',
-      h1: 'TFT Arcade · Dein Highroll wartet Nur noch eine Runde.',
+      title: 'TFT Arcade – Mini Games, Quizzes & Challenges for TFT',
+      desc: 'TFT Arcade: Mini games, quizzes and challenges for Teamfight Tactics. Roll simulator, champion quiz and more, with no sign-up.',
+      h1: 'TFT Arcade · Your highroll awaits Just one more round.',
       kw: 'TFT Arcade',
     },
     ld: [{ '@type': 'WebSite', name: site.name, url: site.url + '/', inLanguage: site.lang }],
@@ -72,22 +72,22 @@ function category(c, ctx) {
   <header class="page-head c-${c.color}">
     <div class="page-head-art">${art(c.icon)}</div>
     <div class="page-head-text">
-      <p class="eyebrow">${ui('star')}Bereich der Spielhalle</p>
+      <p class="eyebrow">${ui('star')}Arcade section</p>
       <h1>${esc(c.seo.h1)}</h1>
       <p class="lead">${esc(c.intro)}</p>
-      <p class="head-count">${open} ${open === 1 ? 'Attraktion' : 'Attraktionen'}${soon ? ` · ${soon} demnächst` : ''}</p>
+      <p class="head-count">${open} ${open === 1 ? 'attraction' : 'attractions'}${soon ? ` · ${soon} coming soon` : ''}</p>
     </div>
   </header>
 
   <section class="section-tight" aria-labelledby="list-h">
-    <h2 class="section-title" id="list-h">Alle ${esc(c.name)}</h2>
+    <h2 class="section-title" id="list-h">All ${esc(c.name)}</h2>
     <div class="cards">${games.map(g => gameCard(g, ctx, { full: true })).join('')}</div>
   </section>
 
   ${c.id === 'challenges' ? daily(ctx) : ''}
 
   <section class="section-tight" aria-labelledby="more-h">
-    <h2 class="section-title" id="more-h">Weitere Bereiche</h2>
+    <h2 class="section-title" id="more-h">More sections</h2>
     <div class="booths booths-3">${others}</div>
   </section>
 </div>`;
@@ -97,42 +97,42 @@ function category(c, ctx) {
 // ───────── Spielseite ─────────
 function stage(g, c) {
   if (g.status === 'live') {
-    return `<div class="stage stage-live" id="spielflaeche" data-game="${g.id}"><noscript><p class="stage-msg">Für dieses Spiel brauchst du JavaScript.</p></noscript></div>`;
+    return `<div class="stage stage-live" id="spielflaeche" data-game="${g.id}"><noscript><p class="stage-msg">This game needs JavaScript.</p></noscript></div>`;
   }
   return `<div class="stage stage-build" id="spielflaeche" data-game="${g.id}">
-  <div class="build-sign">${ui('wrench')}Diese Bude wird gerade aufgebaut</div>
+  <div class="build-sign">${ui('wrench')}This booth is being built</div>
   <div class="build-art c-${c.color}">${art(g.art)}</div>
-  <h2 class="build-title">Das erwartet dich</h2>
+  <h2 class="build-title">What to expect</h2>
   <ul class="plan">${g.plan.map(p => `<li>${ui('check')}${esc(p)}</li>`).join('')}</ul>
-  <p class="build-note">Bald spielbar – schau wieder vorbei oder probier solange eine andere Attraktion.</p>
+  <p class="build-note">Coming soon. Check back later or try another attraction in the meantime.</p>
 </div>`;
 }
 
 // Namenseintrag wie am Arcade-Automaten: erscheint, wenn das Ergebnis für die Top 10 reicht (arcade.js)
 const highscoreEntry = () => `<form class="hs-entry" data-hs-form hidden>
-    <p class="hs-title">Neuer Highscore!</p>
-    <p class="hs-rank">Platz <b data-hs-rank>1</b> in der Bestenliste</p>
+    <p class="hs-title">New high score!</p>
+    <p class="hs-rank">Rank <b data-hs-rank>1</b> on the leaderboard</p>
     ${avatarPicker()}
-    <label class="hs-label" for="hs-name">Trag deinen Namen ein</label>
+    <label class="hs-label" for="hs-name">Enter your name</label>
     <div class="hs-row">
       <input class="hs-input" id="hs-name" name="name" maxlength="12" autocomplete="nickname" spellcheck="false" required>
-      <button class="btn btn-gold" type="submit">Eintragen</button>
+      <button class="btn btn-gold" type="submit">Save</button>
     </div>
-    <p class="hs-hint">2–12 Zeichen: Buchstaben, Zahlen, Leerzeichen, _ . und -</p>
+    <p class="hs-hint">2–12 characters: letters, numbers, spaces, _ . and -</p>
   </form>
-  <p class="hs-done" data-hs-done hidden>${ui('check')}<span>Eingetragen auf Platz <b data-hs-place>1</b>!</span> <a class="text-link" href="/bestenliste" data-hs-link>Zur Bestenliste${ui('arrow')}</a></p>`;
+  <p class="hs-done" data-hs-done hidden>${ui('check')}<span>Saved at rank <b data-hs-place>1</b>!</span> <a class="text-link" href="/leaderboard" data-hs-link>Go to the leaderboard${ui('arrow')}</a></p>`;
 
 // Auswertung nach einer Runde – das Spielskript füllt und zeigt sie über Arcade.finishRound()
 const result = g => `<div class="result" id="auswertung" tabindex="-1" hidden>
-  <p class="result-kicker">${ui('star')}Runde vorbei</p>
-  <h2 class="result-title" data-result-title>Geschafft!</h2>
+  <p class="result-kicker">${ui('star')}Round over</p>
+  <h2 class="result-title" data-result-title>Done!</h2>
   <p class="result-value" data-result-value></p>
-  <p class="result-record" data-result-record hidden>${ui('trophy')}Neuer persönlicher Rekord!</p>
+  <p class="result-record" data-result-record hidden>${ui('trophy')}New personal best!</p>
   <ul class="result-lines" data-result-lines></ul>
   ${g.aside === 'bestenliste' ? highscoreEntry() : ''}
   <div class="result-actions">
-    <button class="btn btn-gold" type="button" data-result-replay>${ui('replay')}Nochmal spielen</button>
-    <button class="btn btn-ghost" type="button" data-result-share>${ui('share')}Ergebnis teilen</button>
+    <button class="btn btn-gold" type="button" data-result-replay>${ui('replay')}Play again</button>
+    <button class="btn btn-ghost" type="button" data-result-share>${ui('share')}Share result</button>
   </div>
 </div>`;
 
@@ -140,7 +140,7 @@ const result = g => `<div class="result" id="auswertung" tabindex="-1" hidden>
 // data-unranked: Modus zählt nicht für Rekord und Bestenliste
 function modePicker(g) {
   return `<fieldset class="modes" data-modes="${g.id}">
-    <legend class="sr-label">Modus</legend>
+    <legend class="sr-label">Mode</legend>
     ${g.modes.map((m, i) => `<label class="mode"><input type="radio" name="modus" value="${m.id}"${m.ranked === false ? ' data-unranked' : ''}${i ? '' : ' checked'}><span>${m.icon ? ui(m.icon) : ''}${esc(m.label)}</span></label>`).join('')}
   </fieldset>`;
 }
@@ -162,7 +162,7 @@ function gameH1(h1) {
 
 // Drei Schritte unter der Spielfläche: aus g.schritte, sonst aus Ziel und Regeln
 function steps(g) {
-  const list = g.schritte || [['Ziel', g.rules.ziel], ...g.rules.regeln.slice(0, 2).map((x, i) => [i ? 'Und dann' : 'Regeln', x])];
+  const list = g.schritte || [['Goal', g.rules.ziel], ...g.rules.regeln.slice(0, 2).map((x, i) => [i ? 'And then' : 'Rules', x])];
   return list.map(([t, x], i) => `<li><span class="step-n">${i + 1}</span><div><h3>${esc(t)}</h3><p>${esc(x)}</p></div></li>`).join('');
 }
 
@@ -170,21 +170,21 @@ function steps(g) {
 function lookupTable(g, ctx) {
   const S = ctx.shop;
   if (g.tabelle !== 'shop-odds' || !S) return '';
-  const head = [1, 2, 3, 4, 5].map(k => `<th scope="col"><span class="odds-dot cost-${k}"></span>${k}-Kosten</th>`).join('');
-  const rows = S.odds.slice(0, 10).map((r, i) => `<tr><th scope="row">Level ${i + 1}</th>${r.map(v => `<td${v ? '' : ' class="is-zero"'}>${v} %</td>`).join('')}<td>${S.xp[i] != null && i < 9 ? `${S.xp[i]} XP` : '–'}</td></tr>`).join('');
+  const head = [1, 2, 3, 4, 5].map(k => `<th scope="col"><span class="odds-dot cost-${k}"></span>${k}-cost</th>`).join('');
+  const rows = S.odds.slice(0, 10).map((r, i) => `<tr><th scope="row">Level ${i + 1}</th>${r.map(v => `<td${v ? '' : ' class="is-zero"'}>${v}%</td>`).join('')}<td>${S.xp[i] != null && i < 9 ? `${S.xp[i]} XP` : '–'}</td></tr>`).join('');
   const bag = S.bag.map((b, i) => `<td>${b} × ${S.distinct[i]} = <b>${b * S.distinct[i]}</b></td>`).join('');
   return `
   <section class="panel odds-panel" aria-labelledby="odds-h">
-    <h2 class="extra-h" id="odds-h">${ui('info')}TFT Shop-Odds – Set ${esc(S.set)}</h2>
-    <p class="odds-lead">Chance pro Shop-Slot je Level und Kosten. Darunter: Kopien pro Champion × Champions pro Kosten = Kopien im geteilten Pool.</p>
+    <h2 class="extra-h" id="odds-h">${ui('info')}TFT Shop Odds – Set ${esc(S.set)}</h2>
+    <p class="odds-lead">Chance per shop slot by level and cost. Below that: copies per champion × champions per cost = copies in the shared pool.</p>
     <div class="odds-scroll">
       <table class="odds-table">
-        <thead><tr><th scope="col">Level</th>${head}<th scope="col">XP zum nächsten</th></tr></thead>
+        <thead><tr><th scope="col">Level</th>${head}<th scope="col">XP to next level</th></tr></thead>
         <tbody>${rows}</tbody>
         <tfoot><tr><th scope="row">Pool</th>${bag}<td></td></tr></tfoot>
       </table>
     </div>
-    <p class="odds-note">Stand: Patch ${esc(S.version)} · Level 11 gibt es nur über Augments.</p>
+    <p class="odds-note">As of patch ${esc(S.version)} · Level 11 is only available through augments.</p>
   </section>`;
 }
 
@@ -193,34 +193,34 @@ function game(g, ctx) {
   const crumbList = [HOME, { label: c.name, href: '/' + c.slug }, { label: g.title, href: url }];
   const r = g.rules, more = related(g, ctx);
   // Gemeinsamer Rahmen aller Spielseiten:
-  // Kopf (Etikett, Name, ein Satz) mit Ton und „So geht’s“ (Dialog mit allen Regeln) ·
-  // Spielrahmen mit goldener Kante, darin Spielfläche bzw. Ergebniskarte und unten die Modus-Leiste mit „Neu starten“ ·
-  // Bestenliste mit eigenem Rekord rechts · darunter „So funktioniert’s“ und „Dein nächster Versuch“ · ganz unten weitere Attraktionen
+  // Kopf (Etikett, Name, ein Satz) mit Ton und „How to play“ (Dialog mit allen Regeln) ·
+  // Spielrahmen mit goldener Kante, darin Spielfläche bzw. Ergebniskarte und unten die Modus-Leiste mit „Restart“ ·
+  // Bestenliste mit eigenem Rekord rechts · darunter „How it works“ und „Your next attempt“ · ganz unten weitere Attraktionen
   const body = `
 <div class="wrap wrap-game page-top">
   <header class="game-head c-${c.color}">
     <div class="game-head-main">
-      ${g.tag ? `<a class="game-tag" href="/${c.slug}" title="Alle ${esc(c.name)}">${esc(g.tag)}</a>` : ''}
+      ${g.tag ? `<a class="game-tag" href="/${c.slug}" title="All ${esc(c.name)}">${esc(g.tag)}</a>` : ''}
       <div>
         <h1 class="game-h1">${gameH1(g.seo.h1)}</h1>
         <p class="game-hook">${esc(g.hook || g.short)}${live ? '' : ` ${badge(g.status)}`}</p>
       </div>
     </div>
     <div class="game-tools">
-      ${live ? `<button class="tool-btn tool-sound" type="button" data-sound aria-pressed="true" aria-label="Ton an – klicken zum Ausschalten">${ui('sound', 'ui ui-on')}${ui('mute', 'ui ui-off')}</button>` : ''}
-      <button class="tool-btn" type="button" data-howto-open aria-haspopup="dialog" aria-controls="so-gehts">So geht’s ${ui('help')}</button>
+      ${live ? `<button class="tool-btn tool-sound" type="button" data-sound aria-pressed="true" aria-label="Sound on – click to turn off">${ui('sound', 'ui ui-on')}${ui('mute', 'ui ui-off')}</button>` : ''}
+      <button class="tool-btn" type="button" data-howto-open aria-haspopup="dialog" aria-controls="so-gehts">How to play ${ui('help')}</button>
     </div>
   </header>
 
   <div class="play c-${c.color}" data-game-page="${g.id}" data-game-title="${esc(g.title)}">
-    <section class="play-frame" aria-label="Spielfläche">
+    <section class="play-frame" aria-label="Game area">
       <span class="frame-star fs-tl" aria-hidden="true"></span><span class="frame-star fs-tr" aria-hidden="true"></span>
       <span class="frame-star fs-bl" aria-hidden="true"></span><span class="frame-star fs-br" aria-hidden="true"></span>
       ${stage(g, c)}
       ${result(g)}
       <div class="frame-bar">
         ${modePicker(g)}
-        ${live ? `<button class="btn btn-ghost frame-restart" type="button" data-restart>Neu starten${ui('replay')}</button>` : ''}
+        ${live ? `<button class="btn btn-ghost frame-restart" type="button" data-restart>Restart${ui('replay')}</button>` : ''}
       </div>
     </section>
     <aside class="play-side">${aside(g, ctx)}</aside>
@@ -228,32 +228,32 @@ function game(g, ctx) {
 
   <div class="game-extra">
     <section class="panel extra-steps" aria-labelledby="steps-h">
-      <h2 class="extra-h" id="steps-h">${ui('info')}So funktioniert’s</h2>
+      <h2 class="extra-h" id="steps-h">${ui('info')}How it works</h2>
       <ol class="steps">${steps(g)}</ol>
     </section>
     <section class="panel extra-next" aria-labelledby="next-h">
       <div>
-        <h2 class="extra-h" id="next-h">${ui('star')}Dein nächster Versuch</h2>
-        <p>${g.aside === 'bestenliste' ? 'Bereit für eine neue Runde? Trainiere, verbessere deinen Rekord und klettere in der Bestenliste nach oben!' : 'Bereit für eine neue Runde? Spiel noch mal und fordere deine Freunde heraus!'}</p>
+        <h2 class="extra-h" id="next-h">${ui('star')}Your next attempt</h2>
+        <p>${g.aside === 'bestenliste' ? 'Ready for another round? Practice, beat your record and climb the leaderboard!' : 'Ready for another round? Play again and challenge your friends!'}</p>
       </div>
-      <button class="btn btn-red" type="button" data-share-last>${ui('share')}Ergebnis teilen</button>
+      <button class="btn btn-red" type="button" data-share-last>${ui('share')}Share result</button>
     </section>
   </div>
 ${lookupTable(g, ctx)}
 
-  <nav class="game-more" aria-label="Weitere Attraktionen">
-    <span class="game-more-lead">${ui('dice')}Noch eine Runde woanders?</span>
+  <nav class="game-more" aria-label="More attractions">
+    <span class="game-more-lead">${ui('dice')}One more round somewhere else?</span>
     ${more.map(x => `<a href="${ctx.gameUrl(x)}">${esc(x.title)}${ui('arrow')}</a>`).join('')}
-    <a class="game-more-fb" href="/feedback">Feedback geben</a>
+    <a class="game-more-fb" href="/feedback">Give feedback</a>
   </nav>
 </div>
 
 <dialog class="howto-dialog c-${c.color}" id="so-gehts" aria-labelledby="so-gehts-h">
-  <div class="howto-head"><h2 id="so-gehts-h">So geht’s: ${esc(g.title)}</h2><button class="tool-btn tool-close" type="button" data-howto-close aria-label="Schließen">${ui('close')}</button></div>
+  <div class="howto-head"><h2 id="so-gehts-h">How to play: ${esc(g.title)}</h2><button class="tool-btn tool-close" type="button" data-howto-close aria-label="Close">${ui('close')}</button></div>
   <div class="howto-grid">
-    <div class="howto-item"><h3>${ui('star')}Ziel</h3><p>${esc(r.ziel)}</p></div>
-    <div class="howto-item"><h3>${ui('info')}Regeln</h3><ul>${r.regeln.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
-    <div class="howto-item"><h3>${ui('check')}Bedienung</h3><ul>${r.bedienung.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
+    <div class="howto-item"><h3>${ui('star')}Goal</h3><p>${esc(r.ziel)}</p></div>
+    <div class="howto-item"><h3>${ui('info')}Rules</h3><ul>${r.regeln.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
+    <div class="howto-item"><h3>${ui('check')}Controls</h3><ul>${r.bedienung.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
   </div>
   ${g.hinweise ? `<p class="howto-note">${esc(g.hinweise)}</p>` : ''}
 </dialog>`;
@@ -278,7 +278,7 @@ function bestenliste(ctx) {
     const c = ctx.catOf(g), color = g.color || c.color;
     const modes = rankedModes(g);
     const tabs = modes.length > 1
-      ? `<div class="cab-tabs" role="group" aria-label="Modus">${modes.map((m, i) => `<button class="cab-tab" type="button" data-board-tab="${m.id}" aria-pressed="${i ? 'false' : 'true'}">${esc(m.label)}</button>`).join('')}</div>`
+      ? `<div class="cab-tabs" role="group" aria-label="Mode">${modes.map((m, i) => `<button class="cab-tab" type="button" data-board-tab="${m.id}" aria-pressed="${i ? 'false' : 'true'}">${esc(m.label)}</button>`).join('')}</div>`
       : `<p class="cab-mode">${esc(modes[0].label)}</p>`;
     return `<section class="cabinet c-${color}" id="${g.id}" aria-labelledby="hof-${g.id}" ${boardAttrs(g)}>
   <div class="cab-marquee">
@@ -289,18 +289,18 @@ function bestenliste(ctx) {
   <div class="cab-screen">
     ${tabs}
     <table class="hs-table">
-      <thead><tr><th scope="col">Rang</th><th scope="col">Name</th><th scope="col">${g.record.type === 'zeit' ? 'Zeit' : 'Punkte'}</th></tr></thead>
+      <thead><tr><th scope="col">Rank</th><th scope="col">Name</th><th scope="col">${g.record.type === 'zeit' ? 'Time' : 'Points'}</th></tr></thead>
       ${modes.map((m, i) => `<tbody data-board="${m.id}"${i ? ' hidden' : ''}>${boardRows(g, ctx, m.id, 'tr')}</tbody>`).join('')}
     </table>
     ${boardJson(g, ctx)}
   </div>
   <div class="cab-foot">
-    <span class="cab-record">${ui('trophy')}Dein Rekord: <b data-hof-record="${g.id}" data-type="${g.record.type}" data-lower="${g.record.lowerIsBetter ? 1 : 0}">–</b></span>
-    <a class="btn btn-sm btn-gold" href="${ctx.gameUrl(g)}">${g.status === 'live' ? 'Spielen' : 'Ansehen'}${ui('arrow')}</a>
+    <span class="cab-record">${ui('trophy')}Your record: <b data-hof-record="${g.id}" data-type="${g.record.type}" data-lower="${g.record.lowerIsBetter ? 1 : 0}">–</b></span>
+    <a class="btn btn-sm btn-gold" href="${ctx.gameUrl(g)}">${g.status === 'live' ? 'Play' : 'View'}${ui('arrow')}</a>
   </div>
 </section>`;
   }).join('');
-  const crumbList = [HOME, { label: 'Bestenliste', href: '/bestenliste' }];
+  const crumbList = [HOME, { label: 'Leaderboard', href: '/leaderboard' }];
   const body = `
 <div class="wrap page-top">
   ${crumbs(crumbList)}
@@ -308,78 +308,123 @@ function bestenliste(ctx) {
     <div class="page-head-art">${art('trophy')}</div>
     <div class="page-head-text">
       <p class="eyebrow">${ui('star')}Hall of Fame</p>
-      <h1>TFT Arcade Bestenliste</h1>
-      <p class="lead">Wie früher an den Automaten: Spiel eine Runde, knack die Top 10 und verewige deinen Namen. Hier stehen die besten Läufe aller Spiele.</p>
+      <h1>TFT Arcade Leaderboard</h1>
+      <p class="lead">Just like the old arcade cabinets: play a round, crack the top 10 and put your name on the board. These are the best runs across all games.</p>
     </div>
   </header>
-  <p class="notice">${ui('info')}Vorschau: Die Listen zeigen Beispieldaten. Deine eigenen Einträge werden vorerst nur in deinem Browser gespeichert – öffentliche Bestenlisten folgen.</p>
+  <p class="notice">${ui('info')}Preview: the lists show sample data. Your own entries are only saved in your browser for now. Public leaderboards are on the way.</p>
   <div class="hof-grid">${cabinets}</div>
 </div>`;
   return {
-    path: '/bestenliste',
+    path: '/leaderboard',
     section: 'bestenliste',
     crumbs: crumbList,
     // erst in die Suche, wenn mindestens ein Spiel mit Bestenliste spielbar ist
     noindex: !ranked.some(g => g.status === 'live'),
     seo: {
-      title: 'TFT Arcade Bestenliste – Highscores aller Spiele',
-      desc: 'Die TFT Arcade Bestenliste: Bestzeiten und Highscores aus 3-Star Rush, Champion-Quiz und mehr. Trag dich nach deiner Runde ein!',
-      h1: 'TFT Arcade Bestenliste', kw: 'Bestenliste',
+      title: 'TFT Arcade Leaderboard – High Scores of All Games',
+      desc: 'The TFT Arcade leaderboard: best times and high scores from the roll simulator, champion quiz and more. Add your name after a round!',
+      h1: 'TFT Arcade Leaderboard', kw: 'leaderboard',
     },
     body,
   };
 }
 
 // ───────── Info- und Rechtsseiten ─────────
+// Die Rechtstexte gibt es englisch (/legal-notice, /privacy) und im deutschen Original (/impressum, /datenschutz, lang: 'de', nicht in der Suche)
 const TODO = t => `<mark class="todo">[${esc(t)}]</mark>`;
 const mail = () => site.email ? `<a href="mailto:${esc(site.email)}">${esc(site.email)}</a>` : TODO('E-Mail-Adresse eintragen');
-const owner = () => [site.owner.name, site.owner.street, site.owner.city, site.owner.country].map(esc).join('<br>');
+const owner = de => [site.owner.name, site.owner.street, site.owner.city, de ? site.owner.countryDe : site.owner.country].map(esc).join('<br>');
 
-function prose(path, seo, crumbLabel, content, { noindex = false } = {}) {
+function prose(path, seo, crumbLabel, content, { noindex = false, lang } = {}) {
   const crumbList = [HOME, { label: crumbLabel, href: path }];
   return {
-    path, seo, noindex, crumbs: crumbList,
+    path, seo, noindex, lang, crumbs: crumbList,
     body: `<div class="wrap page-top">${crumbs(crumbList)}<article class="panel prose"><h1>${esc(seo.h1)}</h1>${content}</article></div>`,
   };
 }
 
 function infoPages() {
   return [
-    prose('/ueber-tft-arcade', {
-      title: 'Über TFT Arcade – die Spielhalle für TFT-Fans',
-      desc: 'Über TFT Arcade: Was hinter der Spielhalle für Teamfight-Tactics-Fans steckt, wer sie baut und was als Nächstes kommt.',
-      h1: 'Über TFT Arcade', kw: 'TFT Arcade',
-    }, 'Über TFT Arcade', `
-      <p class="lead">TFT Arcade ist eine digitale Kirmes für alle, die Teamfight Tactics lieben: kleine Simulatoren, Challenges, Quizze und Party-Spiele, die du sofort im Browser spielen kannst.</p>
-      <h2>Die Idee</h2>
-      <p>Zwischen zwei Matches noch schnell den Rolldown üben, Freunde mit einem Quiz herausfordern oder dem nächsten Spiel mit einer verrückten Vorgabe Würze geben – dafür ist die Spielhalle da. Ohne Anmeldung, ohne Download, nur noch eine Runde.</p>
-      <h2>Wer steckt dahinter?</h2>
-      <p>TFT Arcade wird von CrazYSlayt gebaut – TFT-Spieler, Coach und Gründer von <a href="https://www.tftclimb.com" target="_blank" rel="noopener">TFTClimb</a>, der Seite für Tierlists, Comps und Coaching. Die Arcade ist die verspielte Schwester: weniger Theorie, mehr „nur noch eine Runde“.</p>
-      <h2>Was kommt als Nächstes?</h2>
-      <p>Die ersten Spiele sind spielbar, weitere Buden werden gerade aufgebaut – vom Roll Simulator über den 3-Star Rush bis zum Challenge-Roulette. Danach folgen Attraktionen wie die 100-Gold-Challenge, das Item-Quiz und TFT-Bingo. Ideen? <a href="/feedback">Schreib uns dein Feedback</a>.</p>
-      <h2>Kein offizielles Riot-Produkt</h2>
-      <p>TFT Arcade ist ein Fan-Projekt und steht in keiner Verbindung zu Riot Games. Alle Simulationen sind vereinfacht und bilden die aktuellen Spielregeln nicht exakt ab.</p>`),
+    prose('/about', {
+      title: 'About TFT Arcade – The Arcade for TFT Fans',
+      desc: 'About TFT Arcade: What’s behind the arcade for Teamfight Tactics fans, who builds it and what’s coming next.',
+      h1: 'About TFT Arcade', kw: 'TFT Arcade',
+    }, 'About TFT Arcade', `
+      <p class="lead">TFT Arcade is a digital funfair for everyone who loves Teamfight Tactics: small simulators, challenges, quizzes and party games you can play right in your browser.</p>
+      <h2>The idea</h2>
+      <p>Practice a rolldown between two matches, challenge your friends to a quiz or spice up your next game with a crazy rule. That’s what the arcade is for. No sign-up, no download, just one more round.</p>
+      <h2>Who’s behind it?</h2>
+      <p>TFT Arcade is built by CrazYSlayt, a TFT player, coach and the founder of <a href="https://www.tftclimb.com" target="_blank" rel="noopener">TFTClimb</a>, the site for tier lists, comps and coaching. The arcade is its playful sibling: less theory, more “just one more round”.</p>
+      <h2>What’s next?</h2>
+      <p>The first games are playable and more booths are being built, from the 3-Star Rush to Challenge Roulette. After that come attractions like the 100 Gold Challenge and TFT Bingo. Got ideas? <a href="/feedback">Send us your feedback</a>.</p>
+      <h2>Not an official Riot product</h2>
+      <p>TFT Arcade is a fan project and isn’t affiliated with Riot Games. All simulations are simplified and don’t reproduce the current game rules exactly.</p>`),
     prose('/feedback', {
-      title: 'Feedback zu TFT Arcade – Ideen & Fehler melden',
-      desc: 'Feedback zu TFT Arcade: Melde Fehler, wünsch dir neue Minispiele oder schick uns deine Ideen für die TFT-Spielhalle.',
-      h1: 'Feedback zu TFT Arcade', kw: 'Feedback',
+      title: 'TFT Arcade Feedback – Ideas & Bug Reports',
+      desc: 'Feedback for TFT Arcade: Report bugs, request new mini games or send us your ideas for the TFT arcade.',
+      h1: 'TFT Arcade Feedback', kw: 'Feedback',
     }, 'Feedback', `
-      <p class="lead">Die Spielhalle wächst mit euren Ideen. Erzähl uns, was dir gefällt, was hakt und welche Attraktion du dir als Nächstes wünschst.</p>
-      <h2>Was uns hilft</h2>
+      <p class="lead">The arcade grows with your ideas. Tell us what you like, what’s broken and which attraction you’d like to see next.</p>
+      <h2>What helps us</h2>
       <ul>
-        <li><b>Fehler:</b> Auf welcher Seite, mit welchem Gerät und Browser – und was ist passiert?</li>
-        <li><b>Ideen:</b> Neue Minispiele, Quizfragen oder lustige Vorgaben fürs Challenge-Roulette.</li>
-        <li><b>Balance:</b> Ist eine Challenge zu leicht oder zu schwer? Sag Bescheid.</li>
+        <li><b>Bugs:</b> Which page, which device and browser, and what happened?</li>
+        <li><b>Ideas:</b> New mini games, quiz questions or funny rules for Challenge Roulette.</li>
+        <li><b>Balance:</b> Is a challenge too easy or too hard? Let us know.</li>
       </ul>
-      <h2>So erreichst du uns</h2>
-      <p>Per E-Mail: ${mail()} – am besten mit „TFT Arcade“ im Betreff.</p>`),
+      <h2>How to reach us</h2>
+      <p>By email: ${mail()}, ideally with “TFT Arcade” in the subject line.</p>`),
+    prose('/legal-notice', {
+      title: 'Legal Notice | TFT Arcade',
+      desc: 'Legal notice of TFT Arcade, the fan arcade for Teamfight Tactics: provider, contact and responsible person.',
+      h1: 'Legal Notice', kw: 'Legal notice',
+    }, 'Legal Notice', `
+      <p class="muted">This is the English version. <a href="/impressum" hreflang="de">Deutsche Fassung (Impressum)</a></p>
+      <h2>Information pursuant to § 5 DDG (German Digital Services Act)</h2>
+      <p>${owner()}</p>
+      <h2>Contact</h2>
+      <p>Email: ${mail()}</p>
+      <h2>Responsible for content pursuant to § 18 (2) MStV</h2>
+      <p>${esc(site.owner.name)}, address as above</p>
+      <h2>Consumer dispute resolution</h2>
+      <p>We are neither willing nor obliged to take part in dispute resolution proceedings before a consumer arbitration board.</p>
+      <h2>Liability for content and links</h2>
+      <p>The games and content on this site are created with care. Simulations and probabilities are simplified and don’t reproduce the current game rules exactly. The operators of linked external sites are solely responsible for their content. If we become aware of legal violations, we will remove the links concerned immediately.</p>
+      <h2>Riot Games</h2>
+      <p>TFT Arcade isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.</p>
+      <p>TFT Arcade is a fan project and isn’t affiliated with Riot Games. Teamfight Tactics, game graphics and game data are the property of Riot Games, Inc.</p>`),
+    prose('/privacy', {
+      title: 'Privacy Policy | TFT Arcade',
+      desc: 'Privacy at TFT Arcade: What data is processed when you visit, what stays in your browser and what your rights are.',
+      h1: 'Privacy Policy', kw: 'Privacy',
+    }, 'Privacy Policy', `
+      <p class="muted">This is the English version. <a href="/datenschutz" hreflang="de">Deutsche Fassung (Datenschutzerklärung)</a></p>
+      <p class="lead">In short: TFT Arcade sets no cookies, uses no analytics or advertising services and loads nothing from third-party servers. Records and settings stay in your browser.</p>
+      <h2>1. Controller</h2>
+      <p>${owner()}<br>Email: ${mail()}</p>
+      <h2>2. Hosting and server log files</h2>
+      <p>This website is hosted by Vercel Inc. (USA). Each time a page is requested, the server automatically processes technically necessary data: IP address, date and time, requested address, amount of data transferred, browser and operating system, and the previously visited page. This is necessary to deliver the site and operate it securely (Art. 6 (1) (f) GDPR). For transfers to the USA, Vercel relies on appropriate safeguards under Art. 44 et seq. GDPR (EU-US Data Privacy Framework or EU standard contractual clauses). You can find more in <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener">Vercel’s privacy policy</a>.</p>
+      <h2>3. No cookies, no tracking</h2>
+      <p>TFT Arcade sets no cookies and uses no analytics, tracking or advertising services.</p>
+      <h2>4. Fonts and images</h2>
+      <p>Fonts and all images, including the champion images from Riot Games’ game data, are stored on our own server. No connection is made to Google Fonts, Riot Games or other third parties.</p>
+      <h2>5. Storage in your browser</h2>
+      <p>Personal records, your leaderboard entries including the name you chose, the rules you drew most recently and your settings are stored only locally in your browser (Local Storage). This data stays on your device and is not transferred to us. The storage is required for the feature you use (§ 25 (2) no. 2 TDDDG). You can delete it at any time in your browser settings.</p>
+      <h2>6. Sharing results</h2>
+      <p>“Share result” copies a short text with a link to your clipboard. No data is sent to us in the process.</p>
+      <h2>7. Contact by email</h2>
+      <p>If you send us an email, we process your details only to answer your message (Art. 6 (1) (f) GDPR). The mailbox is hosted by ALL-INKL.COM – Neue Medien Münnich, Hauptstraße 68, 02742 Friedersdorf, Germany.</p>
+      <h2>8. Your rights</h2>
+      <p>You have the right to access, rectification, erasure, restriction of processing, data portability and objection. You can also lodge a complaint with a data protection supervisory authority, for example the Hessian Commissioner for Data Protection and Freedom of Information.</p>
+      <p class="muted">Last updated: October 26, 2026</p>`),
     prose('/impressum', {
       title: 'Impressum | TFT Arcade',
       desc: 'Impressum von TFT Arcade, der Fan-Spielhalle für Teamfight Tactics: Anbieter, Kontakt und Verantwortliche.',
       h1: 'Impressum', kw: 'Impressum',
     }, 'Impressum', `
+      <p class="muted"><a href="/legal-notice" hreflang="en" lang="en">English version (Legal Notice)</a></p>
       <h2>Angaben gemäß § 5 DDG</h2>
-      <p>${owner()}</p>
+      <p>${owner(true)}</p>
       <h2>Kontakt</h2>
       <p>E-Mail: ${mail()}</p>
       <h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
@@ -390,15 +435,16 @@ function infoPages() {
       <p>Die Spiele und Inhalte dieser Seite werden mit Sorgfalt erstellt. Simulationen und Wahrscheinlichkeiten sind vereinfacht und bilden die aktuellen Spielregeln nicht exakt ab. Für die Inhalte verlinkter externer Seiten sind ausschließlich deren Betreiber verantwortlich. Bei Bekanntwerden von Rechtsverletzungen entfernen wir entsprechende Links umgehend.</p>
       <h2>Riot Games</h2>
       <p lang="en">TFT Arcade isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.</p>
-      <p>TFT Arcade ist ein Fan-Projekt und steht in keiner Verbindung zu Riot Games. Teamfight Tactics, Spielgrafiken und Spieldaten sind Eigentum von Riot Games, Inc.</p>`),
+      <p>TFT Arcade ist ein Fan-Projekt und steht in keiner Verbindung zu Riot Games. Teamfight Tactics, Spielgrafiken und Spieldaten sind Eigentum von Riot Games, Inc.</p>`, { noindex: true, lang: 'de' }),
     prose('/datenschutz', {
       title: 'Datenschutzerklärung | TFT Arcade',
       desc: 'Datenschutz bei TFT Arcade: Welche Daten beim Besuch anfallen, was nur in deinem Browser gespeichert wird und deine Rechte.',
       h1: 'Datenschutzerklärung', kw: 'Datenschutz',
     }, 'Datenschutz', `
+      <p class="muted"><a href="/privacy" hreflang="en" lang="en">English version (Privacy Policy)</a></p>
       <p class="lead">Kurz gesagt: TFT Arcade setzt keine Cookies, nutzt keine Analyse- oder Werbedienste und lädt nichts von fremden Servern. Rekorde und Einstellungen bleiben in deinem Browser.</p>
       <h2>1. Verantwortlicher</h2>
-      <p>${owner()}<br>E-Mail: ${mail()}</p>
+      <p>${owner(true)}<br>E-Mail: ${mail()}</p>
       <h2>2. Hosting und Server-Logfiles</h2>
       <p>Diese Website wird bei Vercel Inc. (USA) gehostet. Beim Aufruf jeder Seite verarbeitet der Server automatisch technisch notwendige Daten: IP-Adresse, Datum und Uhrzeit, aufgerufene Adresse, übertragene Datenmenge, Browser und Betriebssystem sowie die zuvor besuchte Seite. Das ist nötig, um die Seite auszuliefern und sicher zu betreiben (Art. 6 Abs. 1 lit. f DSGVO). Für Übermittlungen in die USA stützt sich Vercel auf geeignete Garantien nach Art. 44 ff. DSGVO (EU-US Data Privacy Framework bzw. EU-Standardvertragsklauseln). Mehr dazu in der <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener">Datenschutzerklärung von Vercel</a>.</p>
       <h2>3. Keine Cookies, kein Tracking</h2>
@@ -408,12 +454,12 @@ function infoPages() {
       <h2>5. Speicherung in deinem Browser</h2>
       <p>Persönliche Rekorde, deine Einträge in den Bestenlisten samt gewähltem Namen, deine zuletzt gezogenen Vorgaben und Einstellungen speichern wir ausschließlich lokal in deinem Browser (Local Storage). Diese Daten bleiben auf deinem Gerät und werden nicht an uns übertragen. Die Speicherung ist für die von dir genutzte Funktion erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG). Du kannst sie jederzeit über die Einstellungen deines Browsers löschen.</p>
       <h2>6. Ergebnis teilen</h2>
-      <p>Über „Ergebnis teilen“ wird ein kurzer Text mit Link in deine Zwischenablage kopiert. Dabei werden keine Daten an uns gesendet.</p>
+      <p>Über „Share result“ wird ein kurzer Text mit Link in deine Zwischenablage kopiert. Dabei werden keine Daten an uns gesendet.</p>
       <h2>7. Kontakt per E-Mail</h2>
       <p>Wenn du uns eine E-Mail schreibst, verarbeiten wir deine Angaben nur, um deine Nachricht zu beantworten (Art. 6 Abs. 1 lit. f DSGVO). Das Postfach liegt bei ALL-INKL.COM – Neue Medien Münnich, Hauptstraße 68, 02742 Friedersdorf, Deutschland.</p>
       <h2>8. Deine Rechte</h2>
       <p>Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch. Außerdem kannst du dich bei einer Datenschutz-Aufsichtsbehörde beschweren, zum Beispiel beim Hessischen Beauftragten für Datenschutz und Informationsfreiheit.</p>
-      <p class="muted">Stand: 26. Oktober 2026</p>`),
+      <p class="muted">Stand: 26. Oktober 2026</p>`, { noindex: true, lang: 'de' }),
   ];
 }
 
@@ -423,9 +469,9 @@ function notFound(ctx) {
   return {
     path: '/404',
     noindex: true,
-    seo: { title: 'Seite nicht gefunden | TFT Arcade', desc: 'Diese Seite gibt es in der TFT Arcade nicht. Zurück zur Spielhalle mit Minispielen, Quiz und Challenges.', h1: 'Diese Bude gibt es nicht', kw: 'TFT Arcade' },
+    seo: { title: 'Page Not Found | TFT Arcade', desc: 'This page doesn’t exist at TFT Arcade. Head back to the arcade with its mini games, quizzes and challenges.', h1: 'This booth doesn’t exist', kw: 'TFT Arcade' },
     body: `<div class="wrap page-top">
-  <header class="page-head c-coral"><div class="page-head-art">${art('question')}</div><div class="page-head-text"><p class="eyebrow">Fehler 404</p><h1>Diese Bude gibt es nicht</h1><p class="lead">Hier ist nur leerer Kirmesplatz. Vielleicht wurde die Attraktion verschoben – such dir eine andere aus.</p><p><a class="btn btn-gold" href="/">Zur Spielhalle${ui('arrow')}</a></p></div></header>
+  <header class="page-head c-coral"><div class="page-head-art">${art('question')}</div><div class="page-head-text"><p class="eyebrow">Error 404</p><h1>This booth doesn’t exist</h1><p class="lead">Nothing here but an empty fairground. The attraction may have moved, so pick another one.</p><p><a class="btn btn-gold" href="/">Back to the arcade${ui('arrow')}</a></p></div></header>
   <div class="booths">${booths}</div>
 </div>`,
   };

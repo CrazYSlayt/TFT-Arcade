@@ -4,19 +4,19 @@ module.exports = {
   // Adresse für canonical, Sitemap und Link-Vorschauen: immer die www-Domain (wie bei TFTClimb).
   // tftarcade.com und tft-arcade.vercel.app leiten per vercel.json dorthin weiter. SITE_URL überschreibt sie (z. B. für Tests).
   url: process.env.SITE_URL || 'https://www.tftarcade.com',
-  lang: 'de',
-  locale: 'de_DE',
+  lang: 'en',
+  locale: 'en_US',
   themeColor: '#160a28',
   ogImage: '/assets/img/tft-arcade-vorschau.jpg',
   // Kontakt und Anbieter (wie bei TFTClimb) – für Impressum, Datenschutz und Feedback
   email: 'info@tftclimb.com',
-  owner: { name: 'Claudio Vecchione', street: 'Am Markt 15', city: '65795 Hattersheim', country: 'Deutschland' },
+  owner: { name: 'Claudio Vecchione', street: 'Am Markt 15', city: '65795 Hattersheim', country: 'Germany', countryDe: 'Deutschland' },
   // Reihenfolge der Hauptnavigation = ids aus categories.js
-  nav: ['simulatoren', 'challenges', 'quiz', 'party'],
+  nav: ['simulators', 'challenges', 'quiz', 'party'],
   footer: [
-    { href: '/ueber-tft-arcade', label: 'Über TFT Arcade' },
+    { href: '/about', label: 'About TFT Arcade' },
     { href: '/feedback', label: 'Feedback' },
-    { href: '/impressum', label: 'Impressum' },
-    { href: '/datenschutz', label: 'Datenschutz' },
+    { href: '/legal-notice', label: 'Legal Notice' },
+    { href: '/privacy', label: 'Privacy Policy' },
   ],
 };
