@@ -21,12 +21,12 @@ Die Seite ist englisch: alle Texte in `src/config/`, `src/templates/` und den Sp
 
 | Spiel | Adresse | Status |
 |---|---|---|
-| What Does It Cost? | `/quiz/tft-champion-cost-quiz` | **spielbar** – Skript `public/assets/js/spiele/was-kostet-der.js` |
+| What Does It Cost? | `/quiz/tft-champion-cost-quiz` | **spielbar** – Skript `public/assets/js/spiele/cost-quiz.js` |
 | Shop Memory | `/challenges/tft-shop-memory` | **spielbar** – Skript `public/assets/js/spiele/shop-memory.js` |
 | 3-Star Roll Simulator | `/simulators/tft-roll-simulator` | **spielbar** – Skript `public/assets/js/spiele/roll-simulator.js` (Time Trial, Training; Hex-Board und Bank) |
 | Who Is This Champ? | `/quiz/tft-champion-quiz` | **spielbar** – Skript `public/assets/js/spiele/champion-quiz.js` (10 Rounds, Daily Puzzle) |
 | Shop Odds Quiz | `/quiz/tft-shop-odds-quiz` | **spielbar** – Skript `public/assets/js/spiele/shop-odds-quiz.js`, darunter die Odds-Tabelle (`tabelle: 'shop-odds'` in `games.js`) |
-| 3-Star Rush, Challenge Roulette | siehe unten | im Aufbau |
+| Challenge Roulette | siehe unten | im Aufbau |
 
 Es gibt keine Abhängigkeiten, nur Node.js (ab Version 20).
 
@@ -50,10 +50,11 @@ Es gibt keine Abhängigkeiten, nur Node.js (ab Version 20).
 
 - `/` – Spielhalle
 - `/simulators`, `/challenges`, `/quiz`, `/party` – Bereiche
-- `/challenges/tft-3-star-rush`, `/party/tft-challenge-roulette` – Spielseiten im Aufbau
+- `/party/tft-challenge-roulette` – Spielseite im Aufbau
 - spielbar: `/simulators/tft-roll-simulator`, `/challenges/tft-shop-memory`, `/challenges/tft-comp-memory`, `/quiz/tft-champion-cost-quiz`, `/quiz/tft-champion-quiz`, `/quiz/tft-item-quiz`, `/quiz/tft-trait-quiz`, `/quiz/tft-shop-odds-quiz` – Item-, Trait- und Shop-Odds-Quiz nutzen den gemeinsamen Ablauf `public/assets/js/spiele/quiz.js` (`ArcadeQuiz({ … })`, Fragen mit vier Antworten)
 - `/leaderboard` – Hall of Fame: ein Arcade-Automat pro Spiel mit Rangliste (noindex, bis ein Spiel mit Bestenliste live ist)
-- `/about`, `/feedback`, `/legal-notice`, `/privacy` – englisch; `/impressum`, `/datenschutz` – deutsches Original der Rechtstexte (noindex, verlinkt von den englischen Seiten)
+- `/about`, `/feedback`, `/legal-notice`, `/privacy`
+- Alte Adressen leiten per `vercel.json` weiter: `/simulatoren`, `/bestenliste`, `/ueber-tft-arcade`, `/impressum`, `/datenschutz`, `/quiz/tft-champion-kosten-quiz`, und der entfernte 3-Star Rush auf den Roll Simulator
 
 ## Status einer Attraktion (`games.js` → `status`)
 

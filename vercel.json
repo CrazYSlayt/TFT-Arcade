@@ -10,7 +10,10 @@
     { "source": "/simulatoren/:slug", "destination": "/simulators/:slug", "permanent": true },
     { "source": "/quiz/tft-champion-kosten-quiz", "destination": "/quiz/tft-champion-cost-quiz", "permanent": true },
     { "source": "/bestenliste", "destination": "/leaderboard", "permanent": true },
-    { "source": "/ueber-tft-arcade", "destination": "/about", "permanent": true }
+    { "source": "/ueber-tft-arcade", "destination": "/about", "permanent": true },
+    { "source": "/impressum", "destination": "/legal-notice", "permanent": true },
+    { "source": "/datenschutz", "destination": "/privacy", "permanent": true },
+    { "source": "/challenges/tft-3-star-rush", "destination": "/simulators/tft-roll-simulator", "permanent": true }
   ],
   "headers": [
     {

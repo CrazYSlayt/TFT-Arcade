@@ -20,7 +20,7 @@ function head(page, ctx) {
   const url = site.url + page.path;
   const a = ctx.rel;
   const img = site.url + site.ogImage;
-  const ld = [{ '@type': 'WebPage', name: page.seo.title, url, inLanguage: page.lang || site.lang, isPartOf: { '@type': 'WebSite', name: site.name, url: site.url + '/' } }];
+  const ld = [{ '@type': 'WebPage', name: page.seo.title, url, inLanguage: site.lang, isPartOf: { '@type': 'WebSite', name: site.name, url: site.url + '/' } }];
   if (page.crumbs && page.crumbs.length > 1) {
     ld.push({
       '@type': 'BreadcrumbList',
@@ -29,7 +29,7 @@ function head(page, ctx) {
   }
   if (page.ld) ld.push(...page.ld);
   return `<!DOCTYPE html>
-<html lang="${page.lang || site.lang}" data-root="${ctx.root}">
+<html lang="${site.lang}" data-root="${ctx.root}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -38,7 +38,7 @@ function head(page, ctx) {
 ${page.noindex ? '<meta name="robots" content="noindex, follow">\n' : ''}<link rel="canonical" href="${esc(url)}">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="${esc(site.name)}">
-<meta property="og:locale" content="${page.lang === 'de' ? 'de_DE' : site.locale}">
+<meta property="og:locale" content="${site.locale}">
 <meta property="og:title" content="${esc(page.seo.title)}">
 <meta property="og:description" content="${esc(page.seo.desc)}">
 <meta property="og:url" content="${esc(url)}">

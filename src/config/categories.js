@@ -26,7 +26,7 @@ module.exports = [
     tagline: 'Against the clock, the budget and yourself.',
     intro: 'Fixed goals, hard limits, honest records: chase best times and see who gets there with the least gold.',
     seo: {
-      title: 'TFT Challenges – Memory, Rush & More | TFT Arcade',
+      title: 'TFT Challenges – Shop & Comp Memory | TFT Arcade',
       desc: 'TFT Challenges: Memorize shops and boards, race the clock and chase your record. Free to play in your browser, no sign-up needed.',
       h1: 'TFT Challenges',
       kw: 'TFT Challenge',

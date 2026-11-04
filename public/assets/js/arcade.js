@@ -18,6 +18,17 @@
     },
   };
 
+  // Früher gespeicherte Rekorde und Einträge auf die englischen Schlüssel umstellen (Spiel was-kostet-der, Modi gewertet und klassisch)
+  (function renameKeys() {
+    const GAME = { 'was-kostet-der': 'cost-quiz' }, MODE = { gewertet: 'ranked', klassisch: 'classic' };
+    ['rekorde', 'eintraege'].forEach(key => {
+      const old = store.get(key, null), out = {};
+      if (!old) return;
+      Object.entries(old).forEach(([game, modes]) => { out[GAME[game] || game] = Object.fromEntries(Object.entries(modes).map(([m, v]) => [MODE[m] || m, v])); });
+      store.set(key, out);
+    });
+  })();
+
   // Werte wie auf der Seite (gleiche Regeln wie fmtValue() in src/templates/helpers.js)
   function fmt(value, type) {
     if (type === 'zeit') return value.toFixed(1) + ' s';

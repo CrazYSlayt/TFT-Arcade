@@ -90,41 +90,6 @@ module.exports = [
 
   // ───────── Challenges ─────────
   {
-    id: '3-star-rush',
-    category: 'challenges',
-    slug: 'tft-3-star-rush',
-    title: '3-Star 5-Cost Rush',
-    tag: 'Speedrun',
-    hook: 'How fast can you hit the jackpot?',
-    color: 'coral',
-    bild: '3-star-rush',
-    illu: true,
-    short: 'Collect nine copies of a 5-cost as fast as you can.',
-    lead: 'One target champion, nine copies, a running clock: roll and buy until your 5-cost has three stars. Every second counts.',
-    kurz: 'Roll and buy the target champion until it has three stars – against the clock.',
-    duration: 'approx. 1–3 min',
-    status: 'bau',
-    art: 'stars',
-    featured: true,
-    demo: true,
-    record: { label: 'Best time', type: 'zeit', lowerIsBetter: true },
-    aside: 'bestenliste',
-    modes: [{ id: 'standard', label: 'Standard' }, { id: 'daily', label: 'Daily Challenge' }],
-    rules: {
-      ziel: 'Collect nine copies of the target champion to get it to three stars.',
-      regeln: ['The clock starts with your first reroll.', 'Gold is unlimited: only time counts.', 'Buying other champions costs time and gets you nothing.'],
-      bedienung: ['Click the target champion in the shop to buy it.', 'The D key or the reroll button refreshes the shop.', 'The progress bar shows the copies you have collected.'],
-    },
-    hinweise: 'The Rush uses simplified shop logic. In the Daily Challenge everyone gets the same target champion and the same rules.',
-    plan: ['Timer and goal: nine copies of the target champion', 'Same shop logic as the Roll Simulator', 'Progress display for collected copies', 'Results with time, rerolls and wrong buys', 'Daily Challenge with a fixed target for everyone'],
-    seo: {
-      title: 'TFT 3-Star Rush – 9 Copies Against the Clock | TFT Arcade',
-      desc: 'TFT 3-Star Rush: Collect nine copies of a 5-cost as fast as you can and chase the best time. Free to play in your browser.',
-      h1: 'TFT 3-Star Rush: 5-Cost Against the Clock',
-      kw: '3-Star Rush',
-    },
-  },
-  {
     id: 'shop-memory',
     category: 'challenges',
     slug: 'tft-shop-memory',
@@ -142,7 +107,7 @@ module.exports = [
     featured: true,
     record: { label: 'High score', type: 'punkte', lowerIsBetter: false },
     aside: 'bestenliste',
-    modes: [{ id: 'training', label: 'Training', icon: 'dumbbell', ranked: false }, { id: 'gewertet', label: 'Ranked', icon: 'trophy' }],
+    modes: [{ id: 'training', label: 'Training', icon: 'dumbbell', ranked: false }, { id: 'ranked', label: 'Ranked', icon: 'trophy' }],
     scripts: ['/assets/js/spiele/daten/champions.js', '/assets/js/spiele/shop-memory.js'],
     rules: {
       ziel: 'Memorize five champions in the shop and rebuild it from memory.',
@@ -180,7 +145,7 @@ module.exports = [
     featured: true,
     record: { label: 'High score', type: 'punkte', lowerIsBetter: false },
     aside: 'bestenliste',
-    modes: [{ id: 'training', label: 'Training', icon: 'dumbbell', ranked: false }, { id: 'gewertet', label: 'Ranked', icon: 'trophy' }],
+    modes: [{ id: 'training', label: 'Training', icon: 'dumbbell', ranked: false }, { id: 'ranked', label: 'Ranked', icon: 'trophy' }],
     scripts: ['/assets/js/spiele/daten/champions.js', '/assets/js/spiele/comp-memory.js'],
     rules: {
       ziel: 'Memorize a board with five to eight champions and rebuild it from memory.',
@@ -216,7 +181,7 @@ module.exports = [
 
   // ───────── Quiz ─────────
   {
-    id: 'was-kostet-der',
+    id: 'cost-quiz',
     category: 'quiz',
     slug: 'tft-champion-cost-quiz',
     title: 'What Does It Cost?',
@@ -233,8 +198,8 @@ module.exports = [
     featured: true,
     record: { label: 'High score', type: 'punkte', lowerIsBetter: false },
     aside: 'bestenliste',
-    modes: [{ id: 'klassisch', label: '10 Champions' }],
-    scripts: ['/assets/js/spiele/daten/champions.js', '/assets/js/spiele/was-kostet-der.js'],
+    modes: [{ id: 'classic', label: '10 Champions' }],
+    scripts: ['/assets/js/spiele/daten/champions.js', '/assets/js/spiele/cost-quiz.js'],
     rules: {
       ziel: 'Guess how much gold ten champions cost in the shop.',
       regeln: ['You get 4 seconds per champion, down to 2.5 for the last one. Running out of time counts as wrong.', 'Correct: 100 points plus up to 50 speed bonus.', 'Wrong: no points, and the right cost is revealed.'],
@@ -272,7 +237,7 @@ module.exports = [
     featured: true,
     record: { label: 'High score', type: 'punkte', lowerIsBetter: false },
     aside: 'bestenliste',
-    modes: [{ id: 'klassisch', label: '10 Rounds', icon: 'trophy' }, { id: 'daily', label: 'Daily Puzzle', icon: 'calendar', ranked: false }],
+    modes: [{ id: 'classic', label: '10 Rounds', icon: 'trophy' }, { id: 'daily', label: 'Daily Puzzle', icon: 'calendar', ranked: false }],
     scripts: ['/assets/js/spiele/daten/champions.js', '/assets/js/spiele/champion-quiz.js'],
     rules: {
       ziel: 'Guess as many champions as you can in ten rounds, using as few clues as possible.',
@@ -310,7 +275,7 @@ module.exports = [
     featured: true,
     record: { label: 'High score', type: 'punkte', lowerIsBetter: false },
     aside: 'bestenliste',
-    modes: [{ id: 'klassisch', label: '10 Questions' }],
+    modes: [{ id: 'classic', label: '10 Questions' }],
     scripts: ['/assets/js/spiele/daten/items.js', '/assets/js/spiele/quiz.js', '/assets/js/spiele/item-quiz.js'],
     rules: {
       ziel: 'Answer ten questions on the item recipes of the current set.',
@@ -347,7 +312,7 @@ module.exports = [
     art: 'stars',
     record: { label: 'High score', type: 'punkte', lowerIsBetter: false },
     aside: 'bestenliste',
-    modes: [{ id: 'klassisch', label: '10 Questions' }],
+    modes: [{ id: 'classic', label: '10 Questions' }],
     scripts: ['/assets/js/spiele/daten/champions.js', '/assets/js/spiele/quiz.js', '/assets/js/spiele/trait-quiz.js'],
     rules: {
       ziel: 'Answer ten questions on the traits of the current set.',
@@ -384,7 +349,7 @@ module.exports = [
     art: 'coin',
     record: { label: 'High score', type: 'punkte', lowerIsBetter: false },
     aside: 'bestenliste',
-    modes: [{ id: 'klassisch', label: '10 Questions' }],
+    modes: [{ id: 'classic', label: '10 Questions' }],
     scripts: ['/assets/js/spiele/daten/shop.js', '/assets/js/spiele/quiz.js', '/assets/js/spiele/shop-odds-quiz.js'],
     tabelle: 'shop-odds',
     rules: {

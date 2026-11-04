@@ -331,15 +331,14 @@ function bestenliste(ctx) {
 }
 
 // ───────── Info- und Rechtsseiten ─────────
-// Die Rechtstexte gibt es englisch (/legal-notice, /privacy) und im deutschen Original (/impressum, /datenschutz, lang: 'de', nicht in der Suche)
 const TODO = t => `<mark class="todo">[${esc(t)}]</mark>`;
 const mail = () => site.email ? `<a href="mailto:${esc(site.email)}">${esc(site.email)}</a>` : TODO('E-Mail-Adresse eintragen');
-const owner = de => [site.owner.name, site.owner.street, site.owner.city, de ? site.owner.countryDe : site.owner.country].map(esc).join('<br>');
+const owner = () => [site.owner.name, site.owner.street, site.owner.city, site.owner.country].map(esc).join('<br>');
 
-function prose(path, seo, crumbLabel, content, { noindex = false, lang } = {}) {
+function prose(path, seo, crumbLabel, content, { noindex = false } = {}) {
   const crumbList = [HOME, { label: crumbLabel, href: path }];
   return {
-    path, seo, noindex, lang, crumbs: crumbList,
+    path, seo, noindex, crumbs: crumbList,
     body: `<div class="wrap page-top">${crumbs(crumbList)}<article class="panel prose"><h1>${esc(seo.h1)}</h1>${content}</article></div>`,
   };
 }
@@ -357,7 +356,7 @@ function infoPages() {
       <h2>Who’s behind it?</h2>
       <p>TFT Arcade is built by CrazYSlayt, a TFT player, coach and the founder of <a href="https://www.tftclimb.com" target="_blank" rel="noopener">TFTClimb</a>, the site for tier lists, comps and coaching. The arcade is its playful sibling: less theory, more “just one more round”.</p>
       <h2>What’s next?</h2>
-      <p>The first games are playable and more booths are being built, from the 3-Star Rush to Challenge Roulette. After that come attractions like the 100 Gold Challenge and TFT Bingo. Got ideas? <a href="/feedback">Send us your feedback</a>.</p>
+      <p>The first games are playable and more booths are being built, starting with Challenge Roulette. After that come attractions like the 100 Gold Challenge and TFT Bingo. Got ideas? <a href="/feedback">Send us your feedback</a>.</p>
       <h2>Not an official Riot product</h2>
       <p>TFT Arcade is a fan project and isn’t affiliated with Riot Games. All simulations are simplified and don’t reproduce the current game rules exactly.</p>`),
     prose('/feedback', {
@@ -379,7 +378,6 @@ function infoPages() {
       desc: 'Legal notice of TFT Arcade, the fan arcade for Teamfight Tactics: provider, contact and responsible person.',
       h1: 'Legal Notice', kw: 'Legal notice',
     }, 'Legal Notice', `
-      <p class="muted">This is the English version. <a href="/impressum" hreflang="de">Deutsche Fassung (Impressum)</a></p>
       <h2>Information pursuant to § 5 DDG (German Digital Services Act)</h2>
       <p>${owner()}</p>
       <h2>Contact</h2>
@@ -398,7 +396,6 @@ function infoPages() {
       desc: 'Privacy at TFT Arcade: What data is processed when you visit, what stays in your browser and what your rights are.',
       h1: 'Privacy Policy', kw: 'Privacy',
     }, 'Privacy Policy', `
-      <p class="muted">This is the English version. <a href="/datenschutz" hreflang="de">Deutsche Fassung (Datenschutzerklärung)</a></p>
       <p class="lead">In short: TFT Arcade sets no cookies, uses no analytics or advertising services and loads nothing from third-party servers. Records and settings stay in your browser.</p>
       <h2>1. Controller</h2>
       <p>${owner()}<br>Email: ${mail()}</p>
@@ -417,49 +414,6 @@ function infoPages() {
       <h2>8. Your rights</h2>
       <p>You have the right to access, rectification, erasure, restriction of processing, data portability and objection. You can also lodge a complaint with a data protection supervisory authority, for example the Hessian Commissioner for Data Protection and Freedom of Information.</p>
       <p class="muted">Last updated: October 26, 2026</p>`),
-    prose('/impressum', {
-      title: 'Impressum | TFT Arcade',
-      desc: 'Impressum von TFT Arcade, der Fan-Spielhalle für Teamfight Tactics: Anbieter, Kontakt und Verantwortliche.',
-      h1: 'Impressum', kw: 'Impressum',
-    }, 'Impressum', `
-      <p class="muted"><a href="/legal-notice" hreflang="en" lang="en">English version (Legal Notice)</a></p>
-      <h2>Angaben gemäß § 5 DDG</h2>
-      <p>${owner(true)}</p>
-      <h2>Kontakt</h2>
-      <p>E-Mail: ${mail()}</p>
-      <h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
-      <p>${esc(site.owner.name)}, Anschrift wie oben</p>
-      <h2>Verbraucherstreitbeilegung</h2>
-      <p>Wir sind nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>
-      <h2>Haftung für Inhalte und Links</h2>
-      <p>Die Spiele und Inhalte dieser Seite werden mit Sorgfalt erstellt. Simulationen und Wahrscheinlichkeiten sind vereinfacht und bilden die aktuellen Spielregeln nicht exakt ab. Für die Inhalte verlinkter externer Seiten sind ausschließlich deren Betreiber verantwortlich. Bei Bekanntwerden von Rechtsverletzungen entfernen wir entsprechende Links umgehend.</p>
-      <h2>Riot Games</h2>
-      <p lang="en">TFT Arcade isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.</p>
-      <p>TFT Arcade ist ein Fan-Projekt und steht in keiner Verbindung zu Riot Games. Teamfight Tactics, Spielgrafiken und Spieldaten sind Eigentum von Riot Games, Inc.</p>`, { noindex: true, lang: 'de' }),
-    prose('/datenschutz', {
-      title: 'Datenschutzerklärung | TFT Arcade',
-      desc: 'Datenschutz bei TFT Arcade: Welche Daten beim Besuch anfallen, was nur in deinem Browser gespeichert wird und deine Rechte.',
-      h1: 'Datenschutzerklärung', kw: 'Datenschutz',
-    }, 'Datenschutz', `
-      <p class="muted"><a href="/privacy" hreflang="en" lang="en">English version (Privacy Policy)</a></p>
-      <p class="lead">Kurz gesagt: TFT Arcade setzt keine Cookies, nutzt keine Analyse- oder Werbedienste und lädt nichts von fremden Servern. Rekorde und Einstellungen bleiben in deinem Browser.</p>
-      <h2>1. Verantwortlicher</h2>
-      <p>${owner(true)}<br>E-Mail: ${mail()}</p>
-      <h2>2. Hosting und Server-Logfiles</h2>
-      <p>Diese Website wird bei Vercel Inc. (USA) gehostet. Beim Aufruf jeder Seite verarbeitet der Server automatisch technisch notwendige Daten: IP-Adresse, Datum und Uhrzeit, aufgerufene Adresse, übertragene Datenmenge, Browser und Betriebssystem sowie die zuvor besuchte Seite. Das ist nötig, um die Seite auszuliefern und sicher zu betreiben (Art. 6 Abs. 1 lit. f DSGVO). Für Übermittlungen in die USA stützt sich Vercel auf geeignete Garantien nach Art. 44 ff. DSGVO (EU-US Data Privacy Framework bzw. EU-Standardvertragsklauseln). Mehr dazu in der <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener">Datenschutzerklärung von Vercel</a>.</p>
-      <h2>3. Keine Cookies, kein Tracking</h2>
-      <p>TFT Arcade setzt keine Cookies und nutzt keine Analyse-, Tracking- oder Werbedienste.</p>
-      <h2>4. Schriften und Bilder</h2>
-      <p>Schriften und alle Bilder – auch die Champion-Bilder aus den Spieldaten von Riot Games – liegen auf unserem eigenen Server. Es wird keine Verbindung zu Google Fonts, Riot Games oder anderen Drittanbietern hergestellt.</p>
-      <h2>5. Speicherung in deinem Browser</h2>
-      <p>Persönliche Rekorde, deine Einträge in den Bestenlisten samt gewähltem Namen, deine zuletzt gezogenen Vorgaben und Einstellungen speichern wir ausschließlich lokal in deinem Browser (Local Storage). Diese Daten bleiben auf deinem Gerät und werden nicht an uns übertragen. Die Speicherung ist für die von dir genutzte Funktion erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG). Du kannst sie jederzeit über die Einstellungen deines Browsers löschen.</p>
-      <h2>6. Ergebnis teilen</h2>
-      <p>Über „Share result“ wird ein kurzer Text mit Link in deine Zwischenablage kopiert. Dabei werden keine Daten an uns gesendet.</p>
-      <h2>7. Kontakt per E-Mail</h2>
-      <p>Wenn du uns eine E-Mail schreibst, verarbeiten wir deine Angaben nur, um deine Nachricht zu beantworten (Art. 6 Abs. 1 lit. f DSGVO). Das Postfach liegt bei ALL-INKL.COM – Neue Medien Münnich, Hauptstraße 68, 02742 Friedersdorf, Deutschland.</p>
-      <h2>8. Deine Rechte</h2>
-      <p>Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch. Außerdem kannst du dich bei einer Datenschutz-Aufsichtsbehörde beschweren, zum Beispiel beim Hessischen Beauftragten für Datenschutz und Informationsfreiheit.</p>
-      <p class="muted">Stand: 26. Oktober 2026</p>`, { noindex: true, lang: 'de' }),
   ];
 }
 

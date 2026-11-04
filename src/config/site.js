@@ -10,7 +10,7 @@ module.exports = {
   ogImage: '/assets/img/tft-arcade-vorschau.jpg',
   // Kontakt und Anbieter (wie bei TFTClimb) – für Impressum, Datenschutz und Feedback
   email: 'info@tftclimb.com',
-  owner: { name: 'Claudio Vecchione', street: 'Am Markt 15', city: '65795 Hattersheim', country: 'Germany', countryDe: 'Deutschland' },
+  owner: { name: 'Claudio Vecchione', street: 'Am Markt 15', city: '65795 Hattersheim', country: 'Germany' },
   // Reihenfolge der Hauptnavigation = ids aus categories.js
   nav: ['simulators', 'challenges', 'quiz', 'party'],
   footer: [
