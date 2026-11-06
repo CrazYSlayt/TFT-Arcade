@@ -396,24 +396,30 @@ function infoPages() {
       desc: 'Privacy at TFT Arcade: What data is processed when you visit, what stays in your browser and what your rights are.',
       h1: 'Privacy Policy', kw: 'Privacy',
     }, 'Privacy Policy', `
-      <p class="lead">In short: TFT Arcade sets no cookies, uses no analytics or advertising services and loads nothing from third-party servers. Records and settings stay in your browser.</p>
+      <p class="lead">In short: We use Google Analytics to measure how many visitors come and which pages they use. Google sets cookies for this as soon as you open the page. There are no ads. You can object to the measurement at any time; section 3 explains how. Records and settings stay in your browser.</p>
       <h2>1. Controller</h2>
       <p>${owner()}<br>Email: ${mail()}</p>
       <h2>2. Hosting and server log files</h2>
       <p>This website is hosted by Vercel Inc. (USA). Each time a page is requested, the server automatically processes technically necessary data: IP address, date and time, requested address, amount of data transferred, browser and operating system, and the previously visited page. This is necessary to deliver the site and operate it securely (Art. 6 (1) (f) GDPR). For transfers to the USA, Vercel relies on appropriate safeguards under Art. 44 et seq. GDPR (EU-US Data Privacy Framework or EU standard contractual clauses). You can find more in <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener">Vercel’s privacy policy</a>.</p>
-      <h2>3. No cookies, no tracking</h2>
-      <p>TFT Arcade sets no cookies and uses no analytics, tracking or advertising services.</p>
+      <h2>3. Audience measurement with Google Analytics</h2>
+      <p>We use Google Analytics 4, a service of Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Ireland (“Google”). It shows us how many visitors our site has, which pages and games are used and where visitors come from, so we can improve the site.</p>
+      <p>Google Analytics is loaded as soon as you open a page, even if you haven’t confirmed the cookie notice yet. Google stores cookies on your device (<code>_ga</code> and <code>_ga_${esc(site.gaId.replace(/^G-/, ''))}</code>, lasting up to 2 years). They contain a random ID that recognizes repeat visits from the same browser. This doesn’t tell us who you are.</p>
+      <p>The data processed includes: the pages you visit and your interactions on them, date and time, the page you came from, device, browser, operating system, screen size and language setting, and your approximate location (country, region, city), which Google derives from your IP address. According to Google, Google Analytics 4 does not store the IP address itself. Data in Google Analytics is deleted automatically after 2 months.</p>
+      <p>Google may also process the data in the USA. Google LLC is certified under the EU-US Data Privacy Framework, so these transfers are covered by an adequacy decision of the EU Commission (Art. 45 GDPR). You can find more in <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google’s privacy policy</a>.</p>
+      <p>The legal basis is our legitimate interest in measuring our audience to improve our site (Art. 6 (1) (f) GDPR).</p>
+      <p><b>Objection:</b> You can object to the measurement at any time, either with “Decline” in the cookie notice or right here. This site then stops loading Google Analytics and deletes the analytics cookies. Your browser remembers your choice (see section 5). Alternatively, you can block cookies in your browser or use <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener">Google’s browser add-on</a>.</p>
+      <p class="ga-ctl"><span id="ga-state"></span><button class="btn btn-sm btn-ghost" type="button" id="ga-toggle"></button></p>
       <h2>4. Fonts and images</h2>
-      <p>Fonts and all images, including the champion images from Riot Games’ game data, are stored on our own server. No connection is made to Google Fonts, Riot Games or other third parties.</p>
+      <p>Fonts and all images, including the champion images from Riot Games’ game data, are stored on our own server. No connection to Google Fonts or Riot Games is made for them.</p>
       <h2>5. Storage in your browser</h2>
-      <p>Personal records, your leaderboard entries including the name you chose, the rules you drew most recently and your settings are stored only locally in your browser (Local Storage). This data stays on your device and is not transferred to us. The storage is required for the feature you use (§ 25 (2) no. 2 TDDDG). You can delete it at any time in your browser settings.</p>
+      <p>Personal records, your leaderboard entries including the name you chose, the rules you drew most recently, your settings and whether you accepted or declined Google Analytics are stored only locally in your browser (Local Storage). This data stays on your device and is not transferred to us. The storage is required for the feature you use (§ 25 (2) no. 2 TDDDG). The Google Analytics cookies are described in section 3. You can delete all of this at any time in your browser settings.</p>
       <h2>6. Sharing results</h2>
       <p>“Share result” copies a short text with a link to your clipboard. No data is sent to us in the process.</p>
       <h2>7. Contact by email</h2>
       <p>If you send us an email, we process your details only to answer your message (Art. 6 (1) (f) GDPR). The mailbox is hosted by ALL-INKL.COM – Neue Medien Münnich, Hauptstraße 68, 02742 Friedersdorf, Germany.</p>
       <h2>8. Your rights</h2>
       <p>You have the right to access, rectification, erasure, restriction of processing, data portability and objection. You can also lodge a complaint with a data protection supervisory authority, for example the Hessian Commissioner for Data Protection and Freedom of Information.</p>
-      <p class="muted">Last updated: October 26, 2026</p>`),
+      <p class="muted">Last updated: November 6, 2026</p>`),
   ];
 }
 

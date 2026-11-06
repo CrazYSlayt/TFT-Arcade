@@ -608,6 +608,67 @@
     }));
   }
 
+  // ───────── Google Analytics: Cookie-Hinweis und Widerspruch (wie bei TFTClimb) ─────────
+  // Das Tag lädt schon im Kopf der Seite (GA_TAG in src/templates/layout.js). „Decline“ schaltet es sofort und für künftige Besuche ab
+  // und löscht die Analytics-Cookies; Wahl im Browser: tftarcade_ga = 'ok' | 'no'
+  function initCookies() {
+    const id = document.documentElement.dataset.gaId;
+    if (!id) return;
+    function deleteCookies() {
+      const host = location.hostname, root = host.split('.').slice(-2).join('.');
+      document.cookie.split(';').map(c => c.split('=')[0].trim()).filter(n => /^_ga(_|$)/.test(n)).forEach(n => {
+        [host, '.' + host, '.' + root, ''].forEach(d => { document.cookie = `${n}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/${d ? '; domain=' + d : ''}`; });
+      });
+    }
+    // nach erneuter Zustimmung ohne Neuladen starten
+    function load() {
+      window['ga-disable-' + id] = false;
+      if (location.protocol === 'file:' || /^(localhost|127\.0\.0\.1)$/.test(location.hostname)) return;
+      if (!window.gtag) {
+        const s = document.createElement('script');
+        s.async = true; s.src = 'https://www.googletagmanager.com/gtag/js?id=' + id;
+        document.head.appendChild(s);
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function () { window.dataLayer.push(arguments); };
+        window.gtag('js', new Date());
+      }
+      window.gtag('config', id);
+    }
+    // Schalter in der Datenschutzerklärung (Abschnitt 3)
+    function showState() {
+      const st = $('#ga-state'), bt = $('#ga-toggle');
+      if (!st || !bt) return;
+      const off = store.get('ga') === 'no';
+      st.textContent = off ? 'Google Analytics is turned off for this browser.' : 'Google Analytics is active for this browser.';
+      bt.textContent = off ? 'Allow again' : 'Decline analytics';
+      bt.dataset.ga = off ? 'ok' : 'no';
+    }
+    function choose(v) {
+      store.set('ga', v);
+      if (v === 'no') { window['ga-disable-' + id] = true; deleteCookies(); } else load();
+      const b = $('#ckb');
+      if (b) b.remove();
+      showState();
+    }
+    // kleines Popup unten rechts; Details stehen in der Datenschutzerklärung
+    function banner() {
+      if ($('#ckb')) return;
+      document.body.insertAdjacentHTML('beforeend', `<div class="ckb" id="ckb" role="region" aria-label="Cookie notice">
+        <img class="ckb-logo" src="${asset('assets/brand/favicon-192.png')}" alt="" width="46" height="46">
+        <div class="ckb-tx"><b>Cookies</b>
+          <p>We use Google Analytics cookies to improve our site. <a href="${pageLink('/privacy')}">Privacy policy</a></p>
+          <div class="ckb-bt"><button type="button" class="ckb-no" data-ga="no">Decline</button><button type="button" class="ckb-ok" data-ga="ok">OK</button></div></div></div>`);
+    }
+    document.addEventListener('click', e => {
+      const c = e.target.closest && e.target.closest('[data-ckb]');
+      if (c) { e.preventDefault(); banner(); return; }
+      const b = e.target.closest && e.target.closest('[data-ga]');
+      if (b) choose(b.dataset.ga);
+    });
+    if (!store.get('ga', null)) banner();
+    showState();
+  }
+
   // Kopfleiste: auf der Startseite durchsichtig über dem Bild, beim Scrollen mit Hintergrund
   function initTopbar() {
     const bar = $('.topbar');
@@ -628,5 +689,6 @@
   initTopbar();
   initMega();
   initRandomGame();
+  initCookies();
   initFun();
 })();

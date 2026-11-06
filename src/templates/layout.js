@@ -16,6 +16,22 @@ if (location.protocol === 'file:') document.addEventListener('DOMContentLoaded',
 });
 </script>`;
 
+// Google Analytics wie bei TFTClimb: misst jeden Besuch ab dem Aufruf, nicht erst nach Bestätigung im Cookie-Hinweis (bewusste Entscheidung).
+// Wer „Decline“ wählt, wird ab dann nicht mehr erfasst (tftarcade_ga = "no", siehe arcade.js). Lokal (localhost, Datei) wird nichts gesendet.
+const GA_TAG = id => `<script>
+(function () {
+  var id = '${id}', off = false;
+  try { off = localStorage.getItem('tftarcade_ga') === '"no"'; } catch (e) {}
+  if (location.protocol === 'file:' || /^(localhost|127\\.0\\.0\\.1)$/.test(location.hostname)) return;
+  if (off) { window['ga-disable-' + id] = true; return; }
+  var s = document.createElement('script'); s.async = true; s.src = 'https://www.googletagmanager.com/gtag/js?id=' + id; document.head.appendChild(s);
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function () { dataLayer.push(arguments); };
+  gtag('js', new Date());
+  gtag('config', id);
+})();
+</script>`;
+
 function head(page, ctx) {
   const url = site.url + page.path;
   const a = ctx.rel;
@@ -29,10 +45,10 @@ function head(page, ctx) {
   }
   if (page.ld) ld.push(...page.ld);
   return `<!DOCTYPE html>
-<html lang="${site.lang}" data-root="${ctx.root}">
+<html lang="${site.lang}" data-root="${ctx.root}"${site.gaId ? ` data-ga-id="${site.gaId}"` : ''}>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+${site.gaId ? GA_TAG(site.gaId) + '\n' : ''}<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(page.seo.title)}</title>
 <meta name="description" content="${esc(page.seo.desc)}">
 ${page.noindex ? '<meta name="robots" content="noindex, follow">\n' : ''}<link rel="canonical" href="${esc(url)}">
@@ -109,7 +125,7 @@ function header(page, ctx) {
 function footer(ctx) {
   const cats = site.nav.map(id => ctx.categories.find(x => x.id === id)).map(c => `<li><a href="/${c.slug}">${esc(c.name)}</a></li>`).join('')
     + '<li><a href="/leaderboard">Leaderboard</a></li>';
-  const info = site.footer.map(l => `<li><a href="${l.href}">${esc(l.label)}</a></li>`).join('');
+  const info = site.footer.filter(l => !l.cookies || site.gaId).map(l => `<li><a href="${l.href}"${l.cookies ? ' data-ckb' : ''}>${esc(l.label)}</a></li>`).join('');
   return `<footer class="footer">
   <div class="wrap">
     <div class="footer-top">
