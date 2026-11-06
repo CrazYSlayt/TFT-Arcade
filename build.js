@@ -13,6 +13,7 @@ const categories = require('./src/config/categories');
 const games = require('./src/config/games');
 const boards = require('./src/config/demo-bestenlisten');
 const dailies = require('./src/config/tageschallenges');
+const artikel = require('./src/config/artikel');
 const { layout } = require('./src/templates/layout');
 const pages = require('./src/templates/pages');
 const { ART } = require('./src/templates/icons');
@@ -48,6 +49,7 @@ function validate() {
     if (g.aside === 'bestenliste' && (!g.record || !g.modes.length)) err.push(`${w}: Bestenliste braucht record und modes`);
     if (g.status === 'live' && !(g.scripts || []).length) err.push(`${w}: spielbar, aber ohne scripts`);
     for (const s of g.scripts || []) if (!fs.existsSync(path.join(PUB, s))) err.push(`${w}: Skript ${s} fehlt`);
+    if (g.status === 'live' && !fs.existsSync(path.join(PUB, 'assets', 'img', 'og', g.slug + '.jpg'))) err.push(`${w}: Vorschaubild og/${g.slug}.jpg fehlt (tools/og-bilder.js)`);
     if (g.tabelle === 'shop-odds' && !browserData('assets/js/spiele/daten/shop.js', 'TFT_ARCADE_SHOP')) err.push(`${w}: Odds-Tabelle braucht daten/shop.js (npm run champions)`);
     seo(w, g.seo);
   }
@@ -86,6 +88,8 @@ function build() {
     site, categories, games, boards, dailies,
     // Shop-Regeln des Sets (daten/shop.js, erzeugt mit tools/champions.js) – für die Odds-Tabelle auf der Spielseite
     shop: browserData('assets/js/spiele/daten/shop.js', 'TFT_ARCADE_SHOP'),
+    champions: browserData('assets/js/spiele/daten/champions.js', 'TFT_ARCADE_CHAMPIONS'),
+    items: browserData('assets/js/spiele/daten/items.js', 'TFT_ARCADE_ITEMS'),
     year: new Date().getFullYear(),
     catOf: g => categories.find(c => c.id === g.category),
     gameUrl: g => g.status === 'bald' ? null : `/${categories.find(c => c.id === g.category).slug}/${g.slug}`,
@@ -94,6 +98,10 @@ function build() {
       return `${p}?v=${hashes[p]}`;
     },
   };
+
+  ctx.dataDate = ctx.champions.generated;   // Stand der Spieldaten: dateModified und lastmod der Spielseiten
+  ctx.articles = artikel(ctx);
+  for (const g of games.filter(x => x.status === 'live')) if (!ctx.articles[g.id]) { console.error(`✖ Spiel ${g.id}: Artikel fehlt in src/config/artikel.js`); process.exit(1); }
 
   const list = [
     pages.home(ctx),
@@ -112,8 +120,8 @@ function build() {
   }
 
   // Sitemap: nur Seiten, die in die Suche sollen
-  const urls = list.filter(p => !p.noindex).map(p => `  <url><loc>${site.url}${p.path === '/' ? '/' : p.path}</loc></url>`);
-  fs.writeFileSync(path.join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`);
+  const urls = list.filter(p => !p.noindex).map(p => `  <url><loc>${site.url}${p.path === '/' ? '/' : p.path}</loc>${p.modified ? `<lastmod>${p.modified}</lastmod>` : ''}${p.og ? `<image:image><image:loc>${site.url}${p.og}</image:loc></image:image>` : ''}</url>`);
+  fs.writeFileSync(path.join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urls.join('\n')}\n</urlset>\n`);
   fs.writeFileSync(path.join(OUT, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${site.url}/sitemap.xml\n`);
 
   console.log(`✔ ${list.length} Seiten gebaut (${urls.length} in der Sitemap) → dist/`);

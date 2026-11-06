@@ -342,7 +342,7 @@ module.exports = [
     color: 'gold',
     bild: 'karussell',
     short: 'What are the odds of a 4-cost on level 8? Test your knowledge of shop odds, the pool and XP.',
-    lead: 'Ten questions on the shop odds of the current set: percentages per level, when 5-costs show up, how many copies are in the pool and how much XP you need. The full odds table is right below the game.',
+    lead: 'Ten questions on the shop odds of the current set: percentages per level, when 5-costs show up, how many copies are in the pool and how much XP you need.',
     kurz: 'Read the question and pick the right number – by click or with the keys 1–4.',
     duration: 'approx. 1 min',
     status: 'live',
@@ -360,12 +360,12 @@ module.exports = [
     schritte: [
       ['Read the question', 'Level, cost or copies: it’s all about the numbers behind the shop.'],
       ['Pick a number', 'The wrong answers are close, so choose carefully. Click or use the keys 1–4.'],
-      ['Look it up', 'The full odds table for the set is right below the game.'],
+      ['Look it up', 'Levels 6 to 10 are right below the game, the full table is on TFTClimb.'],
     ],
     hinweise: 'The percentages apply per shop slot: a shop has five slots and each one is drawn separately. Wrong answers usually come from a neighboring level or another cost tier. Level 11 (augments only) isn’t part of the quiz. Maximum score: 1,500.',
     seo: {
       title: 'TFT Shop Odds Quiz – Do You Know the Odds? | TFT Arcade',
-      desc: 'TFT Shop Odds Quiz: What are the odds of a 4-cost on level 8? Ten questions on odds, pool and XP, with a full shop odds table.',
+      desc: 'TFT Shop Odds Quiz: What are the odds of a 4-cost on level 8? Ten questions on odds, pool and XP, against the clock.',
       h1: 'TFT Shop Odds Quiz: Do You Know the Odds?',
       kw: 'TFT Shop Odds Quiz',
     },

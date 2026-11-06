@@ -1325,6 +1325,26 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 .toast .ui { color: var(--teal); }
 
+/* ───────── SEO-Artikel unter dem Spiel (src/config/artikel.js) ───────── */
+.game-article { max-width: 860px; margin: 0 auto 18px; padding: clamp(20px, 3vw, 34px); border: 2px solid rgba(242, 177, 60, .75); background: rgba(24, 10, 42, .92); }
+.game-article h2 { margin: 0 0 16px; font-size: clamp(1.6rem, 3vw, 2.1rem); color: #fff1d6; }
+.game-article h3 { margin: 26px 0 8px; font-size: 1.35rem; color: var(--gold); }
+.game-article p { margin: 0 0 12px; color: #ebe1f8; }
+.art-fig { margin: 0 0 16px; }
+.art-fig img { display: block; width: 100%; height: auto; border-radius: 12px; }
+.art-a { color: var(--teal); font-weight: 600; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.art-a:hover { color: #8af5e8; }
+.art-author { display: flex; align-items: center; gap: 16px; margin: 24px 0 0; padding: 14px 16px; border-radius: 14px; background: rgba(8, 3, 16, .45); box-shadow: inset 0 0 0 1px rgba(255, 201, 74, .3); }
+.art-author-img { flex: none; line-height: 0; }
+.art-author-img img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold); }
+.art-author p { margin: 0; }
+.art-author small { display: block; font: 700 .74rem/1.2 var(--f-cond); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.art-author-name { display: block; font: 400 1.15rem/1.3 var(--f-display); color: #fff1d6; text-decoration: none; }
+.art-author span { font-size: .92rem; color: var(--muted); }
+.art-faq { margin: 0; }
+.art-faq dt { margin-top: 12px; font-weight: 700; color: #fff; }
+.art-faq dd { margin: 2px 0 0; color: #ebe1f8; }
+
 /* ───────── Cookie-Hinweis (Google Analytics) unten rechts, Schalter in der Datenschutzerklärung ───────── */
 .ckb { position: fixed; right: 16px; bottom: 16px; z-index: 60; display: flex; align-items: flex-start; gap: 12px; width: min(340px, calc(100% - 32px)); padding: 14px 14px 14px 12px; border-radius: 14px; color: #e9dff8; background: linear-gradient(180deg, #2a1347, #1a0b2e); border: 1.5px solid rgba(255, 201, 74, .55); box-shadow: 0 16px 40px rgba(0, 0, 0, .6); animation: ckb-in .3s ease; }
 .ckb-logo { flex: none; width: 46px; height: 46px; object-fit: contain; }

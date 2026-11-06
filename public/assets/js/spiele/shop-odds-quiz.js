@@ -94,7 +94,7 @@
       const xps = A.shuffle([3, 4, 5, 6, 7, 8, 9]).slice(0, 1);
       return A.shuffle([...odds, ...lv, unlockQ(A.shuffle([3, 4, 5])[0]), ...bags.map(bagQ), ...xps.map(xpQ)]);
     },
-    wrongLine: () => 'Look it up in the odds table below the game.',
+    wrongLine: () => 'Look it up in the shop odds below the game.',
     shareText: (score, correct, n) => `Shop Odds Quiz: ${score.toLocaleString('en-US')} points, ${correct}/${n} correct – do you know the shop odds better? #TFTArcade`,
   });
 })();

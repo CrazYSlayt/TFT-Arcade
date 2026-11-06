@@ -35,8 +35,9 @@ const GA_TAG = id => `<script>
 function head(page, ctx) {
   const url = site.url + page.path;
   const a = ctx.rel;
-  const img = site.url + site.ogImage;
-  const ld = [{ '@type': 'WebPage', name: page.seo.title, url, inLanguage: site.lang, isPartOf: { '@type': 'WebSite', name: site.name, url: site.url + '/' } }];
+  const img = site.url + (page.og || site.ogImage);
+  const ld = [{ '@type': 'WebPage', name: page.seo.title, url, inLanguage: site.lang, isPartOf: { '@type': 'WebSite', name: site.name, url: site.url + '/' },
+    ...(page.og ? { primaryImageOfPage: { '@type': 'ImageObject', url: img, width: 1200, height: 630 } } : {}), ...(page.modified ? { dateModified: page.modified } : {}) }];
   if (page.crumbs && page.crumbs.length > 1) {
     ld.push({
       '@type': 'BreadcrumbList',
@@ -61,7 +62,7 @@ ${page.noindex ? '<meta name="robots" content="noindex, follow">\n' : ''}<link r
 <meta property="og:image" content="${esc(img)}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta name="twitter:card" content="summary_large_image">
+${page.ogAlt ? `<meta property="og:image:alt" content="${esc(page.ogAlt)}">\n` : ''}<meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="${site.themeColor}">
 <link rel="icon" href="${a('/assets/brand/favicon.svg')}" type="image/svg+xml">
 <link rel="icon" href="${a('/assets/brand/favicon-32.png')}" sizes="32x32" type="image/png">

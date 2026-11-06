@@ -5,6 +5,8 @@ const { art, ui } = require('./icons');
 const { gameCard, booth, crumbs, daily, aside, badge, boardAttrs, boardJson, boardRows, rankedModes, avatarPicker } = require('./components');
 
 const HOME = { label: 'Arcade', href: '/' };
+const AUTHOR = { name: 'Claudio “CrazYSlayt”', url: 'https://www.tftclimb.com/en/about/crazyslayt' };
+const ogPath = g => `/assets/img/og/${g.slug}.jpg`;   // Vorschaubild eines Spiels (tools/og-bilder.js)
 
 // ───────── Startseite ─────────
 function home(ctx) {
@@ -171,25 +173,42 @@ function lookupTable(g, ctx) {
   const S = ctx.shop;
   if (g.tabelle !== 'shop-odds' || !S) return '';
   const head = [1, 2, 3, 4, 5].map(k => `<th scope="col"><span class="odds-dot cost-${k}"></span>${k}-cost</th>`).join('');
-  const rows = S.odds.slice(0, 10).map((r, i) => `<tr><th scope="row">Level ${i + 1}</th>${r.map(v => `<td${v ? '' : ' class="is-zero"'}>${v}%</td>`).join('')}<td>${S.xp[i] != null && i < 9 ? `${S.xp[i]} XP` : '–'}</td></tr>`).join('');
-  const bag = S.bag.map((b, i) => `<td>${b} × ${S.distinct[i]} = <b>${b * S.distinct[i]}</b></td>`).join('');
+  const rows = S.odds.slice(5, 10).map((r, i) => `<tr><th scope="row">Level ${i + 6}</th>${r.map(v => `<td${v ? '' : ' class="is-zero"'}>${v}%</td>`).join('')}</tr>`).join('');
   return `
   <section class="panel odds-panel" aria-labelledby="odds-h">
-    <h2 class="extra-h" id="odds-h">${ui('info')}TFT Shop Odds – Set ${esc(S.set)}</h2>
-    <p class="odds-lead">Chance per shop slot by level and cost. Below that: copies per champion × champions per cost = copies in the shared pool.</p>
+    <h2 class="extra-h" id="odds-h">${ui('info')}Shop odds for levels 6 to 10 – Set ${esc(S.set)}</h2>
+    <p class="odds-lead">Chance per shop slot by level and cost.</p>
     <div class="odds-scroll">
       <table class="odds-table">
-        <thead><tr><th scope="col">Level</th>${head}<th scope="col">XP to next level</th></tr></thead>
+        <thead><tr><th scope="col">Level</th>${head}</tr></thead>
         <tbody>${rows}</tbody>
-        <tfoot><tr><th scope="row">Pool</th>${bag}<td></td></tr></tfoot>
       </table>
     </div>
-    <p class="odds-note">As of patch ${esc(S.version)} · Level 11 is only available through augments.</p>
+    <p class="odds-note">All levels, XP and pool sizes: <a class="art-a" href="https://www.tftclimb.com/en/cheatsheet/tft-shop-odds?utm_source=tftarcade&amp;utm_medium=referral&amp;utm_campaign=shop-odds-quiz" target="_blank" rel="noopener">TFT shop odds cheat sheet on TFTClimb</a></p>
   </section>`;
+}
+
+// SEO-Artikel unter dem Spiel (src/config/artikel.js): Vorschaubild, Abschnitte, Autor, FAQ ganz unten
+function gameArticle(g, a) {
+  if (!a) return '';
+  return `
+  <article class="panel game-article" aria-labelledby="art-h">
+    <h2 id="art-h">${esc(a.title)}</h2>
+    <figure class="art-fig"><img src="${ogPath(g)}" alt="${esc(a.alt)}" width="1200" height="630" loading="lazy" decoding="async"></figure>
+    ${a.intro}
+    ${a.sections.map(([h, html]) => `<h3>${esc(h)}</h3>${html}`).join('\n    ')}
+    <div class="art-author">
+      <a class="art-author-img" href="${AUTHOR.url}" target="_blank" rel="noopener"><img src="/assets/img/autor-claudio.jpg" alt="Claudio “CrazYSlayt”" width="64" height="64" loading="lazy"></a>
+      <p><small>Built by</small><a class="art-author-name" href="${AUTHOR.url}" target="_blank" rel="noopener">Claudio “CrazYSlayt”</a><span>TFT Challenger and founder of <a class="art-a" href="https://www.tftclimb.com/en?utm_source=tftarcade&amp;utm_medium=referral&amp;utm_campaign=${esc(g.id)}" target="_blank" rel="noopener">TFTClimb</a>, the home of TFT tier lists, tools and coaching.</span></p>
+    </div>
+    <h3>FAQ</h3>
+    <dl class="art-faq">${a.faq.map(([q, x]) => `<dt>${esc(q)}</dt><dd>${esc(x)}</dd>`).join('')}</dl>
+  </article>`;
 }
 
 function game(g, ctx) {
   const c = ctx.catOf(g), url = ctx.gameUrl(g), live = g.status === 'live';
+  const a = live ? ctx.articles[g.id] : null;
   const crumbList = [HOME, { label: c.name, href: '/' + c.slug }, { label: g.title, href: url }];
   const r = g.rules, more = related(g, ctx);
   // Gemeinsamer Rahmen aller Spielseiten:
@@ -240,6 +259,7 @@ function game(g, ctx) {
     </section>
   </div>
 ${lookupTable(g, ctx)}
+${gameArticle(g, a)}
 
   <nav class="game-more" aria-label="More attractions">
     <span class="game-more-lead">${ui('dice')}One more round somewhere else?</span>
@@ -267,6 +287,13 @@ ${lookupTable(g, ctx)}
     // Solange die Bude im Aufbau ist, soll Google die Platzhalter-Seite nicht aufnehmen – mit status 'live' automatisch indexiert
     noindex: g.status !== 'live',
     scripts: g.status === 'live' ? g.scripts : [],
+    ...(a ? {
+      og: ogPath(g), ogAlt: a.alt, modified: ctx.dataDate, author: true,
+      ld: [
+        { '@type': 'WebApplication', name: g.title, url: site.url + url, description: g.seo.desc, image: site.url + ogPath(g), applicationCategory: 'GameApplication', operatingSystem: 'Web', browserRequirements: 'JavaScript', inLanguage: site.lang, isAccessibleForFree: true, offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' }, author: { '@type': 'Person', name: AUTHOR.name, url: AUTHOR.url } },
+        { '@type': 'FAQPage', mainEntity: a.faq.map(([q, x]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: x } })) },
+      ],
+    } : {}),
     body,
   };
 }
