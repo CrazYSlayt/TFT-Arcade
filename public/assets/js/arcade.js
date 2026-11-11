@@ -379,6 +379,16 @@
       if (o.onReplay) o.onReplay();
       if (stage) stage.scrollIntoView({ block: 'nearest' });
     };
+    // Link zu TFTClimb: ein Spiel kann ihn für diese Runde ersetzen (o.climb = { path, lead, text }), sonst gilt der aus der Vorlage
+    const climb = $('[data-result-climb]', el);
+    if (climb) {
+      const a = $('[data-result-climb-link]', climb), lead = $('[data-result-climb-lead]', climb);
+      if (!climb.dataset.def) climb.dataset.def = JSON.stringify([a.getAttribute('href'), lead.textContent, a.textContent]);
+      const [href, l, t] = JSON.parse(climb.dataset.def), c = o.climb;
+      a.setAttribute('href', c ? href.replace(/^(https:\/\/www\.tftclimb\.com)[^?]*/, '$1' + c.path) : href);
+      lead.textContent = c ? c.lead : l;
+      a.textContent = c ? c.text : t;
+    }
     $('[data-result-share]', el).onclick = () => share(o.shareText || `${page.dataset.gameTitle}: ${$('[data-result-value]', el).textContent} – can you beat that? #TFTArcade`);
     el.hidden = false;
     const entry = ranked ? highscoreEntry(el, mode, o.value) : hideEntry(el);

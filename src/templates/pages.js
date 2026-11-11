@@ -7,6 +7,15 @@ const { gameCard, booth, crumbs, daily, aside, badge, boardAttrs, boardJson, boa
 const HOME = { label: 'Arcade', href: '/' };
 const AUTHOR = { name: 'Claudio “CrazYSlayt”', url: 'https://www.tftclimb.com/en/about/crazyslayt' };
 const ogPath = g => `/assets/img/og/${g.slug}.jpg`;   // Vorschaubild eines Spiels (tools/og-bilder.js)
+const LINKS = require('../config/verlinkung');
+
+// eine dezente Zeile mit Link zu TFTClimb auf der Ergebniskarte (src/config/verlinkung.js); ein Spiel kann sie nach der Runde ersetzen
+function resultClimb(g) {
+  const l = LINKS.result[g.id];
+  if (!l) return '';
+  const [url, lead, text] = l;
+  return `<p class="result-climb" data-result-climb><span data-result-climb-lead>${esc(lead)}</span> <a class="art-a" href="${esc(LINKS.utm(LINKS.CLIMB + url, g.id, 'result'))}" target="_blank" rel="noopener" data-result-climb-link>${esc(text)}</a></p>`;
+}
 
 // ───────── Startseite ─────────
 function home(ctx) {
@@ -131,6 +140,7 @@ const result = g => `<div class="result" id="auswertung" tabindex="-1" hidden>
   <p class="result-value" data-result-value></p>
   <p class="result-record" data-result-record hidden>${ui('trophy')}New personal best!</p>
   <ul class="result-lines" data-result-lines></ul>
+  ${resultClimb(g)}
   ${g.aside === 'bestenliste' ? highscoreEntry() : ''}
   <div class="result-actions">
     <button class="btn btn-gold" type="button" data-result-replay>${ui('replay')}Play again</button>

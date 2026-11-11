@@ -290,11 +290,14 @@
     const boxes = Array.from({ length: 6 }, (_, i) => i < r.hints - 1 ? '🟥' : i === r.hints - 1 ? (r.won ? '🟩' : '🟥') : '⬛').join('');
     return `Who Is This Champ? Daily Puzzle ${A.today().label}: ${boxes} ${r.won ? `${r.hints}/6 clues` : 'not solved'} #TFTArcade`;
   }
+  // Link auf der Ergebniskarte: die TFTClimb-Seite des gesuchten (bzw. ersten nicht erkannten) Champions – gleiche Kurznamen wie dort
+  const climbFor = c => ({ path: `/en/champions/${c.id}`, lead: `Want to know ${c.name} better?`, text: `See ${c.name}’s builds on TFTClimb` });
   function finish() {
     state = 'done';
     if (isDaily()) {
       const r = dailyStore()[A.today().day], streak = dailyStreak();
       A.finishRound({
+        climb: climbFor(results[0].c),
         valueText: r.won ? `${r.hints} / 6` : '–',
         title: r.won ? (r.hints <= 2 ? 'Amazing – barely any clues!' : 'Solved!') : 'Not today …',
         lines: [`It was ${results[0].c.name}.`, r.won ? `${r.hints} ${r.hints === 1 ? 'clue' : 'clues'}, ${r.tries} wrong ${r.tries === 1 ? 'guess' : 'guesses'}.` : 'There’s a new puzzle tomorrow.', ...(streak > 1 ? [`Streak: ${streak} days in a row.`] : [])],
@@ -306,6 +309,7 @@
     const missed = results.filter(r => !r.ok).map(r => r.c.name);
     A.finishRound({
       value: score,
+      climb: climbFor((results.find(r => !r.ok) || results[results.length - 1]).c),
       title: solved === deck.length ? 'You got them all!' : solved >= 7 ? 'Great round!' : solved >= 4 ? 'Not bad at all!' : 'There’s room to improve!',
       lines: [`${solved} of ${deck.length} guessed · ${(hintSum / deck.length).toLocaleString('en-US', { maximumFractionDigits: 1 })} clues on average`, ...(missed.length ? ['Missed: ' + missed.join(', ')] : [])],
       shareText: `Who Is This Champ? ${score.toLocaleString('en-US')} points, ${solved}/${deck.length} guessed – can you beat that? #TFTArcade`,

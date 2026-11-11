@@ -1,5 +1,6 @@
 // TFT Arcade – Grundgerüst jeder Seite: Kopfdaten (SEO), Kulisse, Navigation, Footer
 const site = require('../config/site');
+const LINKS = require('../config/verlinkung');
 const { esc, json } = require('./helpers');
 const { art, ui } = require('./icons');
 
@@ -133,6 +134,7 @@ function footer(ctx) {
       <div class="footer-brand">
         ${LOGO('logo-sm')}
         <p>The digital funfair for TFT fans: mini games, quizzes and challenges. Free, with no sign-up.</p>
+        <p class="footer-network">Part of the TFT network: ${LINKS.network.map(n => `<a href="${esc(LINKS.utm(n.url, 'footer', 'footer'))}" target="_blank" rel="noopener">${esc(n.name)}</a> – ${esc(n.text)}`).join(' · ')}</p>
       </div>
       <nav class="footer-nav" aria-label="Sections"><p class="footer-h">Arcade</p><ul>${cats}</ul></nav>
       <nav class="footer-nav" aria-label="Info and legal"><p class="footer-h">Info</p><ul>${info}</ul></nav>
