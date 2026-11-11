@@ -24,6 +24,7 @@ const DATA_OUT = path.join(ROOT, 'public', 'assets', 'js', 'spiele', 'daten', 'c
 const ITEM_CACHE = path.join(__dirname, 'cache', 'items');
 const ITEM_DATA_OUT = path.join(ROOT, 'public', 'assets', 'js', 'spiele', 'daten', 'items.js');
 const SHOP_DATA_OUT = path.join(ROOT, 'public', 'assets', 'js', 'spiele', 'daten', 'shop.js');
+const COMP_DATA_OUT = path.join(ROOT, 'public', 'assets', 'js', 'spiele', 'daten', 'comps.js');
 
 function load(file) {
   const window = {};
@@ -115,6 +116,30 @@ async function main() {
 
   await itemData(d);
   shopData(d, list);
+  compData(d, list);
+}
+
+// Comps aus der TFTClimb-Tierlist (tierlist-data-<Set>.js im TFTClimb-Ordner) → daten/comps.js – Ziele für Rolldown Simulator und 100 Gold Challenge.
+// Nur Haupt-Comps mit Tier A–C; key = Adresse der Comp-Seite auf TFTClimb (/en/comps/<key>, gleiche Regel wie compNameSlug in deren app.js).
+function compData(d, list) {
+  const file = path.join(CLIMB, '..', `tierlist-data-${d.set}.js`);
+  const tl = fs.existsSync(file) && load(file).TIERLIST_DATA;
+  if (!tl || !Array.isArray(tl.comps)) { console.warn(`  ✖ keine Tierlist in ${path.relative(ROOT, file)} – daten/comps.js bleibt unverändert`); return; }
+  const nameSlug = n => String(n || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/['’.]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const ids = new Set(list.map(c => c.id)), keys = new Set(), comps = [];
+  for (const c of tl.comps.filter(x => !x.hidden)) {
+    const base = nameSlug(c.name) || 'comp';
+    let key = base, n = 2;
+    while (keys.has(key)) key = base + '-' + n++;
+    keys.add(key);
+    const units = [...new Set((c.board || []).map(b => slug(b.u)).filter(id => ids.has(id)))];
+    if (!c.main || !['A', 'B', 'C'].includes(c.tier) || units.length < 5) continue;
+    const carry = ids.has(slug(c.carry || '')) ? slug(c.carry) : units[0];
+    comps.push({ key, name: c.name, tier: c.tier, style: c.style || '', carry, units });
+  }
+  const out = { set: d.set, patch: tl.patch || null, comps };
+  fs.writeFileSync(COMP_DATA_OUT, `// TFT Arcade – Comps aus der TFTClimb-Tierlist (automatisch erzeugt mit tools/champions.js, nicht von Hand bearbeiten)\n// key = Adresse auf TFTClimb (/en/comps/<key>) · units = Champion-ids · carry = Haupt-Carry\nwindow.TFT_ARCADE_COMPS = ${JSON.stringify(out)};\n`);
+  console.log(`✔ ${comps.length} Comps aus der Tierlist → ${path.relative(ROOT, COMP_DATA_OUT)}`);
 }
 
 // Riots Rollen-Schlüssel (z. B. „MagicTank“, „AttackSpecialist_Ammo“) → kurze Bezeichnung wie „AP Tank“

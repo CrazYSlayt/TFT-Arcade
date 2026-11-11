@@ -14,19 +14,32 @@ module.exports = ctx => {
 
   return {
     'roll-simulator': {
-      title: 'TFT Roll Simulator: Hit a 3-Star 5-Cost',
-      alt: 'TFT Roll Simulator: roll for a 3-star 5-cost on level 10',
-      intro: `<p>This TFT roll simulator starts you on level 10 with an empty board and bench and one target: a 5-cost champion you have to take to three stars. You roll, buy, sell and move your units around on a hex board, just like in a real rolldown, while the clock counts up.</p>`,
+      title: 'TFT Rolldown Simulator: Practice Your Rolldowns',
+      alt: 'TFT Rolldown Simulator: practice rolling with the real shop odds',
+      intro: `<p>This TFT rolldown simulator gives you a real shop to practice with: pick your level and gold, roll, buy XP, sell and move your units around on a hex board while your traits update on the left. Choose a comp from the TFTClimb tier list as your target, or race the clock to a 3-star 5-cost.</p>`,
       sections: [
-        ['How the shop works', `<p>Every shop has five slots, and each slot is drawn separately. On level 10 a slot is a 5-cost ${odds5}% of the time. The simulator then picks a champion based on the copies left in the pool. ${set} has ${five} different 5-costs with ${copies5} copies each, so three stars takes every single copy of your target.</p>
-          <p>Champions you don’t buy go back into the pool on your next reroll. Opponents hold 30 to 60% of the other 5-costs, which makes your target a little easier to find, but they hold no copies of your target. Without that rule three stars wouldn’t be possible.</p>`],
-        ['How many rolls does it take?', `<p>Expect around 100 rolls on level 10, which is roughly 250 gold including the nine buys. In our test runs one round in ten took fewer than 60 rolls and one in ten took more than 170, so luck plays a big part. On level 11 it was closer to 70 rolls, on level 9 closer to 170. You can try those levels in Training.</p>
+        ['How the shop works', `<p>Every shop has five slots, and each slot is drawn separately. The odds depend on your level: on level 8, for example, a slot is a 4-cost ${S.odds[7][3]}% of the time. The simulator then picks a champion based on the copies left in the pool – ${set} has ${S.bag.join(', ')} copies of each 1- to 5-cost. Champions you don’t buy go back into the pool on your next reroll, and opponents already hold some copies.</p>`],
+        ['Three ways to practice', `<p>Free Rolldown lets you set level 3 to 10 and 50, 100, 200 or unlimited gold. Add a target comp and its units are highlighted in the shop and tracked on the right. The 3-Star Time Trial puts you on level 10 with an empty board and asks for all ${copies5} copies of a 5-cost; expect around 100 rolls. For a scored challenge with a fixed budget, try the ${play('100-gold-challenge', '100 Gold Challenge')}.</p>
           <p>Planning a real rolldown? The ${climb('roll-simulator', '/en/tools/tft-rolldown-calculator', 'TFT Rolldown Calculator on TFTClimb')} shows your chances for any champion, level and gold amount.</p>`],
       ],
       faq: [
-        ['Does the TFT Roll Simulator use real shop odds?', `Yes. Shop odds and copies per champion come from the ${set} data on TFTClimb.`],
-        ['Is it exactly like the game?', 'No. Opponents don’t roll during the round, and there are no items or augments. Gold is unlimited, so only your time counts.'],
-        ['What are the controls?', 'D rerolls, 1 to 5 buy a champion and E sells the unit under your cursor. You can drag units between board and bench.'],
+        ['Does the TFT Rolldown Simulator use real shop odds?', `Yes. Shop odds, copies per champion and XP come from the ${set} data on TFTClimb.`],
+        ['Is it exactly like the game?', 'No. Opponents don’t roll during the round, and there are no items, augments or interest.'],
+        ['What are the controls?', 'D rerolls, F buys XP, 1 to 5 buy a champion and E sells the unit under your cursor. You can drag units between board and bench.'],
+        FREE,
+      ],
+    },
+    '100-gold-challenge': {
+      title: 'TFT 100 Gold Challenge: One Comp, One Rolldown',
+      alt: 'TFT 100 Gold Challenge: roll down for a tier list comp with 100 gold',
+      intro: `<p>The TFT 100 Gold Challenge gives you a comp from the TFTClimb tier list, 100 gold and the level that comp usually rolls on. One rolldown decides your score: how many of its units can you take to two or three stars, and how much gold do you keep?</p>`,
+      sections: [
+        ['How scoring works', `<p>Each unit of the comp scores by its best star level: 10 points for one star, 40 for two and 150 for three. The carry counts double, and every gold you have left at the end adds one point. Buying XP raises your board size and changes the shop odds, so leveling can pay off – or cost you the gold you needed for upgrades.</p>`],
+        ['Learn the comps', `<p>Every comp comes straight from the ${climb('100-gold-challenge', '/en/tier-list', 'TFT tier list on TFTClimb')}, from fast 8 boards to 1-cost rerolls. After the round you can open the full comp guide with items and augments. Want to practice without a score? Use Training, or the free mode of the ${play('roll-simulator', 'Rolldown Simulator')}.</p>`],
+      ],
+      faq: [
+        ['Which level do I roll on?', 'The usual rolldown level of the comp: 5 for 1-cost reroll, 6 for 2-cost, 7 for 3-cost, 8 for fast 8 and 9 for fast 9.'],
+        ['Do positions or items matter?', 'No. Only star levels and leftover gold count.'],
         FREE,
       ],
     },

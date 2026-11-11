@@ -13,7 +13,9 @@
     { "source": "/ueber-tft-arcade", "destination": "/about", "permanent": true },
     { "source": "/impressum", "destination": "/legal-notice", "permanent": true },
     { "source": "/datenschutz", "destination": "/privacy", "permanent": true },
-    { "source": "/challenges/tft-3-star-rush", "destination": "/simulators/tft-roll-simulator", "permanent": true }
+    { "source": "/challenges/tft-3-star-rush", "destination": "/simulators/tft-rolldown-simulator", "permanent": true },
+    { "source": "/simulators/tft-roll-simulator", "destination": "/simulators/tft-rolldown-simulator", "permanent": true },
+    { "source": "/simulatoren/tft-roll-simulator", "destination": "/simulators/tft-rolldown-simulator", "permanent": true }
   ],
   "headers": [
     {

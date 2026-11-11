@@ -43,11 +43,13 @@ const VISUAL = {
   'cost-quiz': () => `<div class="stack"><div class="pic" style="--k:${costColor[3]}"><img src="${file(champs.champions.find(c => c.cost === 4).img)}"></div><div class="coins">${[1, 2, 3, 4, 5].map(n => coin(n)).join('')}</div></div>`,
   'item-quiz': () => { const [a, b] = items.components; return `<div class="recipe"><img class="ic" src="${file(a.img)}"><b>+</b><img class="ic" src="${file(b.img)}"><b>=</b><span class="ic q">?</span></div>`; },
   'trait-quiz': () => `<div class="hexes traits">${TRAITS.map(t => `<span class="thex"><span><img src="${file(t.icon)}"></span></span>`).join('')}</div>`,
+  '100-gold-challenge': () => `<div class="stack"><span class="coin big" style="--k:#ffbf3a;--s:210px">100</span><div class="coins">${[1, 2, 3, 4, 5].map(n => coin(n, 70)).join('')}</div></div>`,
   'shop-odds-quiz': () => `<div class="stack"><div class="bars">${[[18, 1], [32, 2], [56, 3], [78, 4], [42, 5]].map(([h, k]) => `<i style="height:${h * 3}px;--k:${costColor[k - 1]}"></i>`).join('')}</div><div class="coins">${[1, 2, 3, 4, 5].map(n => coin(n)).join('')}</div></div>`,
 };
 
 const GAMES = [
-  { id: 'roll-simulator', slug: 'tft-roll-simulator', a: 'TFT Roll', b: 'Simulator', sub: 'Three stars on a 5-cost', line: 'Hex board, bench and real shop odds' },
+  { id: 'roll-simulator', slug: 'tft-rolldown-simulator', a: 'TFT Rolldown', b: 'Simulator', sub: 'Practice your rolldowns', line: 'Hex board, bench and real shop odds' },
+  { id: '100-gold-challenge', slug: 'tft-100-gold-challenge', a: 'TFT 100 Gold', b: 'Challenge', sub: 'One comp. One rolldown.', line: 'Comps from the TFTClimb tier list' },
   { id: 'champion-quiz', slug: 'tft-champion-quiz', a: 'TFT Champion', b: 'Quiz', sub: 'Who is this champ?', line: 'Six clues and a Daily Puzzle' },
   { id: 'shop-memory', slug: 'tft-shop-memory', a: 'TFT Shop', b: 'Memory', sub: 'Remember the shop', line: 'Quick look. Flip. Rebuild it.' },
   { id: 'comp-memory', slug: 'tft-comp-memory', a: 'TFT Comp', b: 'Memory', sub: 'Remember the board', line: 'Study it. Memorize it. Rebuild it.' },
@@ -81,6 +83,7 @@ h1 span { display: block; color: #ffc94a; }
 .illu img { width: 100%; height: 100%; object-fit: cover; }
 .coin { display: inline-grid; place-items: center; width: var(--s); height: var(--s); border-radius: 50%; font: 400 calc(var(--s) * .55)/1 'Lilita One'; color: #1a0b00; background: radial-gradient(circle at 35% 30%, #fff, var(--k) 62%); box-shadow: 0 5px 0 rgba(0, 0, 0, .45), inset 0 0 0 3px rgba(255, 255, 255, .35); }
 .coins { display: flex; gap: 6px; }
+.coin.big { font-size: 86px; }
 .stack { display: grid; gap: 22px; justify-items: center; transform: translateY(-34px); }
 .pic { width: 470px; aspect-ratio: 2 / 1; overflow: hidden; border-radius: 16px; border: 4px solid var(--k); box-shadow: 0 0 30px -4px var(--k); }
 .pic img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
