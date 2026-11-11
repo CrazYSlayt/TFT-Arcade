@@ -10,6 +10,7 @@
 // featured: auf der Startseite unter „All games“
 // duration: ungefähre Rundendauer für die Karte
 // record:   persönlicher Rekord – type 'zeit' (Sekunden) | 'punkte' | 'anzahl'; lowerIsBetter für Bestzeiten; null = kein Rekord
+//           min / max = erlaubter Wertebereich für die öffentliche Bestenliste (api/leaderboard.js lehnt alles außerhalb ab)
 // aside:    Seitenbereich neben der Spielfläche – 'bestenliste' | 'info' (Hinweise) | 'verlauf' (zuletzt gezogen)
 // modes:    Spielmodi; jeder Modus hat eine eigene Bestenliste; ranked: false = zählt nicht für Rekord und Bestenliste
 // demo:     true = Hinweis „Vereinfachte Demo“ (keine exakte Simulation der TFT-Regeln)
@@ -36,7 +37,7 @@ module.exports = [
     status: 'live',
     art: 'shop',
     featured: true,
-    record: { label: 'Best time', type: 'zeit', lowerIsBetter: true },
+    record: { label: 'Best time', type: 'zeit', lowerIsBetter: true, min: 5, max: 3600 },
     aside: 'bestenliste',
     modes: [
       { id: 'rush', label: 'Time Trial', icon: 'clock' },
@@ -105,7 +106,7 @@ module.exports = [
     status: 'live',
     art: 'memory',
     featured: true,
-    record: { label: 'High score', type: 'punkte', lowerIsBetter: false },
+    record: { label: 'High score', type: 'punkte', lowerIsBetter: false, max: 1300 },
     aside: 'bestenliste',
     modes: [{ id: 'training', label: 'Training', icon: 'dumbbell', ranked: false }, { id: 'ranked', label: 'Ranked', icon: 'trophy' }],
     scripts: ['/assets/js/spiele/daten/champions.js', '/assets/js/spiele/shop-memory.js'],
@@ -143,7 +144,7 @@ module.exports = [
     status: 'live',
     art: 'memory',
     featured: true,
-    record: { label: 'High score', type: 'punkte', lowerIsBetter: false },
+    record: { label: 'High score', type: 'punkte', lowerIsBetter: false, max: 920 },
     aside: 'bestenliste',
     modes: [{ id: 'training', label: 'Training', icon: 'dumbbell', ranked: false }, { id: 'ranked', label: 'Ranked', icon: 'trophy' }],
     scripts: ['/assets/js/spiele/daten/champions.js', '/assets/js/spiele/comp-memory.js'],
@@ -196,7 +197,7 @@ module.exports = [
     status: 'live',
     art: 'coin',
     featured: true,
-    record: { label: 'High score', type: 'punkte', lowerIsBetter: false },
+    record: { label: 'High score', type: 'punkte', lowerIsBetter: false, max: 1500 },
     aside: 'bestenliste',
     modes: [{ id: 'classic', label: '10 Champions' }],
     scripts: ['/assets/js/spiele/daten/champions.js', '/assets/js/spiele/cost-quiz.js'],
@@ -235,7 +236,7 @@ module.exports = [
     status: 'live',
     art: 'question',
     featured: true,
-    record: { label: 'High score', type: 'punkte', lowerIsBetter: false },
+    record: { label: 'High score', type: 'punkte', lowerIsBetter: false, max: 3000 },
     aside: 'bestenliste',
     modes: [{ id: 'classic', label: '10 Rounds', icon: 'trophy' }, { id: 'daily', label: 'Daily Puzzle', icon: 'calendar', ranked: false }],
     scripts: ['/assets/js/spiele/daten/champions.js', '/assets/js/spiele/champion-quiz.js'],
@@ -273,7 +274,7 @@ module.exports = [
     status: 'live',
     art: 'sword',
     featured: true,
-    record: { label: 'High score', type: 'punkte', lowerIsBetter: false },
+    record: { label: 'High score', type: 'punkte', lowerIsBetter: false, max: 1500 },
     aside: 'bestenliste',
     modes: [{ id: 'classic', label: '10 Questions' }],
     scripts: ['/assets/js/spiele/daten/items.js', '/assets/js/spiele/quiz.js', '/assets/js/spiele/item-quiz.js'],
@@ -310,7 +311,7 @@ module.exports = [
     duration: 'approx. 1 min',
     status: 'live',
     art: 'stars',
-    record: { label: 'High score', type: 'punkte', lowerIsBetter: false },
+    record: { label: 'High score', type: 'punkte', lowerIsBetter: false, max: 1500 },
     aside: 'bestenliste',
     modes: [{ id: 'classic', label: '10 Questions' }],
     scripts: ['/assets/js/spiele/daten/champions.js', '/assets/js/spiele/quiz.js', '/assets/js/spiele/trait-quiz.js'],
@@ -347,7 +348,7 @@ module.exports = [
     duration: 'approx. 1 min',
     status: 'live',
     art: 'coin',
-    record: { label: 'High score', type: 'punkte', lowerIsBetter: false },
+    record: { label: 'High score', type: 'punkte', lowerIsBetter: false, max: 1500 },
     aside: 'bestenliste',
     modes: [{ id: 'classic', label: '10 Questions' }],
     scripts: ['/assets/js/spiele/daten/shop.js', '/assets/js/spiele/quiz.js', '/assets/js/spiele/shop-odds-quiz.js'],

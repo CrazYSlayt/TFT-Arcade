@@ -2,7 +2,7 @@
 const site = require('../config/site');
 const { esc } = require('./helpers');
 const { art, ui } = require('./icons');
-const { gameCard, booth, crumbs, daily, aside, badge, boardAttrs, boardJson, boardRows, rankedModes, avatarPicker } = require('./components');
+const { gameCard, booth, crumbs, daily, aside, badge, boardAttrs, boardRows, rankedModes, avatarPicker, HOF_ROWS } = require('./components');
 
 const HOME = { label: 'Arcade', href: '/' };
 const AUTHOR = { name: 'Claudio “CrazYSlayt”', url: 'https://www.tftclimb.com/en/about/crazyslayt' };
@@ -317,19 +317,18 @@ function bestenliste(ctx) {
     const tabs = modes.length > 1
       ? `<div class="cab-tabs" role="group" aria-label="Mode">${modes.map((m, i) => `<button class="cab-tab" type="button" data-board-tab="${m.id}" aria-pressed="${i ? 'false' : 'true'}">${esc(m.label)}</button>`).join('')}</div>`
       : `<p class="cab-mode">${esc(modes[0].label)}</p>`;
-    return `<section class="cabinet c-${color}" id="${g.id}" aria-labelledby="hof-${g.id}" ${boardAttrs(g)}>
+    return `<section class="cabinet c-${color}" id="${g.id}" aria-labelledby="hof-${g.id}" ${boardAttrs(g)} data-show="${HOF_ROWS}">
   <div class="cab-marquee">
     <span class="cab-art">${art(g.art)}</span>
     <div><p class="cab-cat">${esc(c.name)}</p><h2 id="hof-${g.id}">${esc(g.title)}</h2></div>
-    <span class="badge badge-demo">Demo</span>
   </div>
   <div class="cab-screen">
     ${tabs}
     <table class="hs-table">
       <thead><tr><th scope="col">Rank</th><th scope="col">Name</th><th scope="col">${g.record.type === 'zeit' ? 'Time' : 'Points'}</th></tr></thead>
-      ${modes.map((m, i) => `<tbody data-board="${m.id}"${i ? ' hidden' : ''}>${boardRows(g, ctx, m.id, 'tr')}</tbody>`).join('')}
+      ${modes.map((m, i) => `<tbody data-board="${m.id}"${i ? ' hidden' : ''}>${boardRows('tr')}</tbody>`).join('')}
     </table>
-    ${boardJson(g, ctx)}
+    <button class="cab-more" type="button" data-board-more hidden>Show all 100</button>
   </div>
   <div class="cab-foot">
     <span class="cab-record">${ui('trophy')}Your record: <b data-hof-record="${g.id}" data-type="${g.record.type}" data-lower="${g.record.lowerIsBetter ? 1 : 0}">–</b></span>
@@ -349,7 +348,8 @@ function bestenliste(ctx) {
       <p class="lead">Just like the old arcade cabinets: play a round, crack the top 10 and put your name on the board. These are the best runs across all games.</p>
     </div>
   </header>
-  <p class="notice">${ui('info')}Preview: the lists show sample data. Your own entries are only saved in your browser for now. Public leaderboards are on the way.</p>
+  <p class="notice">${ui('info')}The top 100 of every game and mode. Make the list after a round and you can add your name – it’s public for everyone to see.</p>
+  <p class="notice board-import" data-board-import hidden></p>
   <div class="hof-grid">${cabinets}</div>
 </div>`;
   return {
@@ -433,7 +433,7 @@ function infoPages() {
       desc: 'Privacy at TFT Arcade: What data is processed when you visit, what stays in your browser and what your rights are.',
       h1: 'Privacy Policy', kw: 'Privacy',
     }, 'Privacy Policy', `
-      <p class="lead">In short: We use Google Analytics to measure how many visitors come and which pages they use. Google sets cookies for this as soon as you open the page. There are no ads. You can object to the measurement at any time; section 3 explains how. Records and settings stay in your browser.</p>
+      <p class="lead">In short: We use Google Analytics to measure how many visitors come and which pages they use. Google sets cookies for this as soon as you open the page. There are no ads. You can object to the measurement at any time; section 3 explains how. Leaderboard entries you submit are public (section 6). Records and settings stay in your browser.</p>
       <h2>1. Controller</h2>
       <p>${owner()}<br>Email: ${mail()}</p>
       <h2>2. Hosting and server log files</h2>
@@ -449,12 +449,14 @@ function infoPages() {
       <h2>4. Fonts and images</h2>
       <p>Fonts and all images, including the champion images from Riot Games’ game data, are stored on our own server. No connection to Google Fonts or Riot Games is made for them.</p>
       <h2>5. Storage in your browser</h2>
-      <p>Personal records, your leaderboard entries including the name you chose, the rules you drew most recently, your settings and whether you accepted or declined Google Analytics are stored only locally in your browser (Local Storage). This data stays on your device and is not transferred to us. The storage is required for the feature you use (§ 25 (2) no. 2 TDDDG). The Google Analytics cookies are described in section 3. You can delete all of this at any time in your browser settings.</p>
-      <h2>6. Sharing results</h2>
+      <p>Personal records, the name and avatar you last used, which leaderboard entries are yours, the rules you drew most recently, your settings and whether you accepted or declined Google Analytics are stored only locally in your browser (Local Storage). This data stays on your device and is not transferred to us. The storage is required for the feature you use (§ 25 (2) no. 2 TDDDG). The Google Analytics cookies are described in section 3. You can delete all of this at any time in your browser settings.</p>
+      <h2>6. Public leaderboards</h2>
+      <p>If your result makes the top 100 and you choose to enter it, we publish the name you enter, the avatar you pick, your score and the date on the leaderboard of that game. Everyone can see these entries. We store them with Upstash Inc. in the EU (Frankfurt), the provider of our database, as our processor. Only the best 100 entries per game and mode are kept; entries that drop out of the top 100 are deleted. To limit abuse, our server briefly processes your IP address and stores only a hash of it for 60 seconds. The legal basis is your consent when you submit an entry (Art. 6 (1) (a) GDPR). You can withdraw it at any time: write to us with the name and game, and we will delete the entry.</p>
+      <h2>7. Sharing results</h2>
       <p>“Share result” copies a short text with a link to your clipboard. No data is sent to us in the process.</p>
-      <h2>7. Contact by email</h2>
+      <h2>8. Contact by email</h2>
       <p>If you send us an email, we process your details only to answer your message (Art. 6 (1) (f) GDPR). The mailbox is hosted by ALL-INKL.COM – Neue Medien Münnich, Hauptstraße 68, 02742 Friedersdorf, Germany.</p>
-      <h2>8. Your rights</h2>
+      <h2>9. Your rights</h2>
       <p>You have the right to access, rectification, erasure, restriction of processing, data portability and objection. You can also lodge a complaint with a data protection supervisory authority, for example the Hessian Commissioner for Data Protection and Freedom of Information.</p>
       <p class="muted">Last updated: November 6, 2026</p>`),
   ];

@@ -38,7 +38,7 @@ Es gibt keine Abhängigkeiten, nur Node.js (ab Version 20).
 | `src/config/site.js` | Name, Domain, Navigation, Footer-Links, Kontaktadresse |
 | `src/config/categories.js` | Die vier Bereiche (Simulators, Challenges, Quizzes, Party) inkl. SEO-Texte |
 | `src/config/games.js` | Alle Attraktionen: Texte, Regeln, Status, Rekord-Art, Modi, SEO-Texte |
-| `src/config/demo-bestenlisten.js` | Beispieldaten der Bestenlisten (als „Demo“ markiert) |
+| `api/leaderboard.js` | Öffentliche Bestenlisten (Vercel-Funktion, Upstash Redis, Top 100 je Spiel und Modus, Grenzen aus `record.min/max`) |
 | `src/config/tageschallenges.js` | Vorrat der Tageschallenges (jeden Tag die nächste) |
 | `src/templates/` | Darstellung: Layout, Bausteine (Buden, Spielkarten, Bestenliste …), Seiten, Symbole |
 | `public/assets/` | CSS, JavaScript, Schriften, Bilder – wird 1:1 ausgeliefert |

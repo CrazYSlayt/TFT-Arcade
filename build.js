@@ -11,7 +11,6 @@ const PUB = path.join(ROOT, 'public');
 const site = require('./src/config/site');
 const categories = require('./src/config/categories');
 const games = require('./src/config/games');
-const boards = require('./src/config/demo-bestenlisten');
 const dailies = require('./src/config/tageschallenges');
 const artikel = require('./src/config/artikel');
 const { layout } = require('./src/templates/layout');
@@ -85,7 +84,7 @@ function build() {
   // Dateiversion im Link (?v=…): nach jeder Änderung lädt der Browser CSS/JS neu, sonst darf er sie lange cachen
   const hashes = {};
   const ctx = {
-    site, categories, games, boards, dailies,
+    site, categories, games, dailies,
     // Shop-Regeln des Sets (daten/shop.js, erzeugt mit tools/champions.js) – für die Odds-Tabelle auf der Spielseite
     shop: browserData('assets/js/spiele/daten/shop.js', 'TFT_ARCADE_SHOP'),
     champions: browserData('assets/js/spiele/daten/champions.js', 'TFT_ARCADE_CHAMPIONS'),

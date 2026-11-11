@@ -42,6 +42,12 @@ function resolve(urlPath) {
 
 http.createServer((req, res) => {
   const url = new URL(req.url, 'http://localhost');
+  // Vercel-Funktionen (api/<name>.js) wie online; ohne Zugangsdaten (KV_REST_API_URL/_TOKEN) antworten sie mit „storage not configured“
+  const fn = url.pathname.match(/^\/api\/([a-z-]+)$/);
+  if (fn && fs.existsSync(path.join(ROOT, 'api', fn[1] + '.js'))) {
+    req.query = Object.fromEntries(url.searchParams);
+    return require(path.join(ROOT, 'api', fn[1] + '.js'))(req, res);
+  }
   // Wie Vercel (cleanUrls, ohne Schrägstrich am Ende): /seite.html → /seite, /seite/ → /seite
   if (/\.html$/.test(url.pathname) || (url.pathname.length > 1 && url.pathname.endsWith('/'))) {
     const to = url.pathname.replace(/(\/index)?\.html$/, '').replace(/\/+$/, '') || '/';

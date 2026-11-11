@@ -124,35 +124,51 @@
     if (fig) fig.src = avatarSrc(myAvatar());
   }
 
-  // ───────── Bestenlisten: Beispieldaten + eigene Namenseinträge ─────────
-  // Einträge: { [spiel]: { [modus]: [{ id, name, value, date }] } } – vorerst nur im Browser.
-  // Für öffentliche Listen hier später ein Backend anbinden (laden + eintragen), die Darstellung bleibt gleich.
+  // ───────── Öffentliche Bestenlisten (api/leaderboard.js, Top 100 je Spiel und Modus) ─────────
+  // boards = { [spiel]: { [modus]: [{ id, name, avatar, value, date }] } }; eigene Einträge merkt sich der Browser über ihre id (meine_eintraege).
+  // Ältere Einträge, die nur im Browser lagen (eintraege), bietet die Seite einmal zum Übertragen an.
+  const API = '/api/leaderboard';
+  let boards = {}, boardState = 'loading';
+  const myIds = () => new Set(store.get('meine_eintraege', []));
+  const remember = id => store.set('meine_eintraege', [...myIds(), id].slice(-300));
   const entries = {
-    all() { return store.get('eintraege', {}); },
-    list(game, mode) { const a = entries.all(); return (a[game] && a[game][mode]) || []; },
-    add(game, mode, name, value, avatar) {
-      const a = entries.all(), e = { id: Date.now().toString(36), name, value, date: Date.now(), avatar };
-      a[game] = a[game] || {};
-      (a[game][mode] = a[game][mode] || []).push(e);
-      store.set('eintraege', a);
-      return e;
+    // nur noch für die einmalige Übertragung alter Einträge aus dem Browser
+    local() { return store.get('eintraege', {}); },
+    async load(game) {
+      if (location.protocol === 'file:') { boardState = 'offline'; return; }
+      try {
+        const r = await fetch(API + (game ? '?game=' + encodeURIComponent(game) : ''));
+        const d = await r.json();
+        if (!r.ok || !d.boards) throw new Error(d.error || r.status);
+        boards = { ...boards, ...d.boards };
+        boardState = 'ok';
+      } catch (e) { boardState = 'offline'; }
+    },
+    async submit(list) {
+      const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ entries: list }) });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(d.error || 'storage error');
+      return d.results || [];
+    },
+    // neuen Eintrag sofort selbst einsortieren (die Liste vom Server ist bis zu 20 s zwischengespeichert)
+    insert(game, mode, e) {
+      const b = boards[game] = boards[game] || {};
+      b[mode] = (b[mode] || []).filter(x => x.id !== e.id).concat(e);
     },
   };
   let lastEntryId = null;
 
   // sortierte Liste eines Modus (Gleichstand: wer zuerst da war, bleibt vorn – wie am Automaten)
   function boardRowsFor(root, mode) {
-    let demo = [];
-    try { demo = JSON.parse($('[data-board-data]', root).textContent)[mode] || []; } catch (e) { demo = []; }
-    const lower = root.dataset.lower === '1';
-    const rows = demo.map(([name, value, avatar]) => ({ name, value, avatar }))
-      .concat(entries.list(root.dataset.boardRoot, mode).map(e => ({ ...e, mine: true })));
+    const lower = root.dataset.lower === '1', mine = myIds();
+    const rows = ((boards[root.dataset.boardRoot] || {})[mode] || []).map(e => ({ ...e, mine: mine.has(e.id) }));
     rows.sort((a, b) => (lower ? a.value - b.value : b.value - a.value) || (a.date || 0) - (b.date || 0));
-    return rows.slice(0, Number(root.dataset.size) || 10);
+    return rows.slice(0, Number(root.dataset.size) || 100);
   }
   // Platz, den ein neuer Wert bekäme – null, wenn er nicht in die Liste passt
   function rankFor(root, mode, value) {
-    const lower = root.dataset.lower === '1', size = Number(root.dataset.size) || 10;
+    if (boardState !== 'ok') return null;
+    const lower = root.dataset.lower === '1', size = Number(root.dataset.size) || 100;
     const rank = boardRowsFor(root, mode).filter(r => lower ? r.value <= value : r.value >= value).length + 1;
     return rank <= size ? rank : null;
   }
@@ -180,11 +196,13 @@
     $$('[data-board]', root).forEach(list => {
       list.hidden = list.dataset.board !== mode;
       if (list.hidden) return;
-      const tr = list.tagName === 'TBODY', all = boardRowsFor(root, mode);
-      // Seitenbereich: nur die ersten Plätze – der eigene neue Eintrag bleibt sichtbar, auch wenn er weiter unten steht
-      const rows = all.map((r, i) => ({ ...r, place: i + 1 })).filter((r, i) => !show || i < show || r.id === lastEntryId);
-      list.innerHTML = rows.length ? '' : (tr ? '<tr class="empty"><td colspan="3">No entries yet.</td></tr>'
-        : '<li class="empty">No entries yet.</li>');
+      const tr = list.tagName === 'TBODY', all = boardRowsFor(root, mode), open = root.dataset.open === '1';
+      // nur die ersten Plätze (Seitenbereich 5, Hall of Fame 10 bzw. alle nach „Show all 100“) – der eigene neue Eintrag bleibt sichtbar
+      const rows = all.map((r, i) => ({ ...r, place: i + 1 })).filter((r, i) => !show || open || i < show || r.id === lastEntryId);
+      const more = $('[data-board-more]', root);
+      if (more) more.hidden = open || all.length <= show;
+      const empty = boardState === 'loading' ? 'Loading the leaderboard …' : boardState === 'offline' ? 'The leaderboard can’t be reached right now.' : 'No entries yet – be the first!';
+      list.innerHTML = rows.length ? '' : (tr ? `<tr class="empty"><td colspan="3">${empty}</td></tr>` : `<li class="empty">${empty}</li>`);
       rows.forEach(r => {
         const row = document.createElement(tr ? 'tr' : 'li');
         if (r.mine) row.className = 'is-you' + (r.id === lastEntryId ? ' is-new' : '');
@@ -210,6 +228,11 @@
     $$('[data-board-tab]').forEach(b => b.addEventListener('click', () => {
       const root = b.closest('[data-board-root]');
       root.dataset.mode = b.dataset.boardTab;
+      renderBoard(root);
+    }));
+    $$('[data-board-more]').forEach(b => b.addEventListener('click', () => {
+      const root = b.closest('[data-board-root]');
+      root.dataset.open = '1';
       renderBoard(root);
     }));
     $$('[data-hof-record]').forEach(el => {
@@ -417,7 +440,8 @@
     // Avatar: der zuletzt gewählte ist vorausgewählt
     const pick = $(`input[name="avatar"][value="${CSS.escape(myAvatar())}"]`, form);
     if (pick) pick.checked = true;
-    form.onsubmit = ev => {
+    const btn = $('button[type="submit"]', form);
+    form.onsubmit = async ev => {
       ev.preventDefault();
       const name = input.value.trim().replace(/\s+/g, ' ');
       if (!NAME_OK.test(name)) {
@@ -426,18 +450,30 @@
         return;
       }
       const chosen = $('input[name="avatar"]:checked', form), avatar = chosen ? chosen.value : myAvatar();
+      const game = root.dataset.boardRoot;
       store.set('name', name);
       store.set('avatar', avatar);
-      const e = entries.add(root.dataset.boardRoot, mode, name, value, avatar);
-      renderRecordBox();
-      lastEntryId = e.id;
-      renderBoards();
-      const place = boardRowsFor(root, mode).findIndex(r => r.id === e.id) + 1;
-      $('[data-hs-place]', done).textContent = place;
-      $('[data-hs-link]', done).setAttribute('href', pageLink('/leaderboard') + '#' + root.dataset.boardRoot);
-      form.hidden = true; form.onsubmit = null;
-      done.hidden = false;
-      toast(`${name} is now rank ${place}!`);
+      btn.disabled = true;
+      try {
+        const [r] = await entries.submit([{ game, mode, name, avatar, value }]);
+        if (!r || r.error) throw new Error(r ? r.error : 'storage error');
+        if (r.rank == null) throw new Error('not in the top 100 anymore');
+        remember(r.id);
+        entries.insert(game, mode, { id: r.id, name, avatar, value, date: r.date });
+        lastEntryId = r.id;
+        renderRecordBox();
+        renderBoards();
+        const place = boardRowsFor(root, mode).findIndex(x => x.id === r.id) + 1 || r.rank;
+        $('[data-hs-place]', done).textContent = place;
+        $('[data-hs-link]', done).setAttribute('href', pageLink('/leaderboard') + '#' + game);
+        form.hidden = true; form.onsubmit = null;
+        done.hidden = false;
+        toast(`${name} is now rank ${place}!`);
+      } catch (e) {
+        const msg = { 'name not allowed': 'Please choose a different name.', 'too many requests': 'Too many entries – try again in a minute.' }[e.message] || 'Couldn’t save your entry – please try again.';
+        input.setCustomValidity(msg);
+        input.reportValidity();
+      } finally { btn.disabled = false; }
     };
     form.hidden = false;
     return input;
@@ -689,9 +725,45 @@
   }
 
   // ───────── Start ─────────
+  // Bestenlisten laden (Spielseite: nur dieses Spiel, Hall of Fame: alle) und danach neu zeichnen
+  async function initBoards() {
+    const roots = $$('[data-board-root]');
+    if (!roots.length) return;
+    renderBoards();
+    await entries.load(roots.length === 1 ? roots[0].dataset.boardRoot : null);
+    renderBoards(); renderRecordBox();
+    offerImport();
+  }
+  // Einträge, die früher nur im Browser gespeichert wurden: einmal anbieten, sie öffentlich einzutragen
+  function offerImport() {
+    const box = $('[data-board-import]'), local = entries.local();
+    if (!box || boardState !== 'ok' || store.get('eintraege_uebertragen', false)) return;
+    const page = $$('[data-board-root]').map(r => r.dataset.boardRoot);
+    const list = Object.entries(local).filter(([g]) => page.includes(g))
+      .flatMap(([game, modes]) => Object.entries(modes).flatMap(([mode, arr]) => (arr || []).map(e => ({ game, mode, name: e.name, avatar: e.avatar, value: e.value }))));
+    if (!list.length) return;
+    box.innerHTML = `<span>You have ${list.length} ${list.length === 1 ? 'score' : 'scores'} saved only in this browser.</span> <button class="btn btn-sm btn-gold" type="button">Add to the public leaderboard</button>`;
+    box.hidden = false;
+    $('button', box).onclick = async () => {
+      try {
+        const res = await entries.submit(list.slice(0, 30));
+        res.forEach((r, i) => { if (r.id && r.rank != null) { remember(r.id); entries.insert(list[i].game, list[i].mode, { id: r.id, name: list[i].name, avatar: list[i].avatar, value: list[i].value, date: r.date }); } });
+        const ok = res.filter(r => r.id && r.rank != null).length;
+        // übertragene (und abgelehnte) Einträge nicht noch einmal anbieten
+        const rest = { ...local };
+        list.slice(0, 30).forEach(e => { if (rest[e.game]) delete rest[e.game][e.mode]; });
+        store.set('eintraege', rest);
+        if (!Object.values(rest).some(m => Object.keys(m).length)) store.set('eintraege_uebertragen', true);
+        box.hidden = true;
+        renderBoards(); renderRecordBox();
+        toast(ok ? `${ok} ${ok === 1 ? 'score' : 'scores'} added to the leaderboard!` : 'None of these scores made the top 100.');
+      } catch (e) { toast(e.message === 'too many requests' ? 'Too many entries – try again in a minute.' : 'Couldn’t save – please try again.'); }
+    };
+  }
+
   window.Arcade = { store, records, entries, fmt, share, copy, toast, finishRound, history: history_, currentMode, isRanked, gameId, esc, shuffle, asset, typing, sound, today };
   fillCardRecords();
-  renderBoards();
+  initBoards();
   initHallOfFame();
   initGamePage();
   initDaily();

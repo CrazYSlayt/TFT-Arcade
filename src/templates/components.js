@@ -86,25 +86,19 @@ function daily(ctx, { level = 2, compact = false } = {}) {
 // ───────── Seitenbereich neben der Spielfläche ─────────
 
 // ───────── Bestenliste (Seitenbereich der Spielseite und Automaten der Hall of Fame) ─────────
-// Gerendert werden die Beispieldaten; arcade.js mischt beim Laden die eigenen Einträge aus dem Browser dazu (renderBoard).
+// Die Einträge kommen beim Laden von /api/leaderboard (api/leaderboard.js, Top 100 je Spiel und Modus), arcade.js zeichnet sie (renderBoard).
 // Modi mit ranked: false (z. B. Training) haben keine Bestenliste.
-const BOARD_SIZE = 10, SIDE_ROWS = 5;
+const BOARD_SIZE = 100, SIDE_ROWS = 5, HOF_ROWS = 10;
 const rankedModes = g => g.modes.filter(m => m.ranked !== false);
 const boardAttrs = g => `data-board-root="${g.id}" data-type="${g.record.type}" data-lower="${g.record.lowerIsBetter ? 1 : 0}" data-mode="${rankedModes(g)[0].id}" data-size="${BOARD_SIZE}" data-avatars="${AVATARE.map(a => a.id).join(',')}"`;
-const boardJson = (g, ctx) => `<script type="application/json" data-board-data>${json(ctx.boards[g.id] || {})}</script>`;
 
 // Avatar: runder Charakter (src/config/avatare.js). Einträge ohne gewählten Avatar (Beispieldaten) bekommen einen festen
 // über ihren Namen – gleiche Regel wie avatarFor() in arcade.js
 const avatarOf = name => AVATARE[[...name].reduce((h, ch) => (h * 31 + ch.codePointAt(0)) >>> 0, 7) % AVATARE.length].id;
 const avatarImg = (id, alt = '') => `<span class="avatar av-${id}"><img src="/assets/img/avatare/${id}.webp" alt="${esc(alt)}" width="256" height="256" loading="lazy" decoding="async"></span>`;
 
-// Zeilen eines Modus: kind 'li' (Liste im Seitenbereich) oder 'tr' (Tabelle der Hall of Fame), beide mit Avatar
-function boardRows(g, ctx, mode, kind, max = BOARD_SIZE) {
-  const rows = ((ctx.boards[g.id] || {})[mode] || []).slice(0, max);
-  if (!rows.length) return kind === 'tr' ? '<tr class="empty"><td colspan="3">No entries yet.</td></tr>' : '<li class="empty">No entries yet.</li>';
-  if (kind === 'tr') return rows.map(([name, v, av], r) => `<tr data-v="${v}"><td class="rank">${r + 1}</td><td class="who">${avatarImg(av || avatarOf(name))}${esc(name)}</td><td class="val">${fmtValue(v, g.record.type)}</td></tr>`).join('');
-  return rows.map(([name, v, av], r) => `<li data-v="${v}"><span class="rank">${r + 1}</span>${avatarImg(av || avatarOf(name))}<span class="who">${esc(name)}</span><span class="val">${g.record.type === 'punkte' ? v.toLocaleString('en-US') : fmtValue(v, g.record.type)}</span></li>`).join('');
-}
+// Platzhalter, bis arcade.js die Liste geladen hat: kind 'li' (Seitenbereich) oder 'tr' (Tabelle der Hall of Fame)
+const boardRows = kind => kind === 'tr' ? '<tr class="empty"><td colspan="3">Loading the leaderboard …</td></tr>' : '<li class="empty">Loading the leaderboard …</li>';
 
 // Avatar-Auswahl beim Highscore-Eintrag (Radio-Felder; arcade.js merkt sich die Wahl)
 const avatarPicker = () => `<fieldset class="hs-avatars">
@@ -113,11 +107,11 @@ const avatarPicker = () => `<fieldset class="hs-avatars">
   </fieldset>`;
 // Bestenliste der Spielseite (die ersten Plätze), darunter der eigene Rekord
 function leaderboard(g, ctx) {
-  const lists = rankedModes(g).map((m, i) => `<ol class="board-list" data-board="${m.id}"${i ? ' hidden' : ''}>${boardRows(g, ctx, m.id, 'li', SIDE_ROWS)}</ol>`).join('');
+  const lists = rankedModes(g).map((m, i) => `<ol class="board-list" data-board="${m.id}"${i ? ' hidden' : ''}>${boardRows('li')}</ol>`).join('');
   return `<section class="panel board" aria-labelledby="board-h" ${boardAttrs(g)} data-show="${SIDE_ROWS}">
-  <div class="board-head"><h2 id="board-h">${ui('trophy')}Leaderboard</h2><span class="board-demo" title="Preview with made-up names">Sample data</span></div>
+  <div class="board-head"><h2 id="board-h">${ui('trophy')}Leaderboard</h2><span class="board-demo">Top 100</span></div>
   ${lists}
-  ${boardJson(g, ctx)}
+  <p class="board-import" data-board-import hidden></p>
   <div class="board-record" data-record-box="${g.id}" data-type="${g.record.type}" data-lower="${g.record.lowerIsBetter ? 1 : 0}">
     <p class="br-kicker">${ui('crown')}Your record</p>
     <p class="br-value"><b data-record-value>–</b> <span>${g.record.type === 'zeit' ? '' : 'points'}</span></p>
@@ -153,4 +147,4 @@ function aside(g, ctx) {
   return infoPanel(g, ctx);
 }
 
-module.exports = { gameCard, booth, crumbs, daily, aside, badge, boardAttrs, boardJson, boardRows, rankedModes, avatarPicker, STATUS };
+module.exports = { gameCard, booth, crumbs, daily, aside, badge, boardAttrs, boardRows, rankedModes, avatarPicker, STATUS, HOF_ROWS };

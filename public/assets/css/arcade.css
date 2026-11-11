@@ -1317,6 +1317,13 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 .toast .ui { color: var(--teal); }
 
+/* ───────── Öffentliche Bestenliste: Angebot, alte Einträge aus dem Browser zu übertragen · alle 100 Plätze in der Hall of Fame ───────── */
+.board-import { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 10px 0 0; padding: 10px 12px; border-radius: 12px; font-size: .9rem; color: #ffe3a1; background: rgba(255, 201, 74, .1); border: 1px solid rgba(255, 201, 74, .4); }
+.board-import[hidden] { display: none; }
+.cab-more { display: block; margin: 12px auto 0; padding: .5em 1.2em; border-radius: 999px; cursor: pointer; font: 400 .62rem/1.4 var(--f-pixel); text-transform: uppercase; color: var(--muted); background: transparent; border: 1.5px solid rgba(255, 255, 255, .22); }
+.cab-more:hover { color: #fff; border-color: var(--c); }
+.cab-more[hidden] { display: none; }
+
 /* ───────── Links ins TFT-Netzwerk: Zeile auf der Ergebniskarte, Netzwerk-Zeile im Footer (src/config/verlinkung.js) ───────── */
 .result-climb { max-width: 46ch; margin: 0 auto 16px; font-size: .95rem; color: var(--muted); text-align: center; }
 .footer-network { margin-top: 10px !important; font-size: .9rem; }
