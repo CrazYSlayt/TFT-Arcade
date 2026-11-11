@@ -96,7 +96,9 @@
   }
 
   // ───────── Punkte der 100 Gold Challenge ─────────
-  const compPoints = () => comp ? comp.units.reduce((s, id) => s + STAR_POINTS[Math.min(3, bestStar(id))] * (id === comp.carry ? 2 : 1), 0) : 0;
+  // nur Einheiten auf dem Board zählen – wie im Spiel kämpft die Bank nicht mit
+  const boardStar = id => onBoard().filter(u => u.id === id).reduce((s, u) => Math.max(s, u.star), 0);
+  const compPoints = () => comp ? comp.units.reduce((s, id) => s + STAR_POINTS[Math.min(3, boardStar(id))] * (id === comp.carry ? 2 : 1), 0) : 0;
   const score = () => compPoints() + (gold === Infinity ? 0 : gold);
 
   // ───────── Aufbau einer Runde ─────────
@@ -139,7 +141,7 @@
       kicker = `Set ${esc(data.set)} · comps from the TFTClimb tier list`;
       title = ranked() ? '100 gold. One comp.' : 'Pick a comp and roll';
       text = ranked()
-        ? 'You get a random comp from the TFTClimb tier list, 100 gold and the level that comp usually rolls on. Buy, level and sell to hit as many two- and three-star units as you can. Every unused gold counts as a point.'
+        ? 'You get a random comp from the TFTClimb tier list, 100 gold and the level that comp usually rolls on. Buy, level and sell to hit as many two- and three-star units as you can – only units on your board score, and every unused gold counts as a point.'
         : 'Pick any comp from the tier list and practice its rolldown with 100 gold. Nothing here counts for the leaderboard.';
       if (!ranked()) controls = `<label class="rd-pick">Comp <select data-pick-comp>${compOptions(choice.comp || (comps[0] && comps[0].key))}</select></label>`;
     } else {
@@ -298,15 +300,22 @@
     render(false);
   }
 
-  // ───────── Ziehen & Ablegen (Maus und Touch); ein Klick ohne Ziehen wählt aus ─────────
+  // ───────── Ziehen & Ablegen (Maus und Touch) ─────────
+  // Mit der Maus wird nur gezogen – ein Fehlklick wählt nichts aus und markiert keinen Text. Auf dem Handy wählt ein Tippen aus, ein zweites Tippen verschiebt.
   stage.addEventListener('pointerdown', e => {
     const el = e.target.closest('[data-uid]');
     if (!el || state !== 'play' || e.button > 0) return;
-    drag = { uid: Number(el.dataset.uid), x: e.clientX, y: e.clientY, el, moved: false };
+    e.preventDefault();
+    const sel = window.getSelection && window.getSelection();
+    if (sel && sel.rangeCount) sel.removeAllRanges();
+    drag = { uid: Number(el.dataset.uid), x: e.clientX, y: e.clientY, el, moved: false, touch: e.pointerType !== 'mouse' };
   });
+  stage.addEventListener('dragstart', e => { if (state === 'play') e.preventDefault(); });
   document.addEventListener('pointermove', e => {
     mouse.x = e.clientX; mouse.y = e.clientY;
     if (!drag) return;
+    // Maustaste außerhalb des Fensters losgelassen: Ziehen abbrechen statt hängen zu bleiben
+    if (!drag.touch && e.buttons === 0) { endDrag(e, true); return; }
     if (!drag.moved) {
       if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 6) return;
       drag.moved = true;
@@ -333,10 +342,11 @@
     if (ui.board) ui.board.classList.remove('is-dragging');
     stage.querySelectorAll('.is-over, .is-dragging').forEach(x => x.classList.remove('is-over', 'is-dragging'));
     if (cancel || state !== 'play') return;
-    if (!d.moved) { // Klick
+    if (!d.moved) { // Klick: mit der Maus ohne Wirkung (Fehlklick), auf dem Handy auswählen bzw. tauschen
+      if (!d.touch) { if (selected != null) { selected = null; render(false); } return; }
       if (selected === d.uid) { selected = null; render(false); }
       else if (selected != null) { const u = units.find(x => x.uid === d.uid); moveTo(selected, { at: u.at, pos: u.pos }); }
-      else { selected = d.uid; render(false); msg('Selected – click a hex to move it or press E to sell it.'); }
+      else { selected = d.uid; render(false); msg('Selected – tap a hex to move it, or drag it onto the shop to sell it.'); }
       return;
     }
     const t = dropTarget(e.clientX, e.clientY);
@@ -399,17 +409,18 @@
       return `<p class="rs-h">Your rolldown</p><p class="ts-goal-info">Level <b>${level}</b> · <b>${rolls}</b> rolls · <b>${spent}</b> gold spent</p>
         <p class="ts-goal-info">Want a goal? Pick a target comp on the start screen.</p>`;
     }
-    const boardIds = new Set(onBoard().map(u => u.id));
+    // Sterne auf dem Board zählen; was nur auf der Bank steht, erscheint blass mit Hinweis
     return `<p class="rs-h">Target comp</p>
       <b class="rd-comp-name"><span class="rd-tier t-${esc(comp.tier)}">${esc(comp.tier)}</span>${esc(comp.name)}</b>
       <small class="rd-comp-style">${esc(comp.style)}</small>
       <ul class="rd-comp-units">${comp.units.map(id => {
-        const c = byId[id], s = bestStar(id);
-        return `<li class="${s ? 'is-have' : ''}${boardIds.has(id) ? ' is-board' : ''}">
+        const c = byId[id], b = boardStar(id), s = bestStar(id), bench = !b && s;
+        return `<li class="${b ? 'is-have is-board' : bench ? 'is-bench' : ''}"${bench ? ' title="On your bench – put it on the board to count"' : ''}>
           <span class="rd-cu-pic cost-${c.cost}"><img src="${A.asset(c.img)}" alt="" width="960" height="480"></span>
           <span class="rd-cu-name">${esc(c.name)}${id === comp.carry ? ' <em>carry</em>' : ''}</span>
-          <span class="rd-cu-stars s${s}">${s ? stars(s) : '–'}</span></li>`;
-      }).join('')}</ul>`;
+          <span class="rd-cu-stars s${b || s}">${b || s ? stars(b || s) : '–'}</span></li>`;
+      }).join('')}</ul>
+      ${isGold() ? '<p class="ts-goal-info">Only units on your board score.</p>' : ''}`;
   }
 
   function render(fresh) {
@@ -447,8 +458,8 @@
     cancelAnimationFrame(raf);
     const ms = performance.now() - startAt, secs = Math.round(ms / 100) / 10;
     ui.clock.textContent = sec(ms);
-    const unitLine = comp ? comp.units.map(id => `${byId[id].name} ${bestStar(id) ? stars(bestStar(id)) : '–'}`).join(', ') : '';
-    const twos = comp ? comp.units.filter(id => bestStar(id) >= 2).length : 0;
+    const unitLine = comp ? comp.units.map(id => `${byId[id].name} ${boardStar(id) ? stars(boardStar(id)) : '–'}`).join(', ') : '';
+    const twos = comp ? comp.units.filter(id => boardStar(id) >= 2).length : 0;
     let o;
     if (isRush()) {
       o = {

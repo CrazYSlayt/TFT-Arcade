@@ -34,12 +34,12 @@ module.exports = ctx => {
       alt: 'TFT 100 Gold Challenge: roll down for a tier list comp with 100 gold',
       intro: `<p>The TFT 100 Gold Challenge gives you a comp from the TFTClimb tier list, 100 gold and the level that comp usually rolls on. One rolldown decides your score: how many of its units can you take to two or three stars, and how much gold do you keep?</p>`,
       sections: [
-        ['How scoring works', `<p>Each unit of the comp scores by its best star level: 10 points for one star, 40 for two and 150 for three. The carry counts double, and every gold you have left at the end adds one point. Buying XP raises your board size and changes the shop odds, so leveling can pay off – or cost you the gold you needed for upgrades.</p>`],
+        ['How scoring works', `<p>Only units on your board score, just like only your board fights in a real game. Each unit of the comp scores by its star level: 10 points for one star, 40 for two and 150 for three. The carry counts double, and every gold you have left at the end adds one point. Buying XP gives you another board slot and changes the shop odds, so leveling can pay off – or cost you the gold you needed for upgrades.</p>`],
         ['Learn the comps', `<p>Every comp comes straight from the ${climb('100-gold-challenge', '/en/tier-list', 'TFT tier list on TFTClimb')}, from fast 8 boards to 1-cost rerolls. After the round you can open the full comp guide with items and augments. Want to practice without a score? Use Training, or the free mode of the ${play('roll-simulator', 'Rolldown Simulator')}.</p>`],
       ],
       faq: [
         ['Which level do I roll on?', 'The usual rolldown level of the comp: 5 for 1-cost reroll, 6 for 2-cost, 7 for 3-cost, 8 for fast 8 and 9 for fast 9.'],
-        ['Do positions or items matter?', 'No. Only star levels and leftover gold count.'],
+        ['Do units on the bench count?', 'No. Only units on your board score, and the board holds as many units as your level. Positions and items don’t matter.'],
         FREE,
       ],
     },

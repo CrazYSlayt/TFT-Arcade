@@ -187,15 +187,15 @@ module.exports = [
     scripts: ['/assets/js/spiele/daten/champions.js', '/assets/js/spiele/daten/shop.js', '/assets/js/spiele/daten/comps.js', '/assets/js/spiele/roll-simulator.js'],
     rules: {
       ziel: 'Build the target comp with 100 gold: as many two- and three-star units as possible, with as much gold left as you can.',
-      regeln: ['Ranked: a random comp from the TFTClimb tier list (tier A to C) on its usual rolldown level – level 5 for 1-cost reroll, 6 for 2-cost, 7 for 3-cost, 8 for fast 8 and 9 for fast 9. Training: pick any comp.', 'Each unit of the comp scores by its best star level: 10 points for one star, 40 for two, 150 for three. The carry counts double, and every gold left at the end adds a point.', 'Shop odds, copies per champion and XP are the real ones for the set. Rerolling costs 2 gold, Buy XP 4 gold for 4 XP, selling gives gold back.'],
+      regeln: ['Ranked: a random comp from the TFTClimb tier list (tier A to C) on its usual rolldown level – level 5 for 1-cost reroll, 6 for 2-cost, 7 for 3-cost, 8 for fast 8 and 9 for fast 9. Training: pick any comp.', 'Only units on your board score, by their star level: 10 points for one star, 40 for two, 150 for three. The carry counts double, and every gold left at the end adds a point. Your board holds as many units as your level.', 'Shop odds, copies per champion and XP are the real ones for the set. Rerolling costs 2 gold, Buy XP 4 gold for 4 XP, selling gives gold back.'],
       bedienung: ['D rerolls, F buys XP, a click or the keys 1–5 buy a champion.', 'Drag units between board and bench, or click a unit and then a hex. Hover over a unit and press E to sell it.', '“Done” ends the round and counts your points.'],
     },
     schritte: [
       ['Get your comp', 'A comp from the TFTClimb tier list, 100 gold and its rolldown level.'],
       ['Roll for upgrades', 'Hit two-stars, level when it pays off, sell what you don’t need.'],
-      ['Score points', 'Two-stars, three-stars and leftover gold – the carry counts double.'],
+      ['Score points', 'Two- and three-stars on your board plus leftover gold – the carry counts double.'],
     ],
-    hinweise: 'Target comps come from the TFTClimb tier list, shop odds, copies per champion and XP from the TFTClimb set data. Simplified: opponents don’t roll during the round, there are no items or augments, and positions don’t matter for the score. Only Ranked counts for the leaderboard.',
+    hinweise: 'Target comps come from the TFTClimb tier list, shop odds, copies per champion and XP from the TFTClimb set data. Simplified: opponents don’t roll during the round and there are no items or augments. Only units on the board score, but their position on it doesn’t matter. Only Ranked counts for the leaderboard.',
     seo: {
       title: 'TFT 100 Gold Challenge – One Comp, One Rolldown | TFT Arcade',
       desc: 'TFT 100 Gold Challenge: A comp from the tier list, 100 gold and one rolldown – hit as many two-stars as you can. Free in your browser.',

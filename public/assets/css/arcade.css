@@ -1098,7 +1098,8 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
 
 /* ───────── Spiel: Rolldown Simulator und 100 Gold Challenge (Aufbau nach dem Spiel, Optik der Arcade) ───────── */
 /* Trait-Leiste links · Board + Bank in der Mitte · Ziel rechts · Shop-Leiste unten (Buy XP/Reroll links, Karten rechts, beim Ziehen „Sell for Xg“) */
-.rd { display: flex; flex-direction: column; gap: 10px; }
+.rd { display: flex; flex-direction: column; gap: 10px; -webkit-user-select: none; user-select: none; }   /* kein Markieren beim Ziehen und bei Fehlklicks */
+.rd img { -webkit-user-drag: none; }
 .rs-preview li { animation: bob 3s ease-in-out infinite; }
 .rs-preview li:nth-child(2) { animation-delay: .2s; } .rs-preview li:nth-child(3) { animation-delay: .4s; }
 .rs-preview .kq-coin { width: 52px; height: 52px; font-size: 1.7rem; }
@@ -1172,6 +1173,7 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
 .rd-comp-units li { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; align-items: center; gap: 7px; padding: 2px 6px 2px 2px; border-radius: 8px; font-size: .84rem; color: var(--muted); }
 .rd-comp-units li.is-have { color: #fff; background: rgba(255, 255, 255, .05); }
 .rd-comp-units li.is-board { box-shadow: inset 2px 0 0 #3ddc84; }
+.rd-comp-units li.is-bench { opacity: .55; }
 .rd-cu-pic { display: block; width: 30px; height: 30px; overflow: hidden; border-radius: 7px; border: 2px solid var(--k); }
 .rd-cu-pic img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
 .rd-cu-name { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 600; }
