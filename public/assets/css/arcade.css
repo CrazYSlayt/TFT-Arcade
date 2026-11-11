@@ -1111,7 +1111,61 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
 .rd-pick select { max-width: min(420px, 100%); padding: .55em .8em; border-radius: 10px; font: 600 .95rem/1.2 var(--f-body); color: #fff; background: #160a28; border: 2px solid rgba(255, 201, 74, .55); }
 .rs-h { margin: 0 0 6px; font: 700 .8rem/1 var(--f-cond); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 
-.rd-main { display: grid; grid-template-columns: 178px minmax(0, 1fr) 200px; gap: 12px; align-items: start; }
+/* Arena: Spielfeld schräg von oben wie im Spiel; Leiste oben mittig, Traits links und Ziel rechts liegen darüber */
+.rd { --tilt: 34deg; gap: 0; }
+.rd-arena { position: relative; display: flex; flex-direction: column; align-items: center; min-height: 500px; padding: 64px 16px 44px; overflow: hidden; border-radius: 20px 20px 0 0; perspective: 1150px; perspective-origin: 50% 0;
+  background:
+    radial-gradient(ellipse 46% 38% at 50% 66%, rgba(255, 190, 90, .16), transparent 70%),
+    radial-gradient(ellipse 70% 60% at 50% 70%, rgba(118, 58, 200, .5), transparent 72%),
+    radial-gradient(ellipse 50% 30% at 50% -6%, rgba(70, 227, 210, .16), transparent 70%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, .025) 0 2px, transparent 2px 64px),
+    linear-gradient(180deg, #1c0a35, #110622 55%, #0a0414);
+  box-shadow: inset 0 0 0 2px rgba(255, 201, 74, .35), inset 0 -40px 60px -30px rgba(0, 0, 0, .7); }
+.rd-arena::after { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 6px; pointer-events: none;   /* Lichterkette am oberen Rand */
+  background: radial-gradient(circle, #ffd877 0 2px, transparent 3px) 0 50% / 26px 6px repeat-x; opacity: .7; }
+.rd-stagebar { position: absolute; left: 50%; top: 14px; z-index: 4; display: flex; gap: 8px; transform: translateX(-50%); }
+.rd-stagebar .hud-pill { background: rgba(8, 3, 16, .82); }
+.rd-arena > .rd-traits { position: absolute; left: 12px; top: 64px; z-index: 4; width: 186px; max-height: calc(100% - 90px); overflow: hidden; }
+.rd-goalbox { position: absolute; right: 12px; top: 14px; z-index: 4; width: 214px; }
+.rd-goal-tog { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 7px 12px; border-radius: 12px 12px 0 0; cursor: pointer; font: 700 .8rem/1 var(--f-cond); letter-spacing: .12em; text-transform: uppercase; color: var(--gold); background: rgba(8, 3, 16, .82); border: 0; box-shadow: inset 0 0 0 1.5px rgba(255, 191, 58, .45); }
+.rd-goal-tog span { transition: transform .2s; }
+.rd-goalbox.is-closed .rd-goal-tog { border-radius: 12px; }
+.rd-goalbox.is-closed .rd-goal-tog span { transform: rotate(-90deg); }
+.rd-goalbox.is-closed .rd-goal { display: none; }
+.rd-goalbox .rd-goal { border-radius: 0 0 16px 16px; background: rgba(8, 3, 16, .78); }
+.rd-goal > .rs-h:first-child { display: none; }   /* Überschrift steht schon auf dem Klapp-Knopf */
+.rd-arena > .game-msg { position: absolute; left: 50%; bottom: 12px; z-index: 4; width: max-content; max-width: min(640px, 90%); min-height: 0; transform: translateX(-50%); pointer-events: none; text-shadow: 0 1px 3px #000; }
+.rd-arena > .game-msg:not(:empty) { padding: 5px 14px; border-radius: 999px; background: rgba(8, 3, 16, .8); }
+/* Boden: Board und Bank kippen nach hinten; Figuren stehen aufrecht darauf (preserve-3d bis zur Figur) */
+.rd-arena { container-type: inline-size; }
+.rd-arena .ts-board { --hx: clamp(44px, calc((100cqw - 480px) / 7.5), 80px); }
+.rd-arena .ts-bench { --hx: clamp(40px, calc((100cqw - 480px) / 8.6), 70px); }
+.rd-floor { display: flex; flex-direction: column; align-items: stretch; gap: 14px; margin: 4px 26px 0 0; transform: rotateX(var(--tilt)); transform-origin: 50% 100%; transform-style: preserve-3d; }
+.rd-floor .ts-board, .rd-floor .ts-row, .rd-floor .ts-hex, .rd-floor .ts-bench, .rd-floor .ts-slot { transform-style: preserve-3d; }
+/* Schmale Arena (z. B. Laptop mit Seitenleiste): Traits nur als Symbole, Ziel als kompakte Leiste unter der Bank */
+.rd { container-type: inline-size; }
+@container (max-width: 900px) {
+  .rd-arena { padding-top: 60px; }
+  .rd-arena > .rd-traits { width: 58px; top: 60px; }
+  .rd-arena > .rd-traits .rd-trait { grid-template-columns: 26px 14px; padding: 3px 5px 3px 3px; }
+  .rd-arena > .rd-traits .rd-trait-hex { width: 26px; height: 30px; }
+  .rd-arena > .rd-traits .rd-trait-tx { display: none; }
+  .rd-arena > .rd-traits .rd-trait.is-empty { display: none; }
+  .rd-arena .ts-board { --hx: clamp(40px, calc((100cqw - 190px) / 7.5), 66px); }
+  .rd-arena .ts-bench { --hx: clamp(36px, calc((100cqw - 190px) / 8.6), 58px); }
+  .rd-floor { margin: 0 0 0 40px; }
+  .rd-goalbox { position: relative; top: auto; right: auto; z-index: 4; width: min(calc(100% - 40px), 620px); margin: 22px 0 0 40px; }
+  .rd-goalbox .rd-cu-pic { width: 36px; height: 36px; }
+  .rd-goalbox .rd-goal { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+  .rd-goalbox .rd-comp-units { flex-basis: 100%; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 4px; }
+  .rd-goalbox .rd-comp-units li { grid-template-columns: 1fr; justify-items: center; gap: 2px; padding: 3px; }
+  .rd-goalbox .rd-cu-name { display: none; }
+  .rd-goalbox .ts-goal-pic { width: 120px; }
+  .rd-goalbox .ts-pips { width: 200px; }
+  .rd-shop-top .rd-tolevel { display: none; }
+  .rd .rd-shop-top { grid-template-columns: auto 0 auto minmax(0, 1fr) auto; }
+  .rd .rd-shop-top .rs-odds { gap: 4px 8px; font-size: .8rem; }
+}
 /* Trait-Leiste: Sechseck in der Stufenfarbe, Anzahl, Name und Stufen (erreichte hell) */
 .rd-traits { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
 .rd-trait { display: grid; grid-template-columns: 30px 18px minmax(0, 1fr); align-items: center; gap: 6px; padding: 4px 8px 4px 4px; border-radius: 10px; background: rgba(8, 3, 16, .55); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06); }
@@ -1128,29 +1182,38 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
 .rd-trait-bp em { margin: 0 2px; font-style: normal; opacity: .6; }
 .rd-trait.is-empty { display: block; padding: 10px; font-size: .82rem; color: var(--dim); }
 /* Board: Sechsecke, Einheiten-Zahl groß im Hintergrund, Raster leuchtet beim Ziehen */
-.rd-field { display: grid; gap: 8px; min-width: 0; }
-.ts-board { --hx: clamp(40px, 4.4vw, 64px); --hy: calc(var(--hx) * 1.1547); position: relative; display: flex; flex-direction: column; align-items: center; padding: 12px 8px calc(var(--hy) * .25 + 12px); border-radius: 18px; background: radial-gradient(ellipse at 50% 40%, rgba(90, 45, 150, .35), transparent 70%), rgba(8, 3, 16, .45); box-shadow: inset 0 0 0 1.5px rgba(255, 214, 120, .2); }
-.ts-board::before { content: attr(data-count); position: absolute; inset: 0; display: grid; place-items: center; font: 400 clamp(3rem, 7vw, 6rem)/1 var(--f-display); color: rgba(255, 255, 255, .06); pointer-events: none; }
-.ts-board.is-dragging .ts-hex:not(.is-filled) { background: rgba(70, 227, 210, .16); }
-.ts-row { position: relative; display: flex; gap: 5px; margin-bottom: calc(var(--hy) * -.25 + 5px); transform: translateX(calc(var(--hx) / -4 - 1px)); }
-.ts-row.is-odd { transform: translateX(calc(var(--hx) / 4 + 1px)); }
-.ts-hex { position: relative; width: var(--hx); height: var(--hy); flex: none; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: rgba(148, 120, 255, .12); transition: background .12s; }
-.ts-hex:not(.is-filled):hover, .ts-hex.is-over, .ts-slot.is-over { background: rgba(70, 227, 210, .38); }
-.ts-hex .ts-unit { position: absolute; inset: 0; }
+/* Board: Sechsecke (Form im ::before, damit Figuren darauf in 3D stehen können), Einheiten-Zahl groß auf dem Boden */
+.ts-board { --hx: clamp(48px, 4.6vw, 74px); --hy: calc(var(--hx) * 1.1547); position: relative; display: flex; flex-direction: column; align-items: center; padding: calc(var(--hy) * .125 + 16px) 22px calc(var(--hy) * .125 + 16px); border-radius: 22px;
+  background: radial-gradient(ellipse at 50% 45%, rgba(130, 70, 210, .38), transparent 72%), linear-gradient(180deg, rgba(44, 18, 82, .9), rgba(22, 9, 42, .92)); box-shadow: inset 0 0 0 2px rgba(255, 214, 120, .32), 0 0 0 6px rgba(8, 3, 16, .55), 0 0 60px -10px rgba(140, 80, 255, .55); }
+.ts-board::before { content: attr(data-count); position: absolute; inset: 0; display: grid; place-items: center; font: 400 calc(var(--hx) * 2.3)/1 var(--f-display); letter-spacing: .02em; color: rgba(255, 241, 214, .11); pointer-events: none; }
+.ts-board.is-dragging .ts-hex:not(.is-filled) { --hex: rgba(70, 227, 210, .2); }
+.ts-row { position: relative; display: flex; gap: 6px; margin-bottom: 6px; transform: translateX(calc(var(--hx) / -4 - 1.5px)); }
+.ts-row:last-child { margin-bottom: 0; }
+.ts-row.is-odd { transform: translateX(calc(var(--hx) / 4 + 1.5px)); }
+.ts-hex { --hex: rgba(160, 130, 255, .16); position: relative; width: var(--hx); height: calc(var(--hy) * .75); flex: none; }
+.ts-hex::before { content: ''; position: absolute; left: 0; right: 0; top: calc(var(--hy) * -.125); bottom: calc(var(--hy) * -.125); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: linear-gradient(180deg, rgba(255, 255, 255, .06), transparent 60%), var(--hex); transition: background .12s; pointer-events: none; }
+.ts-hex.is-filled::after { content: ''; position: absolute; left: 14%; right: 14%; top: 24%; bottom: 8%; border-radius: 50%; background: radial-gradient(closest-side, rgba(0, 0, 0, .6), transparent); pointer-events: none; }   /* Schatten unter der Figur */
+.ts-hex:not(.is-filled):hover, .ts-hex.is-over { --hex: rgba(70, 227, 210, .42); }
+.ts-slot.is-over { background: rgba(70, 227, 210, .38); }
+/* Figur: runde Münze mit Porträt in der Kostenfarbe, Sterne darüber */
 .ts-unit { position: relative; display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; -webkit-user-select: none; user-select: none; }
-.ts-unit-in { position: absolute; inset: 0; display: block; background: var(--k); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
-.ts-unit-in img { position: absolute; inset: 3px; width: calc(100% - 6px); height: calc(100% - 6px); object-fit: cover; object-position: center 30%; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); pointer-events: none; }
-.ts-unit.is-goal .ts-unit-in { background: linear-gradient(180deg, #fff3b0, var(--k) 60%); }
-.ts-unit.is-sel .ts-unit-in { background: var(--teal); }
+.ts-unit-in { position: absolute; inset: 0; display: block; border-radius: 50%; background: var(--k); box-shadow: 0 0 0 2px rgba(8, 3, 16, .85), 0 0 14px -2px var(--k); }
+.ts-unit-in img { position: absolute; inset: 3px; width: calc(100% - 6px); height: calc(100% - 6px); border-radius: 50%; object-fit: cover; object-position: 62% 22%; pointer-events: none; }
+.ts-unit.is-goal .ts-unit-in { background: conic-gradient(from 200deg, #fff3b0, var(--k), #fff3b0, var(--k), #fff3b0); }
+.ts-unit.is-sel .ts-unit-in { background: var(--teal); box-shadow: 0 0 0 2px #04241f, 0 0 18px var(--teal); }
 .ts-unit.is-dragging { opacity: .3; }
-.ts-stars { position: absolute; left: 50%; top: 8%; transform: translateX(-50%); padding: 0 5px; border-radius: 6px; font-size: .74rem; line-height: 1.3; letter-spacing: 1px; color: #e8ecf4; background: rgba(8, 3, 16, .8); white-space: nowrap; pointer-events: none; }
+.ts-hex .ts-unit, .ts-slot .ts-unit { position: absolute; left: 50%; bottom: 34%; width: calc(var(--hx, 60px) * .84); height: calc(var(--hx, 60px) * .84); transform-origin: 50% 100%; transform: translateX(-50%); }
+.rd-floor .ts-hex .ts-unit, .rd-floor .ts-slot .ts-unit { transform: translateX(-50%) rotateX(calc(var(--tilt) * -1)); transition: transform .15s; }   /* aufrecht zur Kamera */
+.rd-floor .ts-hex .ts-unit:hover, .rd-floor .ts-slot .ts-unit:hover { transform: translateX(-50%) rotateX(calc(var(--tilt) * -1)) translateY(-4px); }
+.rd.is-drag .ts-unit { pointer-events: none; }
+.ts-stars { position: absolute; left: 50%; top: -15px; transform: translateX(-50%); padding: 0 5px; border-radius: 6px; font-size: .78rem; line-height: 1.3; letter-spacing: 1px; color: #e8ecf4; background: rgba(8, 3, 16, .85); white-space: nowrap; pointer-events: none; }
 .ts-stars.s1 { color: #d9a066; } .ts-stars.s3 { color: #ffd23f; text-shadow: 0 0 6px rgba(255, 210, 63, .8); }
 .ts-name { display: none; }
-.ts-ghost { position: fixed; left: 0; top: 0; z-index: 100; width: 72px; height: 83px; pointer-events: none; opacity: .9; filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .6)); }
-.ts-bench { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 5px; }
-.ts-slot { position: relative; aspect-ratio: 1 / 1.05; max-height: 70px; border-radius: 10px; background: rgba(255, 255, 255, .05); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1); transition: background .12s; }
-.ts-slot .ts-unit-in, .ts-slot .ts-unit-in img { clip-path: none; border-radius: 10px; }
-.ts-slot .ts-unit-in img { border-radius: 8px; }
+.ts-ghost { position: fixed; left: 0; top: 0; z-index: 100; width: 72px; height: 72px; pointer-events: none; opacity: .92; filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .6)); }
+/* Bank: neun Felder am vorderen Board-Rand */
+.ts-bench { --hx: clamp(44px, 4vw, 62px); display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 6px; padding: 8px 10px; border-radius: 14px; background: rgba(8, 3, 16, .6); box-shadow: inset 0 0 0 1.5px rgba(255, 214, 120, .22); }
+.ts-slot { position: relative; aspect-ratio: 1 / .78; border-radius: 10px; background: linear-gradient(180deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .02)); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); transition: background .12s; }
+.ts-slot .ts-unit { bottom: 22%; }
 /* Ziel rechts: 5-Koster (3-Star) oder Comp aus der Tierlist */
 .rd-goal { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 16px; background: rgba(8, 3, 16, .45); box-shadow: inset 0 0 0 1.5px rgba(255, 191, 58, .45); }
 .ts-goal-pic { position: relative; width: 100%; aspect-ratio: 16 / 10; overflow: hidden; border-radius: 12px; border: 3px solid var(--k); box-shadow: 0 0 20px -4px var(--k); }
@@ -1181,8 +1244,16 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
 .rd-cu-stars { font-size: .78rem; letter-spacing: 1px; color: var(--dim); }
 .rd-cu-stars.s1 { color: #d9a066; } .rd-cu-stars.s2 { color: #e8ecf4; } .rd-cu-stars.s3 { color: #ffd23f; }
 /* Shop-Leiste */
-.rd-shop { position: relative; display: grid; gap: 8px; padding: 8px 10px 10px; border-radius: 16px; background: linear-gradient(180deg, #2a1347, #1a0b2e); box-shadow: inset 0 0 0 2px rgba(255, 201, 74, .45); }
-.rd-shop-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; }
+/* Shop-Leiste wie im Spiel: oben Level/XP links, Gold mittig, Odds rechts; darunter Buy XP + Reroll links und fünf Karten */
+.rd-shop { position: relative; z-index: 5; display: grid; gap: 8px; padding: 8px 10px 10px; border-radius: 0 0 16px 16px; background: linear-gradient(180deg, #2a1347, #1a0b2e); box-shadow: inset 0 0 0 2px rgba(255, 201, 74, .45), 0 -12px 30px -12px rgba(0, 0, 0, .8); }
+.rd-shop-top { display: grid; grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr) auto; align-items: center; gap: 6px 12px; }
+.rd-shop-top .rd-lvl { grid-column: 1; }
+.rd-shop-top .rd-tolevel { grid-column: 2; justify-self: start; }
+.rd-shop-top .rd-gold { grid-column: 3; grid-row: 1; margin: -22px 0 0; padding: 5px 18px 5px 5px; }   /* Gold mittig, ragt wie im Spiel über die Leiste */
+.rd-shop-top .rs-odds { grid-column: 4; grid-row: 1; justify-self: end; }
+.rd-shop-top .rd-done { grid-column: 5; grid-row: 1; }
+.rd-shop-top .rd-gold b { font-size: 1.5rem; }
+.rd-shop-top .rd-gold .kq-coin { width: 28px; height: 28px; }
 .rd-lvl { display: inline-flex; align-items: center; gap: 8px; font: 700 .88rem/1.2 var(--f-cond); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .rd-lvl b { font: 400 1.15rem/1 var(--f-display); color: #fff; }
 .rd-xp { position: relative; display: block; width: 90px; height: 6px; overflow: hidden; border-radius: 6px; background: rgba(255, 255, 255, .1); }
@@ -1495,21 +1566,39 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
   .cr-guess { flex-wrap: wrap; }
   .cr-field { flex-basis: 100%; }
   .cr-guess .btn { flex: 1; justify-content: center; }
-  .rd-main { grid-template-columns: 1fr; }
-  .rd-traits { display: flex; gap: 4px; overflow-x: auto; order: 2; }
+  /* Handy: keine Schräge, alles untereinander (Leiste, Board, Bank, Traits, Ziel) */
+  /* Arena löst sich auf (display: contents), damit der Shop direkt unter Board und Bank sitzt; Traits und Ziel folgen darunter */
+  .rd { gap: 10px; padding: 10px 8px 12px; border-radius: 18px; background: radial-gradient(ellipse 90% 40% at 50% 22%, rgba(118, 58, 200, .45), transparent 72%), linear-gradient(180deg, #1c0a35, #0a0414); box-shadow: inset 0 0 0 2px rgba(255, 201, 74, .3); }
+  .rd-arena { display: contents; }
+  .rd-arena::after { display: none; }
+  .rd-stagebar, .rd-arena > .rd-traits, .rd-goalbox, .rd-arena > .game-msg { position: static; transform: none; width: auto; max-width: none; }
+  .rd-stagebar { justify-content: center; order: 0; }
+  .rd-floor { order: 1; margin: 0; transform: none; gap: 8px; }
+  .rd-arena > .game-msg { order: 2; }
+  .rd-shop { order: 3; border-radius: 14px; }
+  .rd-arena > .rd-traits { order: 4; max-height: none; }
+  .rd-goalbox { order: 5; margin: 0; }
+  .rd-floor .ts-hex .ts-unit, .rd-floor .ts-slot .ts-unit, .rd-floor .ts-hex .ts-unit:hover, .rd-floor .ts-slot .ts-unit:hover { transform: translate(-50%, 50%); bottom: 50%; }
+  .rd-traits { display: flex; gap: 4px; overflow-x: auto; }
   .rd-trait { flex: none; grid-template-columns: 24px 14px; padding: 3px 6px 3px 3px; }
   .rd-trait-hex { width: 24px; height: 28px; }
   .rd-trait-tx { display: none; }
-  .rd-field { order: 1; }
-  .rd-goal { order: 3; padding: 10px; }
+  .rd-goal { padding: 10px; }
   .rd-comp-units { grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap: 4px; }
   .rd-comp-units li { grid-template-columns: 1fr; justify-items: center; gap: 2px; padding: 3px; }
   .rd-cu-pic { width: 36px; height: 36px; }
   .rd-cu-name { display: none; }
-  .ts-board { --hx: calc((100vw - 120px) / 7.6); padding-inline: 4px; }
-  .ts-bench { gap: 3px; }
+  .rd-arena .ts-board { --hx: calc((100cqw - 50px) / 7.6); padding-inline: 4px; }
+  .rd-arena .ts-bench { --hx: calc((100cqw - 60px) / 9); gap: 3px; padding: 5px; }
   .ts-slot { border-radius: 6px; }
-  .ts-stars { font-size: .6rem; padding: 0 3px; }
+  .ts-stars { top: -9px; font-size: .58rem; padding: 0 3px; }
+  .rd-shop-top { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .rd-shop-top .rd-gold { grid-column: 3; margin: 0; }
+  .rd-shop-top .rs-odds { grid-column: 1 / -1; grid-row: 2; justify-self: center; }
+  .rd-shop-top .rd-tolevel { display: none; }
+  .rd-xp { width: 50px; }
+  .rd-shop-top { gap: 6px 8px; }
+  .rd-shop-top .rd-done { grid-column: 2; justify-self: end; }
   .rd-shop-main { grid-template-columns: 1fr; }
   .rd-actions { grid-template-columns: 1fr 1fr; }
   .rd-sell { inset: 0; }

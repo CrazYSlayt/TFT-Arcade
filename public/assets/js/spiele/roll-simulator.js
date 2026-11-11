@@ -40,6 +40,7 @@
   let target = null, comp = null, rolls = 0, spent = 0, startAt = 0, timer = null, raf = null, selected = null, drag = null, ghost = null, ui = {};
   let choice = { level: 8, gold: 100, comp: '' };   // Auswahl im freien Modus bzw. Training
   const mouse = { x: -1, y: -1 };
+  let goalClosed = !!A.store.get('rd_ziel_zu', false);   // Ziel-Kasten rechts eingeklappt (merkt sich die Wahl)
   const isRush = () => mode === 'rush';
   const isGold = () => GAME === '100-gold-challenge';
   const ranked = () => A.isRanked(mode);
@@ -174,21 +175,25 @@
     setup();
     state = 'play';
     const hexes = Array.from({ length: ROWS }, (_, r) => `<div class="ts-row${r % 2 ? ' is-odd' : ''}">${Array.from({ length: COLS }, (_, c) => `<div class="ts-hex" data-cell="board:${r * COLS + c}"></div>`).join('')}</div>`).join('');
+    // Spielansicht: Arena mit schrägem Board, Bank vorne, Traits links, Ziel rechts (einklappbar), Leiste oben, Shop unten
     stage.innerHTML = `<div class="rd">
-      <div class="hud">
-        <div class="hud-side"><span class="hud-pill">Time <b data-rd-clock>0.0</b></span></div>
-        <span class="hud-pill hud-score">${isGold() ? 'Points' : 'Rolls'} <b data-rd-score>0</b></span>
-        <div class="hud-side cr-hud-right"><span class="hud-pill">${isGold() ? 'Rolls' : 'Gold spent'} <b data-rd-side>0</b></span></div>
-      </div>
-      <div class="rd-main">
+      <div class="rd-arena">
+        <div class="hud rd-stagebar">
+          <span class="hud-pill">Time <b data-rd-clock>0.0</b></span>
+          <span class="hud-pill hud-score">${isGold() ? 'Points' : 'Rolls'} <b data-rd-score>0</b></span>
+          <span class="hud-pill">${isGold() ? 'Rolls' : 'Gold spent'} <b data-rd-side>0</b></span>
+        </div>
         <ol class="rd-traits" data-rd-traits aria-label="Active traits"></ol>
-        <div class="rd-field">
+        <div class="rd-floor">
           <div class="ts-board rd-board" data-rd-board aria-label="Board">${hexes}</div>
           <div class="ts-bench" aria-label="Bench">${Array.from({ length: BENCH }, (_, i) => `<div class="ts-slot" data-cell="bench:${i}"></div>`).join('')}</div>
         </div>
-        <aside class="rd-goal" data-rd-goal aria-label="Target"></aside>
+        <aside class="rd-goalbox${goalClosed ? ' is-closed' : ''}" aria-label="Target">
+          <button class="rd-goal-tog" type="button" data-rd-goaltog aria-expanded="${!goalClosed}">${isRush() ? 'Target' : comp ? 'Target comp' : 'Your rolldown'}<span aria-hidden="true">▾</span></button>
+          <div class="rd-goal" data-rd-goal></div>
+        </aside>
+        <p class="game-msg" data-rd-msg aria-live="polite"></p>
       </div>
-      <p class="game-msg" data-rd-msg aria-live="polite"></p>
       <div class="rd-shop" data-sellzone>
         <div class="rd-shop-top">
           <span class="rd-lvl">Lvl. <b data-rd-level></b><span class="rd-xp"><i data-rd-xpbar></i></span><small data-rd-xp></small></span>
@@ -203,7 +208,7 @@
             <button class="rd-btn is-roll" type="button" data-rd-roll aria-keyshortcuts="D"><span>Reroll</span><small>${coin(REROLL)}</small><i aria-hidden="true">D</i></button>
           </div>
           <ul class="rs-shop rd-cards" data-rd-shop></ul>
-          <div class="rd-sell" aria-hidden="true">Sell for <b data-rd-sell>0</b>g</div>
+          <div class="rd-sell" aria-hidden="true"><span>Sell for <b data-rd-sell>0</b>g</span></div>
         </div>
       </div>
     </div>`;
@@ -214,6 +219,12 @@
     ui.roll.addEventListener('click', reroll);
     ui.xpBtn.addEventListener('click', buyXp);
     if (ui.done) ui.done.addEventListener('click', () => finish());
+    q('[data-rd-goaltog]').addEventListener('click', e => {
+      goalClosed = !goalClosed;
+      A.store.set('rd_ziel_zu', goalClosed);
+      e.currentTarget.parentNode.classList.toggle('is-closed', goalClosed);
+      e.currentTarget.setAttribute('aria-expanded', String(!goalClosed));
+    });
     ui.shop.addEventListener('click', e => { const b = e.target.closest('[data-slot]'); if (b && !drag) buy(Number(b.dataset.slot)); });
     stage.querySelectorAll('[data-cell]').forEach(cell => cell.addEventListener('click', () => { if (selected != null && !cell.querySelector('[data-uid]')) moveTo(selected, cellOf(cell)); }));
     msg(isRush() ? `Your target: <b>${esc(target.name)}</b> – you need all ${COPIES} copies.`
@@ -327,6 +338,7 @@
       ui.sell.textContent = u ? sellValue(byId[u.id], u.star) : 0;
       ui.bar.classList.add('is-sell');
       ui.board.classList.add('is-dragging');
+      stage.querySelector('.rd').classList.add('is-drag');   // Figuren lassen den Mauszeiger durch, damit das Feld dahinter das Ziel ist
     }
     ghost.style.transform = `translate(${e.clientX - 36}px, ${e.clientY - 42}px)`;
     const t = dropTarget(e.clientX, e.clientY);
@@ -340,7 +352,7 @@
     if (ghost) { ghost.remove(); ghost = null; }
     if (ui.bar) ui.bar.classList.remove('is-sell');
     if (ui.board) ui.board.classList.remove('is-dragging');
-    stage.querySelectorAll('.is-over, .is-dragging').forEach(x => x.classList.remove('is-over', 'is-dragging'));
+    stage.querySelectorAll('.is-over, .is-dragging, .is-drag').forEach(x => x.classList.remove('is-over', 'is-dragging', 'is-drag'));
     if (cancel || state !== 'play') return;
     if (!d.moved) { // Klick: mit der Maus ohne Wirkung (Fehlklick), auf dem Handy auswählen bzw. tauschen
       if (!d.touch) { if (selected != null) { selected = null; render(false); } return; }
