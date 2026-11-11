@@ -1,11 +1,12 @@
 // TFT Arcade – die vier Bereiche der Arcade.
-// slug = Adresse (/simulators …), color = Farbe der Bude (gold | coral | teal | violet), icon = Symbol aus templates/icons.js
+// menuTitle = Überschrift im Mega-Menü · slug = Adresse (/simulators …), color = Farbe der Bude (gold | coral | teal | violet), icon = Symbol aus templates/icons.js
 // seo: title ≤ 60 Zeichen, desc ≤ 134 Zeichen mit Keyword, h1 ≤ 54 Zeichen (sichtbar), kw = Keyword für den SEO-Check
 module.exports = [
   {
     id: 'simulators',
     slug: 'simulators',
     name: 'Simulators',
+    menuTitle: 'Roll like a pro',
     color: 'gold',
     icon: 'shop',
     tagline: 'Roll the shop, buy champions, collect copies.',
@@ -21,6 +22,7 @@ module.exports = [
     id: 'challenges',
     slug: 'challenges',
     name: 'Challenges',
+    menuTitle: 'Beat the clock',
     color: 'coral',
     icon: 'stopwatch',
     tagline: 'Against the clock, the budget and yourself.',
@@ -36,6 +38,7 @@ module.exports = [
     id: 'quiz',
     slug: 'quiz',
     name: 'Quizzes',
+    menuTitle: 'Know your TFT',
     color: 'teal',
     icon: 'question',
     tagline: 'Guess champions, match items, test your knowledge.',
@@ -51,6 +54,7 @@ module.exports = [
     id: 'party',
     slug: 'party',
     name: 'Party',
+    menuTitle: 'Game night chaos',
     color: 'violet',
     icon: 'ticket',
     tagline: 'Funny rules for your next real match.',

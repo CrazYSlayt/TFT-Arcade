@@ -80,25 +80,29 @@ ${FILE_LINKS}
 // Logo: Stern + Schriftzug „TFT ARCADE“
 const LOGO = cls => `<a class="logo${cls ? ' ' + cls : ''}" href="/" aria-label="TFT Arcade – home"><svg class="logo-star" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4l8.2 16.7 18.4 2.7-13.3 13 3.1 18.3L32 46l-16.4 8.7 3.1-18.3-13.3-13 18.4-2.7z"/><circle cx="25.5" cy="30" r="2.6"/><circle cx="38.5" cy="30" r="2.6"/><path d="M26.5 37q5.5 4.5 11 0" fill="none" stroke-width="2.6" stroke-linecap="round"/></svg><span class="logo-tft">TFT</span><span class="logo-arcade">Arcade</span></a>`;
 
-// Mega-Menü „Spielhalle“: die vier Bereiche als Kirmesbuden (dieselben Rahmen wie die Spielkarten, CSS --frame),
-// im Fenster die Spiele des Bereichs, im Schild Name + Slogan als Link zum Bereich
+// Mega-Menü „Arcade“: eine Spalte pro Bereich – Überschrift (Bereich klein, Slogan groß, Link zum Bereich),
+// darunter die Spiele des Bereichs mit ihrem Symbol; Spiele ohne Seite stehen grau mit „Soon“ da
 function megaPanel(ctx) {
-  const STATUS = { live: 'Playable', bau: 'Under construction', bald: 'Coming soon' };
+  const STATUS = { bau: 'Building', bald: 'Soon' };
   const order = { live: 0, bau: 1, bald: 2 };
-  const booths = site.nav.map(id => {
+  const cols = site.nav.map(id => {
     const c = ctx.categories.find(x => x.id === id);
     const games = ctx.games.filter(g => g.category === id).sort((a, b) => order[a.status] - order[b.status]);
     const items = games.map(g => {
-      const url = ctx.gameUrl(g), inner = `<span class="mega-dot is-${g.status}" aria-hidden="true"></span><span class="mega-game">${esc(g.title)}</span><em>${STATUS[g.status]}</em>`;
+      const url = ctx.gameUrl(g);
+      const inner = `<span class="mega-icon" aria-hidden="true">${art(g.art)}</span><span class="mega-game">${esc(g.title)}</span>${STATUS[g.status] ? `<em>${STATUS[g.status]}</em>` : ''}`;
       return url ? `<li><a href="${url}">${inner}</a></li>` : `<li><span class="is-soon">${inner}</span></li>`;
     }).join('');
-    return `<section class="mega-booth c-${c.color}" aria-label="${esc(c.name)}">
-      <div class="mega-window"><span class="mega-art" aria-hidden="true">${art(c.icon)}</span><ul class="mega-games">${items}</ul></div>
-      <a class="mega-sign" href="/${c.slug}"><b>${esc(c.name)}</b><small>${esc(c.tagline)}</small><span class="mega-go" aria-hidden="true">${ui('arrow')}</span></a>
-      <span class="gcard-lamps" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+    return `<section class="mega-col c-${c.color}" aria-label="${esc(c.name)}">
+      <a class="mega-head" href="/${c.slug}">
+        <span class="mega-head-art" aria-hidden="true">${art(c.icon)}</span>
+        <span class="mega-head-text"><small>${esc(c.name)}</small><b>${esc(c.menuTitle || c.name)}</b></span>
+        <span class="mega-go" aria-hidden="true">${ui('arrow')}</span>
+      </a>
+      <ul class="mega-games">${items}</ul>
     </section>`;
   }).join('');
-  return `<div class="mega" id="mega-spielhalle" data-mega-panel><div class="wrap wrap-wide mega-in">${booths}</div></div>`;
+  return `<div class="mega" id="mega-spielhalle" data-mega-panel><div class="wrap wrap-wide mega-in">${cols}</div></div>`;
 }
 
 function header(page, ctx) {
