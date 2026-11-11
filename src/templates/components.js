@@ -42,6 +42,28 @@ function gameCard(g, ctx, { level = 3, full = false, attrs = '' } = {}) {
 </article>`;
 }
 
+// Bereich als Kirmesbude für die Startseite (gleicher Rahmen wie die Spielkarten): Bild des Bereichs, Name, Slogan, Zahl der Spiele;
+// ein Klick führt zur Spieleliste des Bereichs
+function categoryCard(c, ctx, { level = 3 } = {}) {
+  const games = ctx.games.filter(g => g.category === c.id), live = games.filter(g => g.status === 'live').length, soon = games.length - live;
+  const count = live ? [`${live} ${live === 1 ? 'game' : 'games'}`, soon ? `${soon} soon` : ''].filter(Boolean).join(' · ') : 'Coming soon';
+  const url = '/' + c.slug;
+  return `<article class="gcard c-${c.color} is-live" data-cat="${c.id}">
+  <div class="gcard-booth">
+    <a class="gcard-hit" href="${url}" tabindex="-1" aria-hidden="true"></a>
+    <div class="gcard-art"><img class="gcard-img" src="/assets/img/karten/${c.bild}.jpg" alt="" width="640" height="360" loading="lazy" decoding="async"></div>
+    <span class="gcard-tag">${esc(count)}</span>
+    <div class="gcard-body">
+      <h${level} class="gcard-title"><a class="stretch" href="${url}">${esc(c.name)}</a></h${level}>
+      <p class="gcard-hook">${esc(c.menuTitle || c.tagline)}</p>
+    </div>
+    <span class="gcard-go" aria-hidden="true">${ui('arrow')}</span>
+    <span class="gcard-lamps" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+    <span class="gcard-glint" aria-hidden="true"></span>
+  </div>
+</article>`;
+}
+
 function booth(c, ctx, { level = 3 } = {}) {
   const games = ctx.games.filter(g => g.category === c.id);
   const open = games.filter(g => g.status !== 'bald').length, soon = games.length - open;
@@ -147,4 +169,4 @@ function aside(g, ctx) {
   return infoPanel(g, ctx);
 }
 
-module.exports = { gameCard, booth, crumbs, daily, aside, badge, boardAttrs, boardRows, rankedModes, avatarPicker, STATUS, HOF_ROWS };
+module.exports = { gameCard, categoryCard, booth, crumbs, daily, aside, badge, boardAttrs, boardRows, rankedModes, avatarPicker, STATUS, HOF_ROWS };

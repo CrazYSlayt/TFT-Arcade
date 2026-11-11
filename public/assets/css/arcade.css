@@ -1526,7 +1526,7 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
   .ticket .btn { justify-self: start; }
 }
 @media (max-width: 560px) {
-  .cards-4 { grid-template-columns: 1fr; }
+  .cards-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }   /* Startseite: die vier Bereiche zu zweit */
   .kq-costs { gap: 6px; }
   .kq-coin { width: 36px; height: 36px; font-size: 1.25rem; }
   .kq-cost { padding: 9px 2px 8px; }

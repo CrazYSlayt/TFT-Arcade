@@ -2,7 +2,7 @@
 const site = require('../config/site');
 const { esc } = require('./helpers');
 const { art, ui } = require('./icons');
-const { gameCard, booth, crumbs, daily, aside, badge, boardAttrs, boardRows, rankedModes, avatarPicker, HOF_ROWS } = require('./components');
+const { gameCard, categoryCard, booth, crumbs, daily, aside, badge, boardAttrs, boardRows, rankedModes, avatarPicker, HOF_ROWS } = require('./components');
 
 const HOME = { label: 'Arcade', href: '/' };
 const AUTHOR = { name: 'Claudio “CrazYSlayt”', url: 'https://www.tftclimb.com/en/about/crazyslayt' };
@@ -19,15 +19,8 @@ function resultClimb(g) {
 
 // ───────── Startseite ─────────
 function home(ctx) {
-  // Alle Spiele stehen im Raster; „All games“ zeigt die hervorgehobenen, die Filter-Pillen (arcade.js) einen Bereich
-  // „All games“ = höchstens vier hervorgehobene (spielbare zuerst), damit alles auf einen Bildschirm passt
-  const order = { live: 0, bau: 1, bald: 2 };
-  const byStatus = (a, b) => order[a.status] - order[b.status];
-  const top = ctx.games.filter(g => g.featured).sort(byStatus).slice(0, 4);
-  const all = [...top, ...ctx.games.filter(g => !top.includes(g)).sort(byStatus)];
-  const cards = all.map(g => gameCard(g, ctx, { attrs: top.includes(g) ? ' data-featured' : ' hidden' })).join('');
-  const pills = [`<button class="pill" type="button" data-filter="alle" aria-pressed="true">All games</button>`,
-    ...site.nav.map(id => { const c = ctx.categories.find(x => x.id === id); return `<button class="pill" type="button" data-filter="${c.id}" aria-pressed="false">${esc(c.name)}</button>`; })].join('');
+  // Die vier Bereiche als Buden; ein Klick führt zur Spieleliste des Bereichs (alle Spiele stehen zusätzlich im Mega-Menü)
+  const cards = site.nav.map(id => categoryCard(ctx.categories.find(x => x.id === id), ctx)).join('');
   const star = `<svg class="deco-star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.5 1.3 6.5L12 17l-5.9 3.3 1.3-6.5-4.9-4.5 6.6-.8z"/></svg>`;
   // home-stage: Hero, Spielkarten und Tageschallenge füllen genau den ersten Bildschirm, das Ticket schließt unten ab
   // (die Buden wachsen in den Platz dazwischen, cards-fit); darunter folgt nur noch der Fußbereich
@@ -46,8 +39,7 @@ function home(ctx) {
 
 <section class="games-section" id="games" aria-labelledby="att-h">
   <div class="wrap wrap-wide">
-    <h2 class="deco-title" id="att-h">${star}<span>What will you try next?</span>${star}</h2>
-    <div class="pills" role="group" aria-label="Filter games by section">${pills}<a class="pill pill-more" href="/" data-filter-more hidden>See the whole section${ui('arrow')}</a></div>
+    <h2 class="deco-title" id="att-h">${star}<span>Pick your booth</span>${star}</h2>
     <div class="cards-fit"><div class="cards cards-4" data-filter-grid>${cards}</div></div>
   </div>
 </section>
