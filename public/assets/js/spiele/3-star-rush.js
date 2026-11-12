@@ -335,7 +335,7 @@
         `${target.name} is 3 stars · level ${level}`,
         `${rolls} rolls · ${spent} gold spent${wrong ? ` · ${wrong} other ${wrong === 1 ? 'buy' : 'buys'}` : ''}`,
       ],
-      shareText: `3-Star Rush: ${target.name} 3 stars in ${sec(ms)} seconds and ${rolls} rolls – can you beat that? #TFTArcade`,
+      shareText: `TFT 3-Star Challenge: ${target.name} 3 stars in ${sec(ms)} seconds and ${rolls} rolls – can you beat that? #TFTArcade`,
       onReplay: start,
       climb: { path: `/en/champions/${target.id}`, lead: `Playing ${target.name} for real?`, text: `See ${target.name}’s builds on TFTClimb` },
     }), 900);

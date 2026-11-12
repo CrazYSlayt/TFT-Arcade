@@ -16,16 +16,18 @@ module.exports = ctx => {
     'roll-simulator': {
       title: 'TFT Rolldown Simulator: Practice Your Rolldowns',
       alt: 'TFT Rolldown Simulator: practice rolling with the real shop odds',
-      intro: `<p>This TFT rolldown simulator gives you a real shop to practice with: pick your level and gold, roll, buy XP, sell and move your units around on a hex board while your traits update on the left. Choose a comp from the TFTClimb tier list as your target, or race the clock to a 3-star 5-cost.</p>`,
+      intro: `<p>This TFT rolldown simulator gives you a real shop to practice with: pick your level and gold, then roll, buy XP, sell and move your units between a hex board and a nine-slot bench while your active traits update on the left. Choose a comp from the TFTClimb tier list as your target, or just roll and see what you hit.</p>`,
       sections: [
         ['How the shop works', `<p>Every shop has five slots, and each slot is drawn separately. The odds depend on your level: on level 8, for example, a slot is a 4-cost ${S.odds[7][3]}% of the time. The simulator then picks a champion based on the copies left in the pool – ${set} has ${S.bag.join(', ')} copies of each 1- to 5-cost. Champions you don’t buy go back into the pool on your next reroll, and opponents already hold some copies.</p>`],
-        ['Three ways to practice', `<p>Free Rolldown lets you set level 3 to 10 and 50, 100, 200 or unlimited gold. Add a target comp and its units are highlighted in the shop and tracked on the right. The 3-Star Time Trial puts you on level 10 with an empty board and asks for all ${copies5} copies of a 5-cost; expect around 100 rolls. For a scored challenge with a fixed budget, try the ${play('100-gold-challenge', '100 Gold Challenge')}.</p>
+        ['Practice your way', `<p>Set any level from 3 to 10 and start with 50, 100, 200 or unlimited gold. Rerolling costs 2 gold and Buy XP 4 gold for 4 XP, just like in the game, and your board holds as many units as your level. Add a target comp and its units are highlighted in the shop and tracked on the right, with the carry marked. Nothing is ranked, so you can try the same rolldown as often as you like.</p>
+          <p>Want a score? The ${play('100-gold-challenge', '100 Gold Challenge')} gives you one comp and 100 gold, and the ${play('3-star-rush', '3-Star Challenge')} asks for all ${copies5} copies of a 5-cost on level 10 against the clock.</p>
           <p>Planning a real rolldown? The ${climb('roll-simulator', '/en/tools/tft-rolldown-calculator', 'TFT Rolldown Calculator on TFTClimb')} shows your chances for any champion, level and gold amount.</p>`],
       ],
       faq: [
         ['Does the TFT Rolldown Simulator use real shop odds?', `Yes. Shop odds, copies per champion and XP come from the ${set} data on TFTClimb.`],
         ['Is it exactly like the game?', 'No. Opponents don’t roll during the round, and there are no items, augments or interest.'],
         ['What are the controls?', 'D rerolls, F buys XP, 1 to 5 buy a champion and E sells the unit under your cursor. You can drag units between board and bench.'],
+        ['Is there a leaderboard?', 'Not for free practice. Best times are in the 3-Star Challenge, high scores in the 100 Gold Challenge.'],
         FREE,
       ],
     },
@@ -83,7 +85,7 @@ module.exports = ctx => {
       sections: [
         ['Less time every round', `<p>In Ranked mode the shop stays visible for 4 seconds in the first round and only 2 in the last. You then have 12 seconds to rebuild it. The selection holds five extra champions with similar costs, so the cost color alone won’t save you.</p>
           <p>Fewer than three champions in the right slot costs a heart, and three hearts are all you get across ten rounds. Training gives you 6 seconds every round with no hearts at stake.</p>`],
-        ['Want more of a challenge?', `<p>${play('comp-memory', 'Comp Memory')} asks you to remember a whole board with its traits, and the ${play('3-star-rush', '3-Star Rush')} tests how fast you spot your target in a real shop.</p>`],
+        ['Want more of a challenge?', `<p>${play('comp-memory', 'Comp Memory')} asks you to remember a whole board with its traits, and the ${play('3-star-rush', '3-Star Challenge')} tests how fast you spot your target in a real shop.</p>`],
       ],
       faq: [
         ['How do points work?', 'The right champion in the right slot gives 20 points, in the shop but in the wrong slot 10. A perfect shop adds a 20 point bonus and up to 10 for speed. The maximum is 1,300.'],
@@ -157,7 +159,7 @@ module.exports = ctx => {
       sections: [
         ['Five types of questions', `<p>You name the odds for a level and cost, find the level for given odds, say when a cost tier starts appearing, and recall copies per champion and XP to the next level. The wrong answers usually come from a neighboring level or another cost tier, so a rough idea isn’t enough.</p>
           <p>You get 7 seconds for the first question and 4.5 for the last.</p>`],
-        ['Put it into practice', `<p>The ${climb('shop-odds-quiz', '/en/cheatsheet/tft-shop-odds', 'TFT shop odds cheat sheet on TFTClimb')} has every level, and the ${play('3-star-rush', '3-Star Rush')} lets you feel what those odds mean in a real shop.</p>`],
+        ['Put it into practice', `<p>The ${climb('shop-odds-quiz', '/en/cheatsheet/tft-shop-odds', 'TFT shop odds cheat sheet on TFTClimb')} has every level, and the ${play('3-star-rush', '3-Star Challenge')} lets you feel what those odds mean in a real shop.</p>`],
       ],
       faq: [
         ['Do the odds apply per shop or per slot?', 'Per slot. A shop has five slots and each one is drawn separately.'],
