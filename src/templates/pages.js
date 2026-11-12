@@ -233,7 +233,7 @@ function game(g, ctx) {
     </div>
   </header>
 
-  <div class="play${g.wide ? ' is-wide' : ''} c-${c.color}" data-game-page="${g.id}" data-game-title="${esc(g.title)}">
+  <div class="play c-${c.color}" data-game-page="${g.id}" data-game-title="${esc(g.title)}">
     <section class="play-frame" aria-label="Game area">
       <span class="frame-star fs-tl" aria-hidden="true"></span><span class="frame-star fs-tr" aria-hidden="true"></span>
       <span class="frame-star fs-bl" aria-hidden="true"></span><span class="frame-star fs-br" aria-hidden="true"></span>

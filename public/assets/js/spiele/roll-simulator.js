@@ -1,9 +1,8 @@
-// TFT Arcade – Rolldown Simulator und 100 Gold Challenge (gleiche Technik, Aufbau nach dem Spiel, Optik der Arcade).
-// Trait-Leiste links, Board (4 × 7 Sechsecke) und Bank (9 Plätze) in der Mitte, Ziel rechts, unten die Shop-Leiste:
-// links „Buy XP“ und „Reroll“ übereinander, darüber Level mit XP, Odds und Gold; beim Ziehen einer Einheit wird sie zu „Sell for Xg“.
-// Spiele und Modi:
-//   Rolldown Simulator (roll-simulator): „free“ – Level, Gold und Ziel-Comp frei wählbar, ohne Wertung ·
-//                                        „rush“ – Level 10, leeres Board, rollen bis ein 5-Koster 3 Sterne hat (Bestzeit)
+// TFT Arcade – Rolldown Simulator und 100 Gold Challenge (gleiche Technik, Design der 3-Star-Challenge: Klassen sr-/srs- plus .rdl).
+// Trait-Leiste links, Board (4 × 7 Sechsecke) mit Ziel rechts, Bank (9 Plätze) darunter, unten die Shop-Leiste:
+// Reroll, Buy XP, Level mit XP-Balken, Odds, Gold und Done; beim Ziehen einer Einheit wird die Leiste zur Verkaufsfläche.
+// Spiele und Modi (der 3-Star-Rush ist ein eigenes Spiel: 3-star-rush.js):
+//   Rolldown Simulator (roll-simulator): „free“ – Level, Gold und Ziel-Comp frei wählbar, ohne Wertung
 //   100 Gold Challenge (100-gold-challenge): „ranked“ – zufällige Comp aus der TFTClimb-Tierlist, 100 Gold, Level je nach Spielstil (Punkte) ·
 //                                            „training“ – Comp frei wählbar, ohne Wertung
 // Daten: daten/champions.js (Champions, Traits), daten/shop.js (Odds, Kopien, XP), daten/comps.js (Comps der TFTClimb-Tierlist)
@@ -16,7 +15,7 @@
   if (!stage || !data || !S || !A) return;
   const esc = A.esc, GAME = stage.dataset.game;
 
-  const SLOTS = 5, BENCH = 9, ROWS = 4, COLS = 7, REROLL = 2, XP_COST = 4, XP_GAIN = 4, MAX_LEVEL = 10, COPIES = 9;
+  const SLOTS = 5, BENCH = 9, ROWS = 4, COLS = 7, REROLL = 2, XP_COST = 4, XP_GAIN = 4, MAX_LEVEL = 10;
   const GOLD_START = 100;                         // 100 Gold Challenge
   const FREE_LEVELS = [3, 4, 5, 6, 7, 8, 9, 10], FREE_GOLD = [50, 100, 200, Infinity];
   // Level, auf dem eine Comp ihren Rolldown macht (Spielstil aus der Tierlist)
@@ -37,10 +36,9 @@
   const sellValue = (c, star) => star === 1 ? c.cost : c.cost * copiesOf(star) - (c.cost > 1 ? 1 : 0);
 
   let mode = '', state = 'start', level = 8, xp = 0, gold = 0, pool = {}, shop = [], units = [], uidNext = 1;
-  let target = null, comp = null, rolls = 0, spent = 0, startAt = 0, timer = null, raf = null, selected = null, drag = null, ghost = null, ui = {};
+  let comp = null, rolls = 0, spent = 0, startAt = 0, timer = null, raf = null, selected = null, drag = null, ghost = null, ui = {};
   let choice = { level: 8, gold: 100, comp: '' };   // Auswahl im freien Modus bzw. Training
   const mouse = { x: -1, y: -1 };
-  const isRush = () => mode === 'rush';
   const isGold = () => GAME === '100-gold-challenge';
   const ranked = () => A.isRanked(mode);
 
@@ -103,23 +101,19 @@
 
   // ───────── Aufbau einer Runde ─────────
   function setup() {
-    units = []; shop = []; uidNext = 1; selected = null; rolls = 0; spent = 0; xp = 0; target = null; comp = null;
-    if (isRush()) {
-      level = MAX_LEVEL; gold = Infinity;
-      target = A.shuffle(byCost[4])[0];
-    } else if (isGold()) {
+    units = []; shop = []; uidNext = 1; selected = null; rolls = 0; spent = 0; xp = 0; comp = null;
+    if (isGold()) {
       comp = (!ranked() && comps.find(c => c.key === choice.comp)) || A.shuffle(comps)[0] || null;
       level = comp ? STYLE_LEVEL[comp.style] || 8 : 8; gold = GOLD_START;
     } else {
       comp = comps.find(c => c.key === choice.comp) || null;
       level = choice.level; gold = choice.gold;
     }
-    // Pool: im 3-Star-Modus halten die Gegner 30–60 % der anderen 5-Koster und nichts vom Ziel, sonst bis zu 35 % von jedem Champion
+    // Pool: die Gegner halten bis zu 35 % von jedem Champion
     pool = {};
     champs.forEach(c => {
       const bag = S.bag[c.cost - 1];
-      const share = isRush() ? (c.id === target.id ? 0 : c.cost === 5 ? 0.3 + Math.random() * 0.3 : Math.random() * 0.4) : Math.random() * 0.35;
-      pool[c.id] = bag - Math.round(bag * share);
+      pool[c.id] = bag - Math.round(bag * Math.random() * 0.35);
     });
     roll();
   }
@@ -133,11 +127,7 @@
     clearTimeout(timer); cancelAnimationFrame(raf);
     mode = A.currentMode();
     let kicker, title, text, controls = '';
-    if (isRush()) {
-      kicker = `Set ${esc(data.set)} · real shop odds · Level ${MAX_LEVEL}`;
-      title = '3 stars on a 5-cost';
-      text = 'Empty board, empty bench, one 5-cost target: roll on level 10 until you own all nine copies. Gold doesn’t matter, only your time does – the clock starts with the round.';
-    } else if (isGold()) {
+    if (isGold()) {
       kicker = `Set ${esc(data.set)} · comps from the TFTClimb tier list`;
       title = ranked() ? '100 gold. One comp.' : 'Pick a comp and roll';
       text = ranked()
@@ -197,7 +187,7 @@
           <p class="srs-odds" data-rd-odds></p>
           <span class="rd-gold"><span class="kq-coin" aria-hidden="true"></span><b data-rd-gold></b></span>
           <span class="sr-sellhint"><span>Drop here to sell · <b data-rd-sell>0</b>g</span></span>
-          ${isRush() ? '' : '<button class="btn btn-sm btn-ghost rd-done" type="button" data-rd-done>Done</button>'}
+          <button class="btn btn-sm btn-ghost rd-done" type="button" data-rd-done>Done</button>
         </div>
         <ul class="srs-shop" data-rd-shop></ul>
       </div>
@@ -208,11 +198,10 @@
       shop: q('[data-rd-shop]'), bar: q('[data-sellzone]'), sell: q('[data-rd-sell]'), roll: q('[data-rd-roll]'), xpBtn: q('[data-rd-xp-btn]'), done: q('[data-rd-done]') };
     ui.roll.addEventListener('click', reroll);
     ui.xpBtn.addEventListener('click', buyXp);
-    if (ui.done) ui.done.addEventListener('click', () => finish());
+    ui.done.addEventListener('click', () => finish());
     ui.shop.addEventListener('click', e => { const b = e.target.closest('[data-slot]'); if (b && !drag) buy(Number(b.dataset.slot)); });
     stage.querySelectorAll('[data-cell]').forEach(cell => cell.addEventListener('click', () => { if (selected != null && !cell.querySelector('[data-uid]')) moveTo(selected, cellOf(cell)); }));
-    msg(isRush() ? `Your target: <b>${esc(target.name)}</b> – you need all ${COPIES} copies.`
-      : comp ? `Target comp: <b>${esc(comp.name)}</b> – two-star as many of its units as you can.` : 'Roll, buy and level – there’s no target this time.');
+    msg(comp ? `Target comp: <b>${esc(comp.name)}</b> – two-star as many of its units as you can.` : 'Roll, buy and level – there’s no target this time.');
     render(true);
     startAt = performance.now();
     const step = () => { if (state !== 'play') return; ui.clock.textContent = sec(performance.now() - startAt); raf = requestAnimationFrame(step); };
@@ -254,13 +243,11 @@
     shop[i] = null; pay(c.cost);
     units.push({ uid: uidNext++, id, star: 1, at: 'bench', pos: free });
     const up = merge(id);
-    const goal = isRush() ? id === target.id : comp && comp.units.includes(id);
+    const goal = isGoalUnit(id);
     if (up) msg(`<b>${esc(c.name)}</b> is ${up} stars!`, 'is-ok');
-    else if (isRush() && goal) msg(`${esc(c.name)}: ${copiesOwned(id)}/${COPIES} copies.`, 'is-ok');
     else msg(`${esc(c.name)} bought.`);
     A.sound(up === 3 ? 'win' : goal || up ? 'ok' : 'click');
     render(false);
-    if (isRush() && bestStar(target.id) >= 3) finish();
   }
 
   function sell(uid) {
@@ -273,7 +260,7 @@
     if (gold !== Infinity) gold += v;
     spent -= v;
     if (selected === uid) selected = null;
-    const oops = isRush() ? u.id === target.id : comp && comp.units.includes(u.id);
+    const oops = isGoalUnit(u.id);
     msg(`${esc(c.name)} ${stars(u.star)} sold: +${v} gold.${oops ? ' Careful – that one was part of your target!' : ''}`, oops ? 'is-bad' : '');
     A.sound('click');
     render(false);
@@ -366,7 +353,7 @@
   }
 
   // ───────── Darstellung ─────────
-  const isGoalUnit = id => isRush() ? id === target.id : !!(comp && comp.units.includes(id));
+  const isGoalUnit = id => !!(comp && comp.units.includes(id));
   const unitHtml = u => {
     const c = byId[u.id];
     return `<div class="sr-unit cost-${c.cost}${isGoalUnit(u.id) ? ' is-goal' : ''}${selected === u.uid ? ' is-sel' : ''}" data-uid="${u.uid}" title="${esc(c.name)} ${stars(u.star)} – drag to move, press E or drop on the shop to sell (+${sellValue(c, u.star)} gold)">
@@ -393,14 +380,6 @@
     </li>`).join('');
   }
   function goalHtml() {
-    if (isRush()) {
-      const have = copiesOwned(target.id), best = bestStar(target.id), inPool = Math.max(0, pool[target.id]) + shop.filter(x => x === target.id).length;
-      return `<p class="srs-h">Target: 3 stars</p>
-        <div class="sr-goal-pic cost-5"><img src="${A.asset(target.img)}" alt="" width="960" height="480"><span class="sr-goal-stars s${best}">${best ? stars(best) : ''}</span></div>
-        <b class="sr-goal-name">${esc(target.name)}</b>
-        <ol class="sr-pips" aria-label="Copies">${Array.from({ length: COPIES }, (_, i) => `<li class="${i < have ? 'is-on' : ''}"></li>`).join('')}</ol>
-        <p class="sr-goal-info">${have}/${COPIES} copies · <b>${inPool}</b> left in the pool</p>`;
-    }
     if (!comp) {
       return `<p class="srs-h">Your rolldown</p><p class="sr-goal-info">Level <b>${level}</b> · <b>${rolls}</b> rolls · <b>${spent}</b> gold spent</p>
         <p class="sr-goal-info">Want a goal? Pick a target comp on the start screen.</p>`;
@@ -452,19 +431,12 @@
     if (state !== 'play') return;
     state = 'done';
     cancelAnimationFrame(raf);
-    const ms = performance.now() - startAt, secs = Math.round(ms / 100) / 10;
+    const ms = performance.now() - startAt;
     ui.clock.textContent = sec(ms);
     const unitLine = comp ? comp.units.map(id => `${byId[id].name} ${boardStar(id) ? stars(boardStar(id)) : '–'}`).join(', ') : '';
     const twos = comp ? comp.units.filter(id => boardStar(id) >= 2).length : 0;
     let o;
-    if (isRush()) {
-      o = {
-        ...(ranked() ? { value: secs } : { valueText: `${sec(ms)} s` }),
-        title: secs < 60 ? 'What a highroll!' : secs < 100 ? 'Three stars!' : 'Finally!',
-        lines: [`${target.name} is 3 stars · level ${level}`, `${rolls} rolls · ${spent} gold spent`],
-        shareText: `TFT Rolldown Simulator: ${target.name} 3 stars in ${sec(ms)} seconds and ${rolls} rolls – can you beat that? #TFTArcade`,
-      };
-    } else if (isGold()) {
+    if (isGold()) {
       const pts = score();
       o = {
         ...(ranked() ? { value: pts } : { valueText: `${pts.toLocaleString('en-US')} pts` }),
@@ -482,7 +454,7 @@
         ...(comp ? { climb: climbLink() } : {}),
       };
     }
-    timer = setTimeout(() => A.finishRound({ ...o, onReplay: start }), isRush() ? 900 : 200);
+    timer = setTimeout(() => A.finishRound({ ...o, onReplay: start }), 200);
   }
 
   document.addEventListener('arcade:restart', start);
