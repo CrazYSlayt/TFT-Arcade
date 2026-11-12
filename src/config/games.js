@@ -205,6 +205,49 @@ module.exports = [
       kw: 'TFT 100 Gold Challenge',
     },
   },
+  {
+    // das frühere „3-Star Roll Simulator“-Minispiel (bis 11/2026 unter /simulators/tft-roll-simulator), eigenes Design und eigene Bestenliste
+    id: '3-star-rush',
+    category: 'challenges',
+    slug: 'tft-3-star-challenge',
+    title: '3-Star Rush',
+    tag: 'Classic',
+    hook: 'Level 10. One 5-cost. Three stars.',
+    color: 'violet',
+    bild: 'challenges',
+    illu: true,
+    short: 'Roll on level 10 until your 5-cost is 3 stars – with a hex board, a bench and the real shop odds.',
+    lead: 'Start with an empty board and bench, roll on level 10 with the real shop odds and the shared pool until you own all nine copies of your 5-cost, and move your units around just like in the game.',
+    kurz: 'Reroll (D), buy your target (1–5), drag units between board and bench – until it’s 3 stars.',
+    duration: 'approx. 1–2 min',
+    status: 'live',
+    art: 'shop',
+    featured: true,
+    record: { label: 'Best time', type: 'zeit', lowerIsBetter: true, min: 5, max: 3600 },
+    aside: 'bestenliste',
+    modes: [
+      { id: 'rush', label: 'Time Trial', icon: 'clock' },
+      { id: 'training', label: 'Training', icon: 'dumbbell', ranked: false },
+    ],
+    scripts: ['/assets/js/spiele/daten/champions.js', '/assets/js/spiele/daten/shop.js', '/assets/js/spiele/3-star-rush.js'],
+    rules: {
+      ziel: 'Get your 5-cost to 3 stars as fast as you can. That takes all nine copies.',
+      regeln: ['You start on level 10 with an empty board and bench. Opponents hold 30 to 60% of the other 5-costs, but not a single copy of your target.', 'Shop odds and pool are the real ones for the set: on level 10 every slot has a 25% chance of being a 5-cost. Gold is unlimited; rolls and gold spent are only tracked.', 'Time Trial: the clock counts up from the start of the round and the lowest time tops the leaderboard. Training: pick level 9, 10 or 11, the target is highlighted in the shop and nothing is ranked.'],
+      bedienung: ['D or “Reroll” refreshes the shop; a click or the keys 1–5 buy a champion. Three of the same unit combine into the next star level.', 'Drag units between the board (as many as your level) and the bench.', 'Hover over a unit and press E to sell it, or drop it on the shop. The bench has nine slots.'],
+    },
+    schritte: [
+      ['Check your target', 'Board and bench are empty. You need all nine copies of your 5-cost.'],
+      ['Roll and buy', 'Reroll with D, grab every copy and keep your bench under control.'],
+      ['Chase the best time', 'In Time Trial the clock stops the moment your unit hits 3 stars.'],
+    ],
+    hinweise: 'Shop odds and copies per champion come from the TFTClimb set data, champions per cost from the current set. Champions you don’t buy return to the pool on every reroll. Simplified: opponents don’t roll during the round, and there are no items or augments. On level 10 a round takes about 100 rolls on average, so luck plays its part. Only Time Trial counts for the leaderboard.',
+    seo: {
+      title: 'TFT 3 Star Challenge – 3-Star a 5-Cost | TFT Arcade',
+      desc: 'TFT 3 Star Challenge: Roll on level 10 with the real shop odds until your 5-cost hits 3 stars – hex board, bench and best times.',
+      h1: 'TFT 3 Star Challenge: 3-Star a 5-Cost',
+      kw: 'TFT 3 Star Challenge',
+    },
+  },
 
   // ───────── Quiz ─────────
   {

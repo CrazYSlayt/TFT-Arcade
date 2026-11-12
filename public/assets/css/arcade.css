@@ -1143,7 +1143,7 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
 /* Boden: Board und Bank kippen nach hinten; Figuren stehen aufrecht darauf (preserve-3d bis zur Figur) */
 .rd-arena { container-type: inline-size; }
 /* Feldgröße: so breit wie zwischen Traits und Ziel Platz ist, aber nie höher als der Bildschirm (Board, Bank und Shop ohne Scrollen) */
-.rd-arena { --rdx: clamp(58px, min(calc((100cqw - 470px) / 7.5), calc((100svh - 350px) / 5.15)), 100px); }
+.rd-arena { --rdx: clamp(58px, min(calc((100cqw - 470px) / 7.5), calc((100svh - 400px) / 5.15)), 100px); }
 .rd-arena .ts-board { --hx: var(--rdx); }
 .rd-arena .ts-bench { --hx: calc(var(--rdx) * .86); }
 .rd-floor { display: flex; flex-direction: column; align-items: stretch; gap: 12px; margin: calc(var(--rdx) * -.45) 24px 0 0; transform: rotateX(var(--tilt)); transform-origin: 50% 100%; transform-style: preserve-3d; }
@@ -1198,28 +1198,27 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
 .ts-row.is-odd { transform: translateX(calc(var(--hx) / 4 + 1.5px)); }
 .ts-hex { --hex: rgba(160, 130, 255, .16); position: relative; width: var(--hx); height: calc(var(--hy) * .75); flex: none; }
 .ts-hex::before { content: ''; position: absolute; left: 0; right: 0; top: calc(var(--hy) * -.125); bottom: calc(var(--hy) * -.125); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: linear-gradient(180deg, rgba(255, 255, 255, .06), transparent 60%), var(--hex); transition: background .12s; pointer-events: none; }
-.ts-hex.is-filled::after { content: ''; position: absolute; left: 14%; right: 14%; top: 24%; bottom: 8%; border-radius: 50%; background: radial-gradient(closest-side, rgba(0, 0, 0, .6), transparent); pointer-events: none; }   /* Schatten unter der Figur */
 .ts-hex:not(.is-filled):hover, .ts-hex.is-over { --hex: rgba(70, 227, 210, .42); }
 .ts-slot.is-over { background: rgba(70, 227, 210, .38); }
-/* Figur: runde Münze mit Porträt in der Kostenfarbe, Sterne darüber */
+/* Einheit: Porträt füllt das Sechseck, Rand in der Kostenfarbe (wie beim 3-Star Rush); auf der Bank als abgerundetes Feld */
 .ts-unit { position: relative; display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; -webkit-user-select: none; user-select: none; }
-.ts-unit-in { position: absolute; inset: 0; display: block; border-radius: 50%; background: var(--k); box-shadow: 0 0 0 2px rgba(8, 3, 16, .85), 0 0 14px -2px var(--k); }
-.ts-unit-in img { position: absolute; inset: 3px; width: calc(100% - 6px); height: calc(100% - 6px); border-radius: 50%; object-fit: cover; object-position: 62% 22%; pointer-events: none; }
-.ts-unit.is-goal .ts-unit-in { background: conic-gradient(from 200deg, #fff3b0, var(--k), #fff3b0, var(--k), #fff3b0); }
-.ts-unit.is-sel .ts-unit-in { background: var(--teal); box-shadow: 0 0 0 2px #04241f, 0 0 18px var(--teal); }
+.ts-unit-in { position: absolute; inset: 0; display: block; background: var(--k); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
+.ts-unit-in img { position: absolute; inset: 3px; width: calc(100% - 6px); height: calc(100% - 6px); object-fit: cover; object-position: center 30%; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); pointer-events: none; }
+.ts-unit.is-goal .ts-unit-in { background: linear-gradient(180deg, #fff3b0, var(--k) 60%); }
+.ts-unit.is-sel .ts-unit-in { background: var(--teal); }
 .ts-unit.is-dragging { opacity: .3; }
-.ts-hex .ts-unit, .ts-slot .ts-unit { position: absolute; left: 50%; bottom: 26%; width: calc(var(--hx, 60px) * .92); height: calc(var(--hx, 60px) * .92); transform-origin: 50% 100%; transform: translateX(-50%); }
-.rd-floor .ts-hex .ts-unit, .rd-floor .ts-slot .ts-unit { transform: translateX(-50%) rotateX(calc(var(--tilt) * -1)); transition: transform .15s; }   /* aufrecht zur Kamera */
-.rd-floor .ts-hex .ts-unit:hover, .rd-floor .ts-slot .ts-unit:hover { transform: translateX(-50%) rotateX(calc(var(--tilt) * -1)) translateY(-4px); }
+.ts-hex .ts-unit { position: absolute; left: 0; right: 0; top: calc(var(--hy) * -.125); bottom: calc(var(--hy) * -.125); width: auto; height: auto; }
+.ts-slot .ts-unit { position: absolute; inset: 0; }
+.ts-slot .ts-unit-in, .ts-slot .ts-unit-in img { clip-path: none; border-radius: 10px; }
+.ts-slot .ts-unit-in img { border-radius: 8px; }
 .rd.is-drag .ts-unit { pointer-events: none; }
-.ts-stars { position: absolute; left: 50%; top: -15px; transform: translateX(-50%); padding: 0 5px; border-radius: 6px; font-size: clamp(.72rem, calc(var(--hx, 60px) * .15), 1rem); line-height: 1.3; letter-spacing: 1px; color: #e8ecf4; background: rgba(8, 3, 16, .85); white-space: nowrap; pointer-events: none; }
+.ts-stars { position: absolute; left: 50%; top: 7%; transform: translateX(-50%); padding: 0 5px; border-radius: 6px; font-size: clamp(.72rem, calc(var(--hx, 60px) * .15), 1rem); line-height: 1.3; letter-spacing: 1px; color: #e8ecf4; background: rgba(8, 3, 16, .85); white-space: nowrap; pointer-events: none; }
 .ts-stars.s1 { color: #d9a066; } .ts-stars.s3 { color: #ffd23f; text-shadow: 0 0 6px rgba(255, 210, 63, .8); }
 .ts-name { display: none; }
-.ts-ghost { position: fixed; left: 0; top: 0; z-index: 100; width: 72px; height: 72px; pointer-events: none; opacity: .92; filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .6)); }
+.ts-ghost { position: fixed; left: 0; top: 0; z-index: 100; width: 72px; height: 83px; pointer-events: none; opacity: .92; filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .6)); }
 /* Bank: neun Felder am vorderen Board-Rand */
 .ts-bench { --hx: clamp(44px, 4vw, 62px); display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 6px; padding: 8px 10px; border-radius: 14px; background: rgba(8, 3, 16, .6); box-shadow: inset 0 0 0 1.5px rgba(255, 214, 120, .22); }
-.ts-slot { position: relative; aspect-ratio: 1 / .86; border-radius: 10px; background: linear-gradient(180deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .02)); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); transition: background .12s; }
-.ts-slot .ts-unit { bottom: 22%; }
+.ts-slot { position: relative; aspect-ratio: 1 / 1; border-radius: 10px; background: linear-gradient(180deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .02)); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); transition: background .12s; }
 /* Ziel rechts: 5-Koster (3-Star) oder Comp aus der Tierlist */
 .rd-goal { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 16px; background: rgba(8, 3, 16, .45); box-shadow: inset 0 0 0 1.5px rgba(255, 191, 58, .45); }
 .ts-goal-pic { position: relative; width: 100%; aspect-ratio: 16 / 10; overflow: hidden; border-radius: 12px; border: 3px solid var(--k); box-shadow: 0 0 20px -4px var(--k); }
@@ -1283,8 +1282,8 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
 .rd-btn.is-poor, .rd-btn:disabled { opacity: .45; }
 .rs-shop { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
 .rs-shop.is-deal li { animation: sm-deal .3s cubic-bezier(.3, 1.4, .5, 1) both; }
-.rs-sold { height: 100%; min-height: 112px; border-radius: 12px; background: rgba(255, 255, 255, .03); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06); }
-.rd-card { position: relative; display: block; width: 100%; height: 100%; min-height: 112px; padding: 0; overflow: hidden; border-radius: 12px; cursor: pointer; font: inherit; text-align: left; color: #fff; background: #0b0416; border: 3px solid var(--k); box-shadow: 0 0 16px -4px var(--k); transition: transform .12s, box-shadow .15s; }
+.rs-sold { height: 100%; min-height: 112px; aspect-ratio: 1.42 / 1; border-radius: 12px; background: rgba(255, 255, 255, .03); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06); }
+.rd-card { position: relative; display: block; width: 100%; height: 100%; min-height: 112px; aspect-ratio: 1.42 / 1; padding: 0; overflow: hidden; border-radius: 12px; cursor: pointer; font: inherit; text-align: left; color: #fff; background: #0b0416; border: 3px solid var(--k); box-shadow: 0 0 16px -4px var(--k); transition: transform .12s, box-shadow .15s; }
 .rd-card > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 25%; }
 .rd-card:hover { transform: translateY(-3px); box-shadow: 0 0 24px -2px var(--k); }
 .rd-card:active { transform: translateY(1px); }
@@ -1302,6 +1301,111 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
 .rs-odds { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: 0; font: 700 .85rem/1 var(--f-cond); letter-spacing: .06em; color: var(--muted); }
 .rs-odds span { display: inline-flex; align-items: center; gap: 5px; }
 .rs-odds i, .odds-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--k); }
+
+/* ───────── Spiel: 3-Star Rush (Board, Bank, Shop-Leiste wie im Spiel; eigener Satz Klassen sr-/srs-) ───────── */
+.sr { display: flex; flex-direction: column; gap: 10px; -webkit-user-select: none; user-select: none; }   /* kein Markieren beim Ziehen und bei Fehlklicks */
+.sr img { -webkit-user-drag: none; }
+.srs-preview { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 6px 0; padding: 0; list-style: none; }
+.srs-preview li { animation: bob 3s ease-in-out infinite; }
+.srs-preview li:nth-child(2) { animation-delay: .2s; } .srs-preview li:nth-child(3) { animation-delay: .4s; }
+.srs-preview .kq-coin { width: 52px; height: 52px; font-size: 1.7rem; }
+.srs-levels { display: flex; gap: 8px; }
+.srs-level { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 16px; border-radius: 12px; cursor: pointer; font: 700 .95rem/1.1 var(--f-body); color: var(--muted); background: rgba(8, 3, 16, .55); border: 2px solid rgba(255, 220, 160, .3); }
+.srs-level small { font: 700 .66rem/1 var(--f-cond); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
+.srs-level.is-on { color: #1a0b00; background: var(--gold); border-color: var(--gold); }
+.srs-level.is-on small { color: #5a3a00; }
+.srs-h { margin: 0 0 6px; font: 700 .8rem/1 var(--f-cond); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+/* Board: 4 Reihen × 7 Sechsecke, jede zweite Reihe halb versetzt (wie im Team-Builder von TFTClimb) */
+.sr-arena { display: grid; grid-template-columns: minmax(0, 1fr) 210px; gap: 16px; align-items: center; }
+.sr-board { --hx: clamp(44px, 6vw, 74px); --hy: calc(var(--hx) * 1.1547); position: relative; display: flex; flex-direction: column; align-items: center; padding: 14px 10px calc(var(--hy) * .25 + 14px); border-radius: 18px; background: radial-gradient(ellipse at 50% 40%, rgba(90, 45, 150, .35), transparent 70%), rgba(8, 3, 16, .45); box-shadow: inset 0 0 0 1.5px rgba(255, 214, 120, .2); }
+.sr-board::after { content: attr(data-count); position: absolute; right: 12px; top: 10px; padding: 3px 10px; border-radius: 999px; font: 700 .8rem/1.2 var(--f-cond); letter-spacing: .08em; color: var(--muted); background: rgba(8, 3, 16, .7); }
+.sr-row { display: flex; gap: 5px; margin-bottom: calc(var(--hy) * -.25 + 5px); transform: translateX(calc(var(--hx) / -4 - 1px)); }
+.sr-row.is-odd { transform: translateX(calc(var(--hx) / 4 + 1px)); }
+.sr-hex { position: relative; width: var(--hx); height: var(--hy); flex: none; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: rgba(148, 120, 255, .12); transition: background .12s; }
+.sr-hex:not(.is-filled):hover, .sr-hex.is-over, .sr-slot.is-over { background: rgba(70, 227, 210, .35); }
+.sr-hex .sr-unit { position: absolute; inset: 0; }
+.sr-unit { position: relative; display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; -webkit-user-select: none; user-select: none; }
+.sr-unit-in { position: absolute; inset: 0; display: block; background: var(--k); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
+.sr-unit-in img { position: absolute; inset: 3px; width: calc(100% - 6px); height: calc(100% - 6px); object-fit: cover; object-position: center 30%; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); pointer-events: none; }
+.sr-unit.is-goal .sr-unit-in { background: linear-gradient(180deg, #fff3b0, var(--k) 60%); }
+.sr-unit.is-sel .sr-unit-in { background: var(--teal); }
+.sr-unit.is-dragging { opacity: .3; }
+.sr-stars { position: absolute; left: 50%; top: 8%; transform: translateX(-50%); padding: 0 5px; border-radius: 6px; font-size: .78rem; line-height: 1.3; letter-spacing: 1px; color: #e8ecf4; background: rgba(8, 3, 16, .8); white-space: nowrap; pointer-events: none; }
+.sr-stars.s1 { color: #d9a066; } .sr-stars.s3 { color: #ffd23f; text-shadow: 0 0 6px rgba(255, 210, 63, .8); }
+.sr-name { display: none; }
+.sr-ghost { position: fixed; left: 0; top: 0; z-index: 100; width: 72px; height: 83px; pointer-events: none; opacity: .9; filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .6)); }
+/* Ziel rechts neben dem Board */
+.sr-goal { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px; border-radius: 16px; text-align: center; background: rgba(8, 3, 16, .45); box-shadow: inset 0 0 0 1.5px rgba(255, 191, 58, .45); }
+.sr-goal-pic { position: relative; width: 100%; aspect-ratio: 16 / 10; overflow: hidden; border-radius: 12px; border: 3px solid var(--k); box-shadow: 0 0 20px -4px var(--k); }
+.sr-goal-pic img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
+.sr-goal-stars { position: absolute; left: 50%; top: 6px; transform: translateX(-50%); padding: 1px 8px; border-radius: 999px; font-size: 1rem; letter-spacing: 2px; color: #e8ecf4; background: rgba(8, 3, 16, .8); }
+.sr-goal-stars:empty { display: none; }
+.sr-goal-stars.s3 { color: #ffd23f; text-shadow: 0 0 8px rgba(255, 210, 63, .9); }
+.sr-goal-name { font: 400 1.35rem/1.1 var(--f-display); color: #fff1d6; }
+.sr-pips { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; width: 100%; margin: 0; padding: 0; list-style: none; }
+.sr-pips li { height: 10px; border-radius: 3px; background: rgba(255, 255, 255, .12); }
+.sr-pips li:nth-child(3n) { margin-right: 4px; }
+.sr-pips li.is-on { background: var(--gold); box-shadow: 0 0 8px rgba(255, 201, 74, .7); }
+.sr-goal-info { margin: 0; font-size: .88rem; color: var(--muted); }
+.sr-goal-info b { color: #fff; }
+/* Bank: neun Plätze */
+.sr-bench { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 6px; }
+.sr-slot { position: relative; aspect-ratio: 1 / 1.05; max-height: 84px; border-radius: 10px; background: rgba(255, 255, 255, .05); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1); transition: background .12s; }
+.sr-slot .sr-unit-in, .sr-slot .sr-unit-in img { clip-path: none; border-radius: 10px; }
+.sr-slot .sr-unit-in img { border-radius: 8px; }
+/* Shop-Leiste: Level und Odds oben, Rollen links, fünf Karten; Einheiten hierher ziehen = verkaufen */
+.sr-shopbar { display: grid; gap: 8px; padding: 8px 10px 10px; border-radius: 16px; background: linear-gradient(180deg, #2a1347, #1a0b2e); box-shadow: inset 0 0 0 2px rgba(255, 201, 74, .45); transition: box-shadow .15s, background .15s; }
+.sr-shopbar.is-sell { box-shadow: inset 0 0 0 2px #ff5a6a; }
+.sr-shopbar.is-sell.is-over { background: linear-gradient(180deg, #4a1630, #2a0b1e); }
+.sr-shop-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; }
+.sr-lvl { padding: 3px 12px; border-radius: 999px; font: 700 .85rem/1.2 var(--f-cond); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); background: rgba(8, 3, 16, .6); }
+.sr-lvl b { color: var(--gold); }
+.sr-sellhint { margin-left: auto; font: 700 .78rem/1 var(--f-cond); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
+.sr-shopbar.is-sell .sr-sellhint { color: #ff9aa4; }
+.sr-roll { display: inline-flex; align-items: center; gap: 7px; padding: 5px 8px 5px 14px; border-radius: 999px; cursor: pointer; font: 700 .92rem/1.1 var(--f-body); color: #fff; border: 2px solid var(--teal); background: rgba(70, 227, 210, .12); transition: transform .12s, background .15s; }
+.sr-roll .kq-coin { --k: #ffbf3a; width: 20px; height: 20px; font-size: .75rem; }
+.sr-roll:hover { transform: translateY(-1px); background: rgba(70, 227, 210, .24); }
+.sr-roll:active { transform: translateY(1px); }
+.srs-shop { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.srs-shop.is-deal li { animation: sm-deal .3s cubic-bezier(.3, 1.4, .5, 1) both; animation-delay: calc(var(--i, 0) * 30ms); }
+.srs-sold { min-height: 150px; border-radius: 12px; background: rgba(255, 255, 255, .03); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06); }
+.srs-card { position: relative; display: flex; flex-direction: column; width: 100%; height: 100%; min-height: 150px; padding: 0; overflow: hidden; border-radius: 12px; cursor: pointer; font: inherit; text-align: left; color: #fff; background: #0b0416; border: 3px solid var(--k); box-shadow: 0 0 16px -4px var(--k); transition: transform .12s, box-shadow .15s; }
+.srs-card:hover { transform: translateY(-3px); box-shadow: 0 0 24px -2px var(--k); }
+.srs-card:active { transform: translateY(1px); }
+.srs-card.is-target::after { content: ''; position: absolute; inset: 0; border-radius: 9px; box-shadow: inset 0 0 0 3px var(--gold); pointer-events: none; animation: smpulse 1.2s ease-in-out infinite; }
+.srs-pic { display: block; aspect-ratio: 5 / 2; overflow: hidden; }
+.srs-pic img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
+.srs-row { display: flex; align-items: center; justify-content: space-between; gap: 4px; padding: 5px 7px 2px; }
+.srs-name { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font: 400 clamp(.85rem, 1.1vw, 1.05rem)/1.1 var(--f-display); }
+.srs-cost .kq-coin { width: 22px; height: 22px; font-size: .8rem; }
+.srs-traits { display: grid; gap: 1px; padding: 0 7px 6px; font-size: .72rem; line-height: 1.25; color: #e6dcf5; }
+.srs-traits span { display: flex; align-items: center; gap: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.srs-traits img { flex: none; width: 13px; height: 13px; }
+.srs-odds { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: 0; font: 700 .85rem/1 var(--f-cond); letter-spacing: .06em; color: var(--muted); }
+.srs-odds span { display: inline-flex; align-items: center; gap: 5px; }
+.srs-odds i, .odds-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--k); }
+
+@media (max-width: 760px) {
+  .sr-arena { grid-template-columns: 1fr; }
+  .sr-board { --hx: calc((100vw - 120px) / 7.6); padding-inline: 4px; }
+  .sr-goal { display: grid; grid-template-columns: 96px minmax(0, 1fr); align-items: center; gap: 4px 12px; text-align: left; }
+  .sr-goal .srs-h { display: none; }
+  .sr-goal-pic { grid-row: 1 / 4; }
+  .sr-bench { gap: 3px; }
+  .sr-slot { border-radius: 6px; }
+  .sr-stars { font-size: .6rem; padding: 0 3px; }
+  .sr-roll { flex: 1 0 100%; justify-content: center; padding-block: 10px; }
+  .sr-sellhint { display: none; }
+  .srs-shop { gap: 5px; }
+  .srs-card, .srs-sold { min-height: 0; }
+  .srs-traits { display: none; }
+}
+@media (max-width: 560px) {
+  .srs-card { border-width: 2px; }
+  .srs-row { padding: 3px 4px; }
+  .srs-name { font-size: .7rem; }
+  .srs-cost { display: none; }
+}
 
 /* ───────── Shop-Odds-Quiz und Odds-Tabelle unter dem Spiel ───────── */
 .so-big { font: 400 clamp(2.6rem, 5vw, 3.8rem)/1 var(--f-display); color: var(--gold); text-shadow: 0 3px 0 #7a2f00, 0 8px 18px rgba(0, 0, 0, .5); }
@@ -1584,7 +1688,6 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
   .rd-shop { order: 3; border-radius: 14px; }
   .rd-arena > .rd-traits { order: 4; max-height: none; }
   .rd-goalbox { order: 5; margin: 0; }
-  .rd-floor .ts-hex .ts-unit, .rd-floor .ts-slot .ts-unit, .rd-floor .ts-hex .ts-unit:hover, .rd-floor .ts-slot .ts-unit:hover { transform: translate(-50%, 50%); bottom: 50%; }
   .rd-traits { display: flex; gap: 4px; overflow-x: auto; }
   .rd-trait { flex: none; grid-template-columns: 24px 14px; padding: 3px 6px 3px 3px; }
   .rd-trait-hex { width: 24px; height: 28px; }
@@ -1597,14 +1700,14 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
   .rd-arena .ts-board { --hx: calc((100cqw - 50px) / 7.6); padding-inline: 4px; }
   .rd-arena .ts-bench { --hx: calc((100cqw - 60px) / 9); gap: 3px; padding: 5px; }
   .ts-slot { border-radius: 6px; }
-  .ts-stars { top: -9px; font-size: .58rem; padding: 0 3px; }
+  .ts-stars { top: 5%; font-size: .58rem; padding: 0 3px; }
   .rd-shop-top { grid-template-columns: auto minmax(0, 1fr) auto; }
   .rd-shop-top .rd-gold { grid-column: 3; margin: 0; }
-  .rd-shop-top .rs-odds { grid-column: 1 / -1; grid-row: 2; justify-self: center; }
+  .rd-shop-top .rs-odds { grid-column: 1 / 3; grid-row: 2; justify-self: start; }
   .rd-shop-top .rd-tolevel { display: none; }
   .rd-xp { width: 50px; }
   .rd-shop-top { gap: 6px 8px; }
-  .rd-shop-top .rd-done { grid-column: 2; justify-self: end; }
+  .rd-shop-top .rd-done { grid-column: 3; grid-row: 2; justify-self: end; }
   .rd-shop-main { grid-template-columns: 1fr; }
   .rd-actions { grid-template-columns: 1fr 1fr; }
   .rd-sell { inset: 0; }

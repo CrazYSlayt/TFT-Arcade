@@ -37,6 +37,7 @@ const illu = n => `<div class="illu"><img src="${file(`assets/img/karten/${n}.jp
 const TRAITS = champs.traits.filter(t => t.icon && t.bp.length >= 2).slice(0, 7);
 const VISUAL = {
   'roll-simulator': () => illu('roll-simulator'),
+  '3-star-rush': () => illu('challenges'),
   'champion-quiz': () => illu('champion-quiz'),
   'shop-memory': () => `<div class="fan">${[1, 3, 5, 4, 2].map(k => back(costColor[k - 1])).join('')}</div>`,
   'comp-memory': () => `<div class="hexes">${[2, 3, 4, 5, 4, 3].map((k, i) => champs.champions.filter(c => c.cost === k)[i]).map(c => hex(file(c.img), costColor[c.cost - 1], 146)).join('')}</div>`,
@@ -49,6 +50,7 @@ const VISUAL = {
 
 const GAMES = [
   { id: 'roll-simulator', slug: 'tft-rolldown-simulator', a: 'TFT Rolldown', b: 'Simulator', sub: 'Practice your rolldowns', line: 'Hex board, bench and real shop odds' },
+  { id: '3-star-rush', slug: 'tft-3-star-challenge', a: 'TFT 3 Star', b: 'Challenge', sub: 'Level 10. One 5-cost.', line: 'Hex board, bench and best times' },
   { id: '100-gold-challenge', slug: 'tft-100-gold-challenge', a: 'TFT 100 Gold', b: 'Challenge', sub: 'One comp. One rolldown.', line: 'Comps from the TFTClimb tier list' },
   { id: 'champion-quiz', slug: 'tft-champion-quiz', a: 'TFT Champion', b: 'Quiz', sub: 'Who is this champ?', line: 'Six clues and a Daily Puzzle' },
   { id: 'shop-memory', slug: 'tft-shop-memory', a: 'TFT Shop', b: 'Memory', sub: 'Remember the shop', line: 'Quick look. Flip. Rebuild it.' },
