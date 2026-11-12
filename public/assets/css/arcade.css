@@ -1407,6 +1407,36 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
   .srs-cost { display: none; }
 }
 
+/* ───────── Rolldown Simulator und 100 Gold Challenge im Design der 3-Star-Challenge (sr-/srs-), dazu Traits links, Buy XP, XP-Balken, Gold, Done ───────── */
+.rdl { container-type: inline-size; }
+.rdl-arena { grid-template-columns: 172px minmax(0, 1fr) 210px; align-items: start; }
+.rdl .sr-board { --hx: clamp(40px, calc((100cqw - 475px) / 7.5), 74px); }
+.rdl .sr-shopbar { position: relative; }
+/* nur beim Ziehen: Verkaufshinweis über der oberen Zeile */
+.rdl .sr-sellhint { position: absolute; left: 10px; right: 10px; top: 8px; z-index: 3; display: none; place-items: center; height: 36px; margin: 0; border-radius: 999px; font-size: .95rem; color: #fff1d6; background: rgba(42, 10, 30, .96); box-shadow: inset 0 0 0 2px #ff5a6a; }
+.rdl .sr-shopbar.is-sell .sr-sellhint { display: grid; }
+.rdl .sr-shopbar.is-sell.is-over .sr-sellhint { background: rgba(90, 16, 44, .98); }
+.rdl .rd-done { margin-left: auto; }
+.rdl-goal { align-items: stretch; text-align: left; }
+.rdl-goal .sr-goal-name, .rdl-goal .srs-h { text-align: center; }
+.rdl .sr-shop-top { gap: 6px 12px; }
+.rdl-xpbtn { border-color: rgba(255, 220, 160, .55); background: rgba(255, 255, 255, .06); }
+.rdl-xpbtn:hover { background: rgba(255, 255, 255, .12); }
+.rdl .sr-roll.is-poor, .rdl .sr-roll:disabled { opacity: .45; }
+.rdl-lvl { display: inline-flex; align-items: center; gap: 8px; }
+.rdl-lvl small { font-size: .8rem; color: #fff; letter-spacing: 0; }
+.rdl .rd-gold { margin-left: 0; }
+.rdl .srs-card .rd-card-have { z-index: 2; }
+@media (max-width: 760px) {
+  /* Board, Bank und Shop direkt untereinander; Traits und Ziel darunter */
+  .rdl-arena { display: contents; }
+  .rdl .sr-board { order: 1; } .rdl .sr-bench { order: 2; } .rdl > .game-msg { order: 3; } .rdl .sr-shopbar { order: 4; }
+  .rdl-arena .rd-traits { order: 5; }
+  .rdl-goal { order: 6; display: flex; }
+  .rdl .sr-board { --hx: calc((100cqw - 30px) / 7.6); }
+  .rdl .rd-tolevel { display: none; }
+}
+
 /* ───────── Shop-Odds-Quiz und Odds-Tabelle unter dem Spiel ───────── */
 .so-big { font: 400 clamp(2.6rem, 5vw, 3.8rem)/1 var(--f-display); color: var(--gold); text-shadow: 0 3px 0 #7a2f00, 0 8px 18px rgba(0, 0, 0, .5); }
 .qz-subject-name .kq-coin { display: inline-grid; width: 38px; height: 38px; margin-right: 6px; vertical-align: middle; font-size: 1.3rem; }

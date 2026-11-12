@@ -40,7 +40,6 @@
   let target = null, comp = null, rolls = 0, spent = 0, startAt = 0, timer = null, raf = null, selected = null, drag = null, ghost = null, ui = {};
   let choice = { level: 8, gold: 100, comp: '' };   // Auswahl im freien Modus bzw. Training
   const mouse = { x: -1, y: -1 };
-  let goalClosed = !!A.store.get('rd_ziel_zu', false);   // Ziel-Kasten rechts eingeklappt (merkt sich die Wahl)
   const isRush = () => mode === 'rush';
   const isGold = () => GAME === '100-gold-challenge';
   const ranked = () => A.isRanked(mode);
@@ -150,8 +149,8 @@
       title = 'Free rolldown';
       text = 'Pick your level and gold, and optionally a comp from the TFTClimb tier list to roll for. Buy XP, reroll, sell – just like in a real game. Nothing here counts for the leaderboard.';
       controls = `<div class="rd-choose">
-        <div class="rs-levels" role="group" aria-label="Level">${FREE_LEVELS.map(l => `<button class="rs-level${l === choice.level ? ' is-on' : ''}" type="button" data-level="${l}">Lvl ${l}</button>`).join('')}</div>
-        <div class="rs-levels" role="group" aria-label="Gold">${FREE_GOLD.map(g => `<button class="rs-level${g === choice.gold ? ' is-on' : ''}" type="button" data-gold="${g}">${goldText(g)} gold</button>`).join('')}</div>
+        <div class="srs-levels" role="group" aria-label="Level">${FREE_LEVELS.map(l => `<button class="srs-level${l === choice.level ? ' is-on' : ''}" type="button" data-level="${l}">Lvl ${l}</button>`).join('')}</div>
+        <div class="srs-levels" role="group" aria-label="Gold">${FREE_GOLD.map(g => `<button class="srs-level${g === choice.gold ? ' is-on' : ''}" type="button" data-gold="${g}">${goldText(g)} gold</button>`).join('')}</div>
         <label class="rd-pick">Target comp <select data-pick-comp><option value="">No target</option>${compOptions(choice.comp)}</select></label>
       </div>`;
     }
@@ -174,42 +173,33 @@
     mode = A.currentMode();
     setup();
     state = 'play';
-    const hexes = Array.from({ length: ROWS }, (_, r) => `<div class="ts-row${r % 2 ? ' is-odd' : ''}">${Array.from({ length: COLS }, (_, c) => `<div class="ts-hex" data-cell="board:${r * COLS + c}"></div>`).join('')}</div>`).join('');
-    // Spielansicht: Arena mit schrägem Board, Bank vorne, Traits links, Ziel rechts (einklappbar), Leiste oben, Shop unten
-    stage.innerHTML = `<div class="rd">
-      <div class="rd-arena">
-        <div class="hud rd-stagebar">
-          <span class="hud-pill">Time <b data-rd-clock>0.0</b></span>
-          <span class="hud-pill hud-score">${isGold() ? 'Points' : 'Rolls'} <b data-rd-score>0</b></span>
-          <span class="hud-pill">${isGold() ? 'Rolls' : 'Gold spent'} <b data-rd-side>0</b></span>
-        </div>
-        <ol class="rd-traits" data-rd-traits aria-label="Active traits"></ol>
-        <div class="rd-floor">
-          <div class="ts-board rd-board" data-rd-board aria-label="Board">${hexes}</div>
-          <div class="ts-bench" aria-label="Bench">${Array.from({ length: BENCH }, (_, i) => `<div class="ts-slot" data-cell="bench:${i}"></div>`).join('')}</div>
-        </div>
-        <aside class="rd-goalbox${goalClosed ? ' is-closed' : ''}" aria-label="Target">
-          <button class="rd-goal-tog" type="button" data-rd-goaltog aria-expanded="${!goalClosed}">${isRush() ? 'Target' : comp ? 'Target comp' : 'Your rolldown'}<span aria-hidden="true">▾</span></button>
-          <div class="rd-goal" data-rd-goal></div>
-        </aside>
-        <p class="game-msg" data-rd-msg aria-live="polite"></p>
+    const hexes = Array.from({ length: ROWS }, (_, r) => `<div class="sr-row${r % 2 ? ' is-odd' : ''}">${Array.from({ length: COLS }, (_, c) => `<div class="sr-hex" data-cell="board:${r * COLS + c}"></div>`).join('')}</div>`).join('');
+    // Aufbau wie die 3-Star-Challenge: Leiste oben, Board mit Ziel rechts (Traits links), Bank darunter, Shop-Leiste unten
+    stage.innerHTML = `<div class="sr rdl">
+      <div class="hud">
+        <div class="hud-side"><span class="hud-pill">Time <b data-rd-clock>0.0</b></span></div>
+        <span class="hud-pill hud-score">${isGold() ? 'Points' : 'Rolls'} <b data-rd-score>0</b></span>
+        <div class="hud-side cr-hud-right"><span class="hud-pill">${isGold() ? 'Rolls' : 'Gold spent'} <b data-rd-side>0</b></span></div>
       </div>
-      <div class="rd-shop" data-sellzone>
-        <div class="rd-shop-top">
-          <span class="rd-lvl">Lvl. <b data-rd-level></b><span class="rd-xp"><i data-rd-xpbar></i></span><small data-rd-xp></small></span>
-          <p class="rs-odds" data-rd-odds></p>
-          <span class="rd-gold"><span class="kq-coin" aria-hidden="true"></span><b data-rd-gold></b></span>
+      <div class="sr-arena rdl-arena">
+        <ol class="rd-traits" data-rd-traits aria-label="Active traits"></ol>
+        <div class="sr-board" data-rd-board aria-label="Board">${hexes}</div>
+        <aside class="sr-goal rdl-goal" data-rd-goal aria-label="Target"></aside>
+      </div>
+      <div class="sr-bench" aria-label="Bench">${Array.from({ length: BENCH }, (_, i) => `<div class="sr-slot" data-cell="bench:${i}"></div>`).join('')}</div>
+      <p class="game-msg" data-rd-msg aria-live="polite"></p>
+      <div class="sr-shopbar" data-sellzone>
+        <div class="sr-shop-top">
+          <button class="sr-roll" type="button" data-rd-roll aria-keyshortcuts="D">Reroll ${coin(REROLL)}<kbd>D</kbd></button>
+          <button class="sr-roll rdl-xpbtn" type="button" data-rd-xp-btn aria-keyshortcuts="F">Buy XP ${coin(XP_COST)}<kbd>F</kbd></button>
+          <span class="sr-lvl rdl-lvl">Level <b data-rd-level></b><span class="rd-xp"><i data-rd-xpbar></i></span><small data-rd-xp></small></span>
           <span class="rd-tolevel" data-rd-tolevel></span>
+          <p class="srs-odds" data-rd-odds></p>
+          <span class="rd-gold"><span class="kq-coin" aria-hidden="true"></span><b data-rd-gold></b></span>
+          <span class="sr-sellhint"><span>Drop here to sell · <b data-rd-sell>0</b>g</span></span>
           ${isRush() ? '' : '<button class="btn btn-sm btn-ghost rd-done" type="button" data-rd-done>Done</button>'}
         </div>
-        <div class="rd-shop-main">
-          <div class="rd-actions">
-            <button class="rd-btn" type="button" data-rd-xp-btn aria-keyshortcuts="F"><span>Buy XP</span><small>${coin(XP_COST)}</small><i aria-hidden="true">F</i></button>
-            <button class="rd-btn is-roll" type="button" data-rd-roll aria-keyshortcuts="D"><span>Reroll</span><small>${coin(REROLL)}</small><i aria-hidden="true">D</i></button>
-          </div>
-          <ul class="rs-shop rd-cards" data-rd-shop></ul>
-          <div class="rd-sell" aria-hidden="true"><span>Sell for <b data-rd-sell>0</b>g</span></div>
-        </div>
+        <ul class="srs-shop" data-rd-shop></ul>
       </div>
     </div>`;
     const q = s => stage.querySelector(s);
@@ -219,12 +209,6 @@
     ui.roll.addEventListener('click', reroll);
     ui.xpBtn.addEventListener('click', buyXp);
     if (ui.done) ui.done.addEventListener('click', () => finish());
-    q('[data-rd-goaltog]').addEventListener('click', e => {
-      goalClosed = !goalClosed;
-      A.store.set('rd_ziel_zu', goalClosed);
-      e.currentTarget.parentNode.classList.toggle('is-closed', goalClosed);
-      e.currentTarget.setAttribute('aria-expanded', String(!goalClosed));
-    });
     ui.shop.addEventListener('click', e => { const b = e.target.closest('[data-slot]'); if (b && !drag) buy(Number(b.dataset.slot)); });
     stage.querySelectorAll('[data-cell]').forEach(cell => cell.addEventListener('click', () => { if (selected != null && !cell.querySelector('[data-uid]')) moveTo(selected, cellOf(cell)); }));
     msg(isRush() ? `Your target: <b>${esc(target.name)}</b> – you need all ${COPIES} copies.`
@@ -331,14 +315,14 @@
       if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 6) return;
       drag.moved = true;
       ghost = drag.el.cloneNode(true);
-      ghost.className += ' ts-ghost';
+      ghost.className += ' sr-ghost';
       document.body.appendChild(ghost);
       drag.el.classList.add('is-dragging');
       const u = units.find(x => x.uid === drag.uid);
       ui.sell.textContent = u ? sellValue(byId[u.id], u.star) : 0;
       ui.bar.classList.add('is-sell');
       ui.board.classList.add('is-dragging');
-      stage.querySelector('.rd').classList.add('is-drag');   // Figuren lassen den Mauszeiger durch, damit das Feld dahinter das Ziel ist
+      stage.firstElementChild.classList.add('is-drag');   // Figuren lassen den Mauszeiger durch, damit das Feld dahinter das Ziel ist
     }
     ghost.style.transform = `translate(${e.clientX - 36}px, ${e.clientY - 42}px)`;
     const t = dropTarget(e.clientX, e.clientY);
@@ -385,18 +369,18 @@
   const isGoalUnit = id => isRush() ? id === target.id : !!(comp && comp.units.includes(id));
   const unitHtml = u => {
     const c = byId[u.id];
-    return `<div class="ts-unit cost-${c.cost}${isGoalUnit(u.id) ? ' is-goal' : ''}${selected === u.uid ? ' is-sel' : ''}" data-uid="${u.uid}" title="${esc(c.name)} ${stars(u.star)} – drag to move, press E or drop on the shop to sell (+${sellValue(c, u.star)} gold)">
-      <span class="ts-unit-in"><img src="${A.asset(c.img)}" alt="" width="960" height="480" draggable="false"></span>
-      <span class="ts-stars s${u.star}">${stars(u.star)}</span><span class="ts-name">${esc(c.name)}</span></div>`;
+    return `<div class="sr-unit cost-${c.cost}${isGoalUnit(u.id) ? ' is-goal' : ''}${selected === u.uid ? ' is-sel' : ''}" data-uid="${u.uid}" title="${esc(c.name)} ${stars(u.star)} – drag to move, press E or drop on the shop to sell (+${sellValue(c, u.star)} gold)">
+      <span class="sr-unit-in"><img src="${A.asset(c.img)}" alt="" width="960" height="480" draggable="false"></span>
+      <span class="sr-stars s${u.star}">${stars(u.star)}</span><span class="sr-name">${esc(c.name)}</span></div>`;
   };
-  // Shop-Karte wie im Spiel: Bild über die ganze Karte, Traits oben links, Name und Kosten in der Leiste unten
+  // Shop-Karte wie bei der 3-Star-Challenge: Bild oben, Name und Kosten, Traits darunter; Zahl = wie viele Kopien du schon hast
   function card(c, i) {
     const goal = isGoalUnit(c.id), have = copiesOwned(c.id);
-    return `<li><button class="rd-card cost-${c.cost}${goal && !ranked() ? ' is-target' : ''}" type="button" data-slot="${i}" aria-label="${esc(c.name)}, ${c.cost} gold" aria-keyshortcuts="${i + 1}">
-      <img src="${A.asset(c.img)}" alt="" width="960" height="480" draggable="false">
-      <span class="rd-card-traits">${c.traits.map(([n, icon]) => `<span>${icon ? `<img src="${A.asset(icon)}" alt="">` : ''}${esc(n)}</span>`).join('')}</span>
+    return `<li><button class="srs-card cost-${c.cost}${goal && !ranked() ? ' is-target' : ''}" type="button" data-slot="${i}" aria-label="${esc(c.name)}, ${c.cost} gold" aria-keyshortcuts="${i + 1}">
+      <span class="srs-pic"><img src="${A.asset(c.img)}" alt="" width="960" height="480" draggable="false"></span>
       ${have ? `<span class="rd-card-have">${have}×</span>` : ''}
-      <span class="rd-card-bar"><b>${esc(c.name)}</b><span>${coin(c.cost)}</span></span>
+      <span class="srs-row"><b class="srs-name">${esc(c.name)}</b><span class="srs-cost">${coin(c.cost)}</span></span>
+      <span class="srs-traits">${c.traits.map(([n, icon]) => `<span>${icon ? `<img src="${A.asset(icon)}" alt="">` : ''}${esc(n)}</span>`).join('')}</span>
     </button></li>`;
   }
   function traitsHtml() {
@@ -411,18 +395,18 @@
   function goalHtml() {
     if (isRush()) {
       const have = copiesOwned(target.id), best = bestStar(target.id), inPool = Math.max(0, pool[target.id]) + shop.filter(x => x === target.id).length;
-      return `<p class="rs-h">Target: 3 stars</p>
-        <div class="ts-goal-pic cost-5"><img src="${A.asset(target.img)}" alt="" width="960" height="480"><span class="ts-goal-stars s${best}">${best ? stars(best) : ''}</span></div>
-        <b class="ts-goal-name">${esc(target.name)}</b>
-        <ol class="ts-pips" aria-label="Copies">${Array.from({ length: COPIES }, (_, i) => `<li class="${i < have ? 'is-on' : ''}"></li>`).join('')}</ol>
-        <p class="ts-goal-info">${have}/${COPIES} copies · <b>${inPool}</b> left in the pool</p>`;
+      return `<p class="srs-h">Target: 3 stars</p>
+        <div class="sr-goal-pic cost-5"><img src="${A.asset(target.img)}" alt="" width="960" height="480"><span class="sr-goal-stars s${best}">${best ? stars(best) : ''}</span></div>
+        <b class="sr-goal-name">${esc(target.name)}</b>
+        <ol class="sr-pips" aria-label="Copies">${Array.from({ length: COPIES }, (_, i) => `<li class="${i < have ? 'is-on' : ''}"></li>`).join('')}</ol>
+        <p class="sr-goal-info">${have}/${COPIES} copies · <b>${inPool}</b> left in the pool</p>`;
     }
     if (!comp) {
-      return `<p class="rs-h">Your rolldown</p><p class="ts-goal-info">Level <b>${level}</b> · <b>${rolls}</b> rolls · <b>${spent}</b> gold spent</p>
-        <p class="ts-goal-info">Want a goal? Pick a target comp on the start screen.</p>`;
+      return `<p class="srs-h">Your rolldown</p><p class="sr-goal-info">Level <b>${level}</b> · <b>${rolls}</b> rolls · <b>${spent}</b> gold spent</p>
+        <p class="sr-goal-info">Want a goal? Pick a target comp on the start screen.</p>`;
     }
     // Sterne auf dem Board zählen; was nur auf der Bank steht, erscheint blass mit Hinweis
-    return `<p class="rs-h">Target comp</p>
+    return `<p class="srs-h">Target comp</p>
       <b class="rd-comp-name"><span class="rd-tier t-${esc(comp.tier)}">${esc(comp.tier)}</span>${esc(comp.name)}</b>
       <small class="rd-comp-style">${esc(comp.style)}</small>
       <ul class="rd-comp-units">${comp.units.map(id => {
@@ -432,7 +416,7 @@
           <span class="rd-cu-name">${esc(c.name)}${id === comp.carry ? ' <em>carry</em>' : ''}</span>
           <span class="rd-cu-stars s${b || s}">${b || s ? stars(b || s) : '–'}</span></li>`;
       }).join('')}</ul>
-      ${isGold() ? '<p class="ts-goal-info">Only units on your board score.</p>' : ''}`;
+      ${isGold() ? '<p class="sr-goal-info">Only units on your board score.</p>' : ''}`;
   }
 
   function render(fresh) {
@@ -455,8 +439,8 @@
     const cost = level < MAX_LEVEL ? Math.ceil((need - xp) / XP_GAIN) * XP_COST : 0;
     ui.tolevel.innerHTML = level < MAX_LEVEL && gold !== Infinity ? `<span class="kq-coin" aria-hidden="true"></span><b class="${gold >= cost ? 'is-ok' : 'is-bad'}">${cost}</b> to level${gold >= cost ? ` · ${gold} › ${gold - cost}` : ''}` : '';
     ui.odds.innerHTML = S.odds[level - 1].map((o, k) => `<span class="cost-${k + 1}"><i></i>${o}%</span>`).join('');
-    ui.shop.className = 'rs-shop rd-cards' + (fresh ? ' is-deal' : '');
-    ui.shop.innerHTML = shop.map((id, i) => id ? card(byId[id], i) : '<li class="rs-sold" aria-hidden="true"></li>').join('');
+    ui.shop.className = 'srs-shop' + (fresh ? ' is-deal' : '');
+    ui.shop.innerHTML = shop.map((id, i) => id ? card(byId[id], i) : '<li class="srs-sold" aria-hidden="true"></li>').join('');
     ui.xpBtn.disabled = level >= MAX_LEVEL;
     ui.roll.classList.toggle('is-poor', gold < REROLL);
     ui.xpBtn.classList.toggle('is-poor', gold < XP_COST);

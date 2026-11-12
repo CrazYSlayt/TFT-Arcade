@@ -25,7 +25,6 @@ module.exports = [
     category: 'simulators',
     slug: 'tft-rolldown-simulator',
     title: 'Rolldown Simulator',
-    wide: true,   // Spielfläche über die volle Breite, Bestenliste darunter (Board muss groß sein)
     tag: 'Classic',
     hook: 'Your shop. Your gold. Your rolldown.',
     color: 'violet',
@@ -171,7 +170,6 @@ module.exports = [
     category: 'challenges',
     slug: 'tft-100-gold-challenge',
     title: '100 Gold Challenge',
-    wide: true,
     tag: 'Budget',
     hook: '100 gold. One comp. No way back.',
     color: 'gold',
