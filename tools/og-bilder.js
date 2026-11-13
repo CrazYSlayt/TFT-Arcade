@@ -44,6 +44,8 @@ const VISUAL = {
   'cost-quiz': () => `<div class="stack"><div class="pic" style="--k:${costColor[3]}"><img src="${file(champs.champions.find(c => c.cost === 4).img)}"></div><div class="coins">${[1, 2, 3, 4, 5].map(n => coin(n)).join('')}</div></div>`,
   'item-quiz': () => { const [a, b] = items.components; return `<div class="recipe"><img class="ic" src="${file(a.img)}"><b>+</b><img class="ic" src="${file(b.img)}"><b>=</b><span class="ic q">?</span></div>`; },
   'trait-quiz': () => `<div class="hexes traits">${TRAITS.map(t => `<span class="thex"><span><img src="${file(t.icon)}"></span></span>`).join('')}</div>`,
+  'find-the-imposter': () => { const t = champs.traits.find(x => x.champs.length >= 4 && x.icon); const three = t.champs.slice(0, 3).map(champ); const imp = champs.champions.find(c => !t.champs.includes(c.id) && c.cost === 4);
+    return `<div class="hexes">${[...three, imp].map((c, i) => `<span class="hex${i === 3 ? ' sus' : ''}" style="--k:${i === 3 ? '#ff5a6a' : costColor[c.cost - 1]};--s:200px"><span><img src="${file(c.img)}"></span>${i === 3 ? '<b>?</b>' : ''}</span>`).join('')}</div>`; },
   '100-gold-challenge': () => `<div class="stack"><span class="coin big" style="--k:#ffbf3a;--s:210px">100</span><div class="coins">${[1, 2, 3, 4, 5].map(n => coin(n, 70)).join('')}</div></div>`,
   'shop-odds-quiz': () => `<div class="stack"><div class="bars">${[[18, 1], [32, 2], [56, 3], [78, 4], [42, 5]].map(([h, k]) => `<i style="height:${h * 3}px;--k:${costColor[k - 1]}"></i>`).join('')}</div><div class="coins">${[1, 2, 3, 4, 5].map(n => coin(n)).join('')}</div></div>`,
 };
@@ -58,6 +60,7 @@ const GAMES = [
   { id: 'cost-quiz', slug: 'tft-champion-cost-quiz', a: 'TFT Cost', b: 'Quiz', sub: 'What does it cost?', line: 'One champion. Five prices.' },
   { id: 'item-quiz', slug: 'tft-item-quiz', a: 'TFT Item', b: 'Quiz', sub: 'Do you know every recipe?', line: 'Two parts. One item.' },
   { id: 'trait-quiz', slug: 'tft-trait-quiz', a: 'TFT Trait', b: 'Quiz', sub: 'Do you know every synergy?', line: 'Breakpoints, champions, traits' },
+  { id: 'find-the-imposter', slug: 'tft-find-the-imposter', a: 'TFT Find the', b: 'Imposter', sub: 'Three belong. One doesn’t.', line: 'Spot the odd one out' },
   { id: 'shop-odds-quiz', slug: 'tft-shop-odds-quiz', a: 'TFT Shop Odds', b: 'Quiz', sub: 'Do you know the odds?', line: 'Level, cost, percent' },
 ];
 
@@ -97,6 +100,9 @@ h1 span { display: block; color: #ffc94a; }
 .hex { display: block; width: var(--s); height: calc(var(--s) * 1.1547); padding: 5px; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: var(--k); }
 .hex span { display: block; width: 100%; height: 100%; overflow: hidden; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
 .hex img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
+.hex.sus { position: relative; }
+.hex.sus span { filter: grayscale(.7) brightness(.55); }
+.hex.sus b { position: absolute; inset: 0; display: grid; place-items: center; font: 400 120px/1 'Lilita One'; color: #ff9aa4; text-shadow: 0 5px 0 #5a0d1a; }
 .thex { display: grid; place-items: center; width: 130px; height: 150px; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: linear-gradient(180deg, #ffe17c, #b9771c); }
 .thex span { display: grid; place-items: center; width: 118px; height: 138px; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: radial-gradient(circle at 50% 30%, #7a52c0, #2a1248 72%); }
 .thex img { width: 62%; }

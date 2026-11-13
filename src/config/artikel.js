@@ -144,11 +144,26 @@ module.exports = ctx => {
       sections: [
         ['Three types of questions', `<p>You name a trait’s breakpoints, pick the champion who belongs to a trait, or pick the trait a champion has. Wrong breakpoints always have the same number of steps and are often off by just one, so counting the numbers won’t help. Wrong champions often share another trait with the right one.</p>
           <p>You get 7 seconds for the first question and 4 for the last.</p>`],
-        ['From quiz to board', `<p>Try your synergies out in the ${climb('trait-quiz', '/en/tft-team-builder', 'TFT Team Builder on TFTClimb')}, or practice remembering whole boards in ${play('comp-memory', 'Comp Memory')}.</p>`],
+        ['From quiz to board', `<p>Try your synergies out in the ${climb('trait-quiz', '/en/tft-team-builder', 'TFT Team Builder on TFTClimb')}, or practice remembering whole boards in ${play('comp-memory', 'Comp Memory')}. Want it faster? ${play('find-the-imposter', 'Find the Imposter')} shows four champions and asks who doesn’t share the trait.</p>`],
       ],
       faq: [
         ['What is a breakpoint?', 'The number of champions at which a trait’s next bonus activates.'],
         ['Are unique traits included?', 'They can appear in the champion questions, but not in the breakpoint questions.'],
+        FREE,
+      ],
+    },
+    'find-the-imposter': {
+      title: 'TFT Find the Imposter: Spot the Odd One Out',
+      alt: 'TFT Find the Imposter: four champions, three share a trait',
+      intro: `<p>Four champions, three of them share a trait. Find the imposter is a quick TFT odd one out game for the ${C.traits.length} traits of ${set}: spot the champion who doesn’t belong, then see every card’s traits and learn which champions really go together.</p>`,
+      sections: [
+        ['It gets sneakier', `<p>In the first three rounds the imposter has nothing in common with the others. From round four it shares a trait with one of them, and in the last three rounds with two, so you can’t just look for the odd face. Every round is checked: no second trait is shared by three of the four, and the costs never give the answer away.</p>
+          <p>You get 9 seconds for the first round and 5.5 for the last. Origins and classes both count, and only traits with at least three champions are used.</p>`],
+        ['From quiz to board', `<p>Knowing who shares a trait is what lets you pivot mid-game. Try the synergies out in the ${climb('find-the-imposter', '/en/tft-team-builder', 'TFT Team Builder on TFTClimb')}, or test breakpoints in the ${play('trait-quiz', 'Trait Quiz')}.</p>`],
+      ],
+      faq: [
+        ['Can there be two right answers?', 'No. Every round is checked so that only one champion can be the imposter.'],
+        ['How many points can I get?', 'The maximum is 1,500 per round of ten.'],
         FREE,
       ],
     },

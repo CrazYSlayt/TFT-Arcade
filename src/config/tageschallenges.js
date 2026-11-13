@@ -10,5 +10,6 @@ module.exports = [
   { game: 'comp-memory', mode: 'ranked', title: 'Eight champions. One look.', text: 'Can you still rebuild the board from memory when it’s eight champions big?' },
   { game: 'item-quiz', title: 'Every recipe. No mistakes.', text: 'Answer all ten Item Quiz questions correctly.' },
   { game: 'trait-quiz', title: 'Know your breakpoints?', text: 'Score a perfect 10 out of 10 in the Trait Quiz.' },
+  { game: 'find-the-imposter', title: 'Three belong. One doesn’t.', text: 'Catch all ten imposters in Find the Imposter – even the sneaky ones at the end.' },
   { game: 'shop-odds-quiz', title: 'Think you know the odds?', text: 'Get all ten Shop Odds Quiz questions right, without peeking at the table.' },
 ];
