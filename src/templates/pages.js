@@ -178,7 +178,7 @@ function lookupTable(g, ctx) {
   const rows = S.odds.slice(5, 10).map((r, i) => `<tr><th scope="row">Level ${i + 6}</th>${r.map(v => `<td${v ? '' : ' class="is-zero"'}>${v}%</td>`).join('')}</tr>`).join('');
   return `
   <section class="panel odds-panel" aria-labelledby="odds-h">
-    <h2 class="extra-h" id="odds-h">${ui('info')}Shop odds for levels 6 to 10 – Set ${esc(S.set)}</h2>
+    <h2 class="extra-h" id="odds-h">${ui('info')}TFT shop odds for levels 6 to 10 (Set ${esc(S.set)})</h2>
     <p class="odds-lead">Chance per shop slot by level and cost.</p>
     <div class="odds-scroll">
       <table class="odds-table">
@@ -203,7 +203,7 @@ function gameArticle(g, a) {
       <a class="art-author-img" href="${AUTHOR.url}" target="_blank" rel="noopener"><img src="/assets/img/autor-claudio.jpg" alt="Claudio “CrazYSlayt”" width="64" height="64" loading="lazy"></a>
       <p><small>Built by</small><a class="art-author-name" href="${AUTHOR.url}" target="_blank" rel="noopener">Claudio “CrazYSlayt”</a><span>TFT Challenger and founder of <a class="art-a" href="https://www.tftclimb.com/en?utm_source=tftarcade&amp;utm_medium=referral&amp;utm_campaign=${esc(g.id)}" target="_blank" rel="noopener">TFTClimb</a>, the home of TFT tier lists, tools and coaching.</span></p>
     </div>
-    <h3>FAQ</h3>
+    <h3>${esc(g.seo.kw)}: FAQ</h3>
     <dl class="art-faq">${a.faq.map(([q, x]) => `<dt>${esc(q)}</dt><dd>${esc(x)}</dd>`).join('')}</dl>
   </article>`;
 }
@@ -249,7 +249,7 @@ function game(g, ctx) {
 
   <div class="game-extra">
     <section class="panel extra-steps" aria-labelledby="steps-h">
-      <h2 class="extra-h" id="steps-h">${ui('info')}How it works</h2>
+      <h2 class="extra-h" id="steps-h">${ui('info')}${esc(g.seo.kw)}: how it works</h2>
       <ol class="steps">${steps(g)}</ol>
     </section>
     <section class="panel extra-next" aria-labelledby="next-h">
