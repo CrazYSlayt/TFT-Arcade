@@ -1403,7 +1403,7 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
 .hs-table tbody tr:nth-child(3) { color: #f0a46b; }
 .hs-table tbody tr.is-you { color: #fff; background: rgba(70, 227, 210, .16); box-shadow: inset 3px 0 0 var(--teal); }
 .hs-table tr.empty td { text-align: center; text-transform: none; font-family: var(--f-body); color: var(--muted); }
-.is-new { animation: hsblink .5s steps(2) 8; }
+.is-you.is-new { animation: hsblink .5s steps(2) 8; }   /* nur der eigene neue Eintrag in Bestenlisten – nicht die Quiz-Fragen (.qz-prompt.is-new) */
 .cab-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding: 0 18px 18px; }
 .cab-record { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: var(--muted); }
 .cab-record .ui { color: var(--gold); }
