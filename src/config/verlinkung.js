@@ -12,7 +12,7 @@ const network = [
 // eine Zeile auf der Ergebniskarte nach jeder Runde: [Adresse auf TFTClimb, Satz davor, Linktext]
 // Das Champion-Rätsel ersetzt sie nach der Runde durch die Seite des gesuchten Champions (finishRound({ climb })).
 const result = {
-  'roll-simulator': ['/en/tools/tft-rolldown-calculator', 'Planning a real rolldown?', 'Check your odds with the Rolldown Calculator'],
+  'roll-simulator': ['/en/guides/tft-rolldown-guide', 'When should you roll in a real game?', 'Read the TFT Rolldown Guide'],
   '3-star-rush': ['/en/tools/tft-rolldown-calculator', 'Chasing a 3-star in a real game?', 'Check your odds with the Rolldown Calculator'],
   '100-gold-challenge': ['/en/tier-list', 'Want more comps like this?', 'See the TFT tier list'],
   'champion-quiz': ['/en/library', 'Want to know the whole roster?', 'Browse every champion on TFTClimb'],
