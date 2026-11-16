@@ -122,10 +122,20 @@
   function compOptions(sel) {
     return comps.map(c => `<option value="${esc(c.key)}"${c.key === sel ? ' selected' : ''}>${esc(c.name)} · ${esc(c.tier)} · ${esc(c.style)}</option>`).join('');
   }
+  // 100 Gold ohne Comps (neues Set, Tierlist auf TFTClimb noch leer): Hinweis statt Spiel – der freie Rolldown Simulator läuft auch ohne Comps
+  const noComps = () => isGold() && !comps.length;
+  function waiting() {
+    stage.innerHTML = `<div class="game-intro">
+      <p class="game-kicker">Set ${esc(data.set)} · comps from the TFTClimb tier list</p>
+      <h2 class="game-title">New comps are on their way</h2>
+      <p class="game-text">The 100 Gold Challenge rolls for comps from the TFTClimb tier list, and the Set ${esc(data.set)} comps aren’t in yet. They’ll show up here as soon as they are. Until then, practice your rolldown with any level and gold in the <a href="/simulators/tft-rolldown-simulator">TFT Rolldown Simulator</a>.</p>
+    </div>`;
+  }
   function intro() {
     state = 'start';
     clearTimeout(timer); cancelAnimationFrame(raf);
     mode = A.currentMode();
+    if (noComps()) { state = 'wait'; waiting(); return; }
     let kicker, title, text, controls = '';
     if (isGold()) {
       kicker = `Set ${esc(data.set)} · comps from the TFTClimb tier list`;
@@ -161,6 +171,7 @@
   function start() {
     clearTimeout(timer); cancelAnimationFrame(raf);
     mode = A.currentMode();
+    if (noComps()) { intro(); return; }
     setup();
     state = 'play';
     const hexes = Array.from({ length: ROWS }, (_, r) => `<div class="sr-row${r % 2 ? ' is-odd' : ''}">${Array.from({ length: COLS }, (_, c) => `<div class="sr-hex" data-cell="board:${r * COLS + c}"></div>`).join('')}</div>`).join('');
@@ -436,7 +447,7 @@
     const unitLine = comp ? comp.units.map(id => `${byId[id].name} ${boardStar(id) ? stars(boardStar(id)) : '–'}`).join(', ') : '';
     const twos = comp ? comp.units.filter(id => boardStar(id) >= 2).length : 0;
     let o;
-    if (isGold()) {
+    if (isGold() && comp) {
       const pts = score();
       o = {
         ...(ranked() ? { value: pts } : { valueText: `${pts.toLocaleString('en-US')} pts` }),
