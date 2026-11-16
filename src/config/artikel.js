@@ -167,6 +167,21 @@ module.exports = ctx => {
         FREE,
       ],
     },
+    'splash-art-zoom': {
+      title: 'TFT Splash Art Quiz: Guess the Champion from a Zoom',
+      alt: 'TFT Splash Art Quiz: guess the champion from a zoomed-in splash art',
+      intro: `<p>A tiny crop of a splash art slowly zooms out, and you pick the champion from four names. This TFT splash art quiz uses the art of all ${C.champions.length} champions of ${set} – the same pictures you see on your shop cards.</p>`,
+      sections: [
+        ['How does the scoring work in Splash Art Zoom?', `<p>Early guesses score the most: a right answer gives 50 points plus up to 100 for speed, and the full bonus needs an answer within the first second. You get 10 seconds for the first round and 7 for the last, so the picture zooms out faster as you go.</p>
+          <p>The wrong names aren’t random: one costs the same as the right champion and one shares a trait with it, so knowing the roster helps.</p>`],
+        ['Why learn the TFT splash arts?', `<p>Because you buy from pictures, not names: spotting a champion’s art in a split second makes every rolldown faster. Practice that in a real shop in the ${play('3-star-rush', '3-Star Challenge')}, or look up every champion in the ${climb('splash-art-zoom', '/en/library', 'TFT champion library on TFTClimb')}.</p>`],
+      ],
+      faq: [
+        ['Which splash arts are used?', `The ones on the shop cards of ${set}, for every champion in the set.`],
+        ['How many points can I get?', 'The maximum is 1,500 per round of ten.'],
+        FREE,
+      ],
+    },
     'shop-odds-quiz': {
       title: 'TFT Shop Odds Quiz: Test Your Numbers',
       alt: 'TFT Shop Odds Quiz: test your knowledge of the shop odds',

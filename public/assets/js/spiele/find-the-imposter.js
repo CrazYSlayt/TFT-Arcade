@@ -69,6 +69,7 @@
     title: 'Find the Imposter',
     kicker: `10 rounds · ${groups.length} traits · Set ${esc(data.set)}`,
     time: [9000, 5500],
+    unit: 'round',
     intro: 'Four champions, three of them share a trait. Spot the one who doesn’t belong. It gets sneakier as you go: later imposters share traits with some of the others. After every answer you see all their traits.',
     preview: `<div class="fi-preview" aria-hidden="true">${previewChamps.map(c => `<img class="cost-${c.cost}" src="${A.asset(c.img)}" alt="" width="960" height="480">`).join('')}<span>?</span></div>`,
     questions: () => {

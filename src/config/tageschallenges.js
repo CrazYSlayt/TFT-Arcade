@@ -11,5 +11,6 @@ module.exports = [
   { game: 'item-quiz', title: 'Every recipe. No mistakes.', text: 'Answer all ten Item Quiz questions correctly.' },
   { game: 'trait-quiz', title: 'Know your breakpoints?', text: 'Score a perfect 10 out of 10 in the Trait Quiz.' },
   { game: 'find-the-imposter', title: 'Three belong. One doesn’t.', text: 'Catch all ten imposters in Find the Imposter – even the sneaky ones at the end.' },
+  { game: 'splash-art-zoom', title: 'One crop. Ten champions.', text: 'Score 1,000 points in Splash Art Zoom – you’ll have to guess before the picture zooms out.' },
   { game: 'shop-odds-quiz', title: 'Think you know the odds?', text: 'Get all ten Shop Odds Quiz questions right, without peeking at the table.' },
 ];

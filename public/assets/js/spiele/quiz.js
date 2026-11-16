@@ -8,13 +8,15 @@
 (function () {
   'use strict';
 
-  const BASE = 100, BONUS = 50;          // Punkte für eine richtige Antwort + Tempo-Bonus
   const FULL_MS = 1000;                  // Bonus voll bis FULL_MS, danach linear weniger bis zum Zeitlimit
   const NEXT_OK = 1100, NEXT_WRONG = 2400;
 
+  // cfg.points = [Grundpunkte, Tempo-Bonus], Standard 100 + 50 (Splash Art Zoom: 50 + 100, früh raten zählt mehr)
+  // Während die Uhr läuft, trägt die Frage die Klasse .is-running und --qz-limit (Zeitlimit) – nach der Antwort .is-done (z. B. Zoom-Animation)
   window.ArcadeQuiz = function (cfg) {
     const stage = document.getElementById('spielflaeche'), A = window.Arcade;
     if (!stage || !A) return;
+    const [BASE, BONUS] = cfg.points || [100, 50];
     const rounds = cfg.rounds || 10, time = cfg.time || [8000, 5000];
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -30,7 +32,7 @@
         <p class="game-kicker">${cfg.kicker}</p>
         <h2 class="game-title">${A.esc(cfg.title)}</h2>
         ${cfg.preview || ''}
-        <p class="game-text">${cfg.intro} You get ${sec(time[0])} seconds per question, down to ${sec(time[1])} at the end. Tip: the keys <kbd>1</kbd>–<kbd>4</kbd> are the fastest.</p>
+        <p class="game-text">${cfg.intro} You get ${sec(time[0])} seconds per ${cfg.unit || 'question'}, down to ${sec(time[1])} at the end. Tip: the keys <kbd>1</kbd>–<kbd>4</kbd> are the fastest.</p>
         <button class="btn btn-gold btn-lg" type="button" data-game-start>Let’s go</button>
       </div>`;
       stage.querySelector('[data-game-start]').addEventListener('click', start);
@@ -85,6 +87,8 @@
       Promise.race([loaded, new Promise(r => setTimeout(r, 1000))]).then(() => {
         if (state !== 'play' || qs[idx] !== qq || locked) return;
         shownAt = performance.now();
+        ui.prompt.style.setProperty('--qz-limit', limit + 'ms');
+        ui.prompt.classList.add('is-running');
         clearTimeout(timer);
         timer = setTimeout(() => { if (state === 'play' && qs[idx] === qq && !locked) answer(-1); }, limit);
         tick();
@@ -115,6 +119,7 @@
       locked = true;
       clearTimeout(timer);
       cancelAnimationFrame(raf);
+      ui.prompt.classList.add('is-done');
       ui.bonus.parentElement.classList.remove('is-hurry');
       const qq = qs[idx], ok = i === qq.answer;
       const bonus = ok ? bonusFor(shownAt ? performance.now() - shownAt : limit) : 0, pts = ok ? BASE + bonus : 0;

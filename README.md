@@ -52,7 +52,7 @@ Es gibt keine Abhängigkeiten, nur Node.js (ab Version 20).
 - `/` – Spielhalle
 - `/simulators`, `/challenges`, `/quiz`, `/party` – Bereiche
 - `/party/tft-challenge-roulette` – Spielseite im Aufbau
-- spielbar: `/simulators/tft-rolldown-simulator`, `/challenges/tft-shop-memory`, `/challenges/tft-comp-memory`, `/quiz/tft-champion-cost-quiz`, `/quiz/tft-champion-quiz`, `/quiz/tft-item-quiz`, `/quiz/tft-trait-quiz`, `/quiz/tft-find-the-imposter`, `/quiz/tft-shop-odds-quiz` – Item-, Trait-, Imposter- und Shop-Odds-Quiz nutzen den gemeinsamen Ablauf `public/assets/js/spiele/quiz.js` (`ArcadeQuiz({ … })`, Fragen mit vier Antworten)
+- spielbar: `/simulators/tft-rolldown-simulator`, `/challenges/tft-shop-memory`, `/challenges/tft-comp-memory`, `/quiz/tft-champion-cost-quiz`, `/quiz/tft-champion-quiz`, `/quiz/tft-item-quiz`, `/quiz/tft-trait-quiz`, `/quiz/tft-find-the-imposter`, `/quiz/tft-splash-art-quiz`, `/quiz/tft-shop-odds-quiz` – Item-, Trait-, Imposter-, Splash-Art- und Shop-Odds-Quiz nutzen den gemeinsamen Ablauf `public/assets/js/spiele/quiz.js` (`ArcadeQuiz({ … })`, Fragen mit vier Antworten)
 - `/leaderboard` – Hall of Fame: ein Arcade-Automat pro Spiel mit Rangliste (noindex, bis ein Spiel mit Bestenliste live ist)
 - `/about`, `/feedback`, `/legal-notice`, `/privacy`
 - Alte Adressen leiten per `vercel.json` weiter: `/simulatoren`, `/bestenliste`, `/ueber-tft-arcade`, `/impressum`, `/datenschutz`, `/quiz/tft-champion-kosten-quiz`, der alte Roll Simulator auf den Rolldown Simulator und `/challenges/tft-3-star-rush` auf die 3-Star Challenge (`/simulators/tft-3-star-challenge`)

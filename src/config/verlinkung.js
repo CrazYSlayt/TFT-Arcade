@@ -19,6 +19,7 @@ const result = {
   'cost-quiz': ['/en/cheatsheet/tft-shop-odds', 'Cost decides when a champion shows up in your shop.', 'See the shop odds on TFTClimb'],
   'item-quiz': ['/en/library', 'Missed a recipe?', 'Look up every item on TFTClimb'],
   'trait-quiz': ['/en/tft-team-builder', 'Know your synergies?', 'Plan a board in the Team Builder'],
+  'splash-art-zoom': ['/en/library', 'Want to know every champion by heart?', 'Browse all champions on TFTClimb'],
   'find-the-imposter': ['/en/tft-team-builder', 'Know which champions fit together?', 'Build a board in the Team Builder'],
   'shop-odds-quiz': ['/en/cheatsheet/tft-shop-odds', 'Want every level at a glance?', 'Open the shop odds cheat sheet'],
   'shop-memory': ['/en/tier-list', 'Know what to look for in your shop?', 'See the best comps right now'],
