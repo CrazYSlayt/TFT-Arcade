@@ -85,7 +85,7 @@
 
   // Shop + Auswahl: 5 Champions im Shop, dazu 5 „Fallen“ mit möglichst gleichen Kosten
   function deal() {
-    const deck = A.shuffle(data.champions);
+    const deck = A.shuffle(data.champions.filter(c => !c.lock));   // wie im echten Shop: ohne freischaltbare Champions
     const s = deck.slice(0, SLOTS), rest = deck.slice(SLOTS), extra = [];
     s.forEach(c => {
       const i = rest.findIndex(x => x.cost === c.cost);

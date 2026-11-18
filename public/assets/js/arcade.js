@@ -407,7 +407,13 @@
     if (climb) {
       const a = $('[data-result-climb-link]', climb), lead = $('[data-result-climb-lead]', climb);
       if (!climb.dataset.def) climb.dataset.def = JSON.stringify([a.getAttribute('href'), lead.textContent, a.textContent]);
-      const [href, l, t] = JSON.parse(climb.dataset.def), c = o.climb;
+      const [href, l, t] = JSON.parse(climb.dataset.def);
+      let c = o.climb;
+      // PBE-Set (Champion-Daten mit „PBE“ in der Version): TFTClimb zeigt Besuchern noch das Live-Set, ein Link kann das Set nicht mitgeben.
+      // Links auf Champion-, Comp-, Bibliotheks-, Tierlist- und Team-Builder-Seiten führen dann auf TFTClimbs Seite zum neuen Set.
+      const D = window.TFT_ARCADE_CHAMPIONS, path = c ? c.path : (href.match(/^https:\/\/www\.tftclimb\.com([^?]*)/) || [])[1] || '';
+      if (D && /PBE/i.test(D.version || '') && /^\/en\/(champions|comps|library|tier-list|tft-team-builder)(\/|$)/.test(path))
+        c = { path: `/en/tft-set-${D.set}`, lead: `Set ${D.set} is on the PBE.`, text: `See every new champion and trait on TFTClimb` };
       a.setAttribute('href', c ? href.replace(/^(https:\/\/www\.tftclimb\.com)[^?]*/, '$1' + c.path) : href);
       lead.textContent = c ? c.lead : l;
       a.textContent = c ? c.text : t;

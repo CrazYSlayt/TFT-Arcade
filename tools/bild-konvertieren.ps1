@@ -3,6 +3,17 @@
 # mode 'tile': quadratische Kachel mittig auf einen verschwommenen, abgedunkelten Hintergrund aus derselben Kachel setzen
 param([string]$JobFile)
 Add-Type -AssemblyName System.Drawing
+Add-Type -AssemblyName PresentationCore
+# System.Drawing kann kein WebP – das liest Windows (WIC) und gibt es als PNG im Speicher weiter
+function Open-Image([string]$file) {
+  if ($file -notlike '*.webp') { return [System.Drawing.Image]::FromFile($file) }
+  $dec = [System.Windows.Media.Imaging.BitmapDecoder]::Create([Uri]$file, 'None', 'OnLoad')
+  $enc = New-Object System.Windows.Media.Imaging.PngBitmapEncoder
+  $enc.Frames.Add($dec.Frames[0])
+  $ms = New-Object System.IO.MemoryStream
+  $enc.Save($ms); $ms.Position = 0
+  return [System.Drawing.Image]::FromStream($ms)
+}
 $jobs = Get-Content $JobFile -Raw -Encoding UTF8 | ConvertFrom-Json
 $codec = [System.Drawing.Imaging.ImageCodecInfo]::GetImageEncoders() | Where-Object { $_.MimeType -eq 'image/jpeg' }
 $params = New-Object System.Drawing.Imaging.EncoderParameters 1
@@ -10,7 +21,7 @@ $params.Param[0] = New-Object System.Drawing.Imaging.EncoderParameter ([System.D
 $W = 960; $H = 480
 
 foreach ($j in $jobs) {
-  $src = [System.Drawing.Image]::FromFile($j.src)
+  $src = Open-Image $j.src
   $out = New-Object System.Drawing.Bitmap $W, $H
   $g = [System.Drawing.Graphics]::FromImage($out)
   $g.InterpolationMode = 'HighQualityBicubic'; $g.PixelOffsetMode = 'HighQuality'; $g.SmoothingMode = 'HighQuality'

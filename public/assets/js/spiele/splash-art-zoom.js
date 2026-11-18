@@ -26,11 +26,13 @@
 
   function question(c) {
     const opts = options(c);
-    // Zoom-Mittelpunkt: zufällig irgendwo auf der Figur (nicht immer das Gesicht), nie ganz am Rand
-    const x = rnd(22, 78), y = rnd(15, 70);
+    // Zoom-Mittelpunkt: zufällig irgendwo auf der Figur (nicht immer das Gesicht), nie ganz am Rand.
+    // Kachel-Bilder (art 'tile'): der Champion sitzt im mittleren Quadrat (25–75 % der Breite), Zoom schwächer (CSS .is-tile)
+    const tile = c.art === 'tile';
+    const x = tile ? rnd(36, 64) : rnd(22, 78), y = tile ? rnd(20, 75) : rnd(15, 70);
     return {
       label: 'Who’s behind the zoom?',
-      prompt: `<div class="sz-frame cost-${c.cost}"><img class="sz-img" src="${A.asset(c.img)}" alt="" width="960" height="480" draggable="false" style="transform-origin:${x}% ${y}%"></div>`,
+      prompt: `<div class="sz-frame cost-${c.cost}${tile ? ' is-tile' : ''}"><img class="sz-img" src="${A.asset(c.img)}" alt="" width="960" height="480" draggable="false" style="transform-origin:${x}% ${y}%"></div>`,
       ask: 'The picture zooms out – name the champion as early as you can.',
       layout: 'text sz-opts',
       options: opts.map(o => ({ html: `<span class="sz-name">${esc(o.name)}</span>`, label: o.name })),

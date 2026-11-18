@@ -1025,6 +1025,11 @@ kbd { padding: 1px 7px; border-radius: 5px; font: 700 .9em/1.4 var(--f-cond); co
 .qz-prompt.is-done .sz-img { animation: none; transform: scale(1); }
 .qz-prompt.is-done .sz-frame { border-color: var(--k); box-shadow: 0 0 26px -4px var(--k), 0 10px 26px rgba(0, 0, 0, .55); }
 @keyframes sz-zoom { from { transform: scale(14); } 55% { transform: scale(5); } to { transform: scale(1.4); } }
+/* Kachel statt Splash-Bild (z. B. PBE-Set): das Bild ist nur 256 px groß und sitzt mittig – schwächer zoomen, sonst nur Pixelbrei */
+.sz-frame.is-tile .sz-img { transform: scale(7); }
+.qz-prompt.is-running .sz-frame.is-tile .sz-img { animation-name: sz-zoom-tile; }
+.qz-prompt.is-done .sz-frame.is-tile .sz-img { transform: scale(1); }
+@keyframes sz-zoom-tile { from { transform: scale(7); } 55% { transform: scale(3); } to { transform: scale(1.15); } }
 .sz-opts .qz-opt { min-height: 70px; padding: 14px 10px; }
 .sz-name { font: 400 clamp(1.05rem, 1.6vw, 1.35rem)/1.1 var(--f-display); color: #fff1d6; text-align: center; }
 .sz-preview { display: flex; gap: 10px; margin: 6px 0; }

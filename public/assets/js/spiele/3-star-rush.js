@@ -17,7 +17,7 @@
 
   const champs = data.champions;
   const byId = Object.fromEntries(champs.map(c => [c.id, c]));
-  const byCost = [1, 2, 3, 4, 5].map(k => champs.filter(c => c.cost === k));
+  const byCost = [1, 2, 3, 4, 5].map(k => champs.filter(c => c.cost === k && !c.lock));   // Shop ohne freischaltbare Champions
   const coin = n => `<span class="kq-coin">${n}</span>`;
   const stars = n => '★'.repeat(n);
   const pct = x => `${x.toLocaleString('en-US', { maximumFractionDigits: x < 10 ? 1 : 0 })}%`;

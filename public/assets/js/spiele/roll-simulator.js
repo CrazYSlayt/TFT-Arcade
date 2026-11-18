@@ -25,9 +25,12 @@
 
   const champs = data.champions;
   const byId = Object.fromEntries(champs.map(c => [c.id, c]));
-  const byCost = [1, 2, 3, 4, 5].map(k => champs.filter(c => c.cost === k));
+  // Shop-Pool je Kosten: ohne freischaltbare Champions (lock) – außer denen der Ziel-Comp, die gelten als freigeschaltet (neu in setup())
+  const shopPool = () => [1, 2, 3, 4, 5].map(k => champs.filter(c => c.cost === k && (!c.lock || (comp && comp.units.includes(c.id)))));
+  let byCost = [];
   const traitBy = Object.fromEntries((data.traits || []).map(t => [t.name, t]));
-  const comps = ((C && C.comps) || []).filter(c => c.units.every(id => byId[id]));
+  // nur Comps desselben Sets (nach einem Set-Wechsel ohne neue Tierlist passen alte Comps nicht)
+  const comps = (C && String(C.set) === String(data.set) ? C.comps || [] : []).filter(c => c.units.every(id => byId[id]));
   const coin = n => `<span class="kq-coin">${n}</span>`;
   const stars = n => '★'.repeat(n);
   const sec = ms => (ms / 1000).toFixed(1);
@@ -109,6 +112,7 @@
       comp = comps.find(c => c.key === choice.comp) || null;
       level = choice.level; gold = choice.gold;
     }
+    byCost = shopPool();
     // Pool: die Gegner halten bis zu 35 % von jedem Champion
     pool = {};
     champs.forEach(c => {
