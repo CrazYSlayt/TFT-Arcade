@@ -221,7 +221,6 @@ function game(g, ctx) {
 <div class="wrap wrap-game page-top">
   <header class="game-head c-${c.color}">
     <div class="game-head-main">
-      ${g.tag ? `<a class="game-tag" href="/${c.slug}" title="All ${esc(c.name)}">${esc(g.tag)}</a>` : ''}
       <div>
         <h1 class="game-h1">${gameH1(g.seo.h1)}</h1>
         <p class="game-hook">${esc(g.hook || g.short)}${live ? '' : ` ${badge(g.status)}`}</p>
@@ -319,15 +318,9 @@ function allGames(ctx) {
     </div>
   </header>
 
-  <section class="section-tight" aria-labelledby="all-h">
-    <h2 class="section-title" id="all-h">Newest first</h2>
-    <div class="cards">${live.map(g => gameCard(g, ctx, { full: true })).join('')}</div>
+  <section class="section-tight" aria-label="All games">
+    <div class="cards">${live.concat(soon).map(g => gameCard(g, ctx, { level: 2 })).join('')}</div>
   </section>
-${soon.length ? `
-  <section class="section-tight" aria-labelledby="soon-h">
-    <h2 class="section-title" id="soon-h">Coming soon</h2>
-    <div class="cards">${soon.map(g => gameCard(g, ctx, { full: true })).join('')}</div>
-  </section>` : ''}
 </div>`;
   return {
     path: '/games',
