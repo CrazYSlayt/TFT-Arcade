@@ -65,7 +65,7 @@ ${page.noindex ? '<meta name="robots" content="noindex, follow">\n' : ''}<link r
 <meta property="og:image:height" content="630">
 ${page.ogAlt ? `<meta property="og:image:alt" content="${esc(page.ogAlt)}">\n` : ''}<meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="${site.themeColor}">
-<link rel="icon" href="${a('/assets/brand/favicon.svg')}" type="image/svg+xml">
+<link rel="icon" href="${a('/favicon.ico')}" sizes="48x48">
 <link rel="icon" href="${a('/assets/brand/favicon-32.png')}" sizes="32x32" type="image/png">
 <link rel="icon" href="${a('/assets/brand/favicon-192.png')}" sizes="192x192" type="image/png">
 <link rel="apple-touch-icon" href="${a('/assets/brand/apple-touch-icon.png')}">
@@ -77,8 +77,8 @@ ${FILE_LINKS}
 </head>`;
 }
 
-// Logo: Stern + Schriftzug „TFT ARCADE“
-const LOGO = cls => `<a class="logo${cls ? ' ' + cls : ''}" href="/" aria-label="TFT Arcade – home"><svg class="logo-star" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4l8.2 16.7 18.4 2.7-13.3 13 3.1 18.3L32 46l-16.4 8.7 3.1-18.3-13.3-13 18.4-2.7z"/><circle cx="25.5" cy="30" r="2.6"/><circle cx="38.5" cy="30" r="2.6"/><path d="M26.5 37q5.5 4.5 11 0" fill="none" stroke-width="2.6" stroke-linecap="round"/></svg><span class="logo-tft">TFT</span><span class="logo-arcade">Arcade</span></a>`;
+// Logo: Kronenpinguin (Original in quellen/logo/) + Schriftzug „TFT ARCADE“ als Text
+const LOGO = (ctx, cls) => `<a class="logo${cls ? ' ' + cls : ''}" href="/" aria-label="TFT Arcade – home"><img class="logo-img" src="${ctx.rel('/assets/brand/logo-128.webp')}" alt="" width="128" height="128"><span class="logo-tft">TFT</span><span class="logo-arcade">Arcade</span></a>`;
 
 // Mega-Menü „Arcade“: eine Spalte pro Bereich – Überschrift (Bereich klein, Slogan groß, Link zum Bereich),
 // darunter die Spiele des Bereichs mit ihrem Symbol; Spiele ohne Seite stehen grau mit „Soon“ da
@@ -110,7 +110,7 @@ function header(page, ctx) {
   const live = ctx.games.filter(g => g.status === 'live').map(g => ctx.gameUrl(g));
   return `<header class="topbar" data-topbar>
   <div class="wrap topbar-in">
-    ${LOGO()}
+    ${LOGO(ctx)}
     <nav class="mainnav" aria-label="Main navigation">
       <ul>
         <li class="nav-mega" data-mega>
@@ -136,7 +136,7 @@ function footer(ctx) {
   <div class="wrap">
     <div class="footer-top">
       <div class="footer-brand">
-        ${LOGO('logo-sm')}
+        ${LOGO(ctx, 'logo-sm')}
         <p>The digital funfair for TFT fans: mini games, quizzes and challenges. Free, with no sign-up.</p>
         <p class="footer-network">Part of the TFT network: ${LINKS.network.map(n => `<a href="${esc(LINKS.utm(n.url, 'footer', 'footer'))}" target="_blank" rel="noopener">${esc(n.name)}</a> – ${esc(n.text)}`).join(' · ')}</p>
       </div>

@@ -125,17 +125,14 @@ main > :not(.scene) { position: relative; z-index: 1; }
 .btn-outline:hover { color: var(--gold); border-color: var(--gold); background: rgba(14, 6, 26, .6); transform: translateY(-1px); }
 .btn-outline .ui { width: 18px; height: 18px; }
 
-/* Logo: Stern + Schriftzug */
+/* Logo: Kronenpinguin + Schriftzug */
 .logo { display: inline-flex; align-items: center; gap: 10px; flex: none; text-decoration: none; transition: transform .2s; }
 .logo:hover { transform: translateY(-1px) rotate(-1deg); }
-.logo-star { width: 40px; height: 40px; overflow: visible; filter: drop-shadow(0 2px 0 #a5520a) drop-shadow(0 0 10px rgba(255, 190, 60, .55)); }
-.logo-star path:first-child { fill: #ffc94a; }
-.logo-star circle { fill: #3a1a00; }
-.logo-star path:last-child { stroke: #3a1a00; }
+.logo-img { width: 46px; height: 46px; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .55)) drop-shadow(0 0 10px rgba(255, 190, 60, .35)); }
 .logo-tft, .logo-arcade { font: 400 1.75rem/1 var(--f-display); text-transform: uppercase; letter-spacing: .04em; text-shadow: 0 2px 0 rgba(0, 0, 0, .45); }
 .logo-tft { color: var(--cream); }
 .logo-arcade { color: var(--gold); text-shadow: 0 2px 0 #8f4300, 0 0 14px rgba(255, 200, 80, .45); }
-.logo-sm .logo-star { width: 32px; height: 32px; }
+.logo-sm .logo-img { width: 38px; height: 38px; }
 .logo-sm .logo-tft, .logo-sm .logo-arcade { font-size: 1.4rem; }
 
 .mainnav > ul { display: flex; gap: clamp(10px, 2.4vw, 44px); list-style: none; margin: 0; padding: 0; }
