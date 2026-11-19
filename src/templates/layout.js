@@ -162,15 +162,16 @@ function layout(page, ctx) {
   // Die 404-Seite wird online unter beliebig tiefen Adressen ausgeliefert und verlinkt deshalb ab der Wurzel.
   const root = page.path === '/404' ? '/' : '../'.repeat(Math.max(0, page.path.split('/').length - 2));
   ctx = { ...ctx, root, rel: p => root + p.replace(/^\//, '') };
+  const fix = html => html.replace(/src="\/assets\//g, `src="${ctx.rel('/assets/')}`);   // Bilder (z. B. Symbole) relativ zur Seite
   return `${head(page, ctx)}
 <body class="${page.bodyClass || 'is-sub'}">
 <a class="skip" href="#content">Skip to content</a>
-${header(page, ctx)}
+${fix(header(page, ctx))}
 <main id="content">
 ${scene(page.scene || 'sub', ctx.rel)}
-${page.body.replace(/src="\/assets\//g, `src="${ctx.rel('/assets/')}`)}
+${fix(page.body)}
 </main>
-${footer(ctx)}
+${fix(footer(ctx))}
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script src="${ctx.rel(ctx.asset('/assets/js/arcade.js'))}" defer></script>
 ${(page.scripts || []).map(s => `<script src="${ctx.rel(ctx.asset(s))}" defer></script>`).join('\n')}

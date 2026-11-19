@@ -96,7 +96,15 @@ const UI = {
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
 };
 
-const art = key => svg(ART[key] || ART.question, 'art');
+// Gemalte Symbole (public/assets/img/symbole/<key>.webp, geschnitten mit tools/symbole-schneiden.js) ersetzen die Strich-Zeichnung;
+// fehlt ein Bild, bleibt das SVG oben als Ersatz
+const fs = require('fs');
+const path = require('path');
+const SYM_DIR = path.join(__dirname, '..', '..', 'public', 'assets', 'img', 'symbole');
+const SYMBOLE = new Set(fs.existsSync(SYM_DIR) ? fs.readdirSync(SYM_DIR).filter(f => f.endsWith('.webp')).map(f => f.slice(0, -5)) : []);
+const art = key => SYMBOLE.has(key)
+  ? `<img class="art art-img" src="/assets/img/symbole/${key}.webp" alt="" width="192" height="192" loading="lazy" decoding="async">`
+  : svg(ART[key] || ART.question, 'art');
 const ui = (key, cls = 'ui') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${UI[key] || ''}</svg>`;
 
 module.exports = { art, ui, ART, UI };

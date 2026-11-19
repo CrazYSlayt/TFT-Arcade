@@ -239,6 +239,7 @@ main > :not(.scene) { position: relative; z-index: 1; }
 
 /* ───────── Symbole (Inline-SVG) ───────── */
 .art { width: 100%; height: 100%; overflow: visible; }
+.art-img { display: block; object-fit: contain; }   /* gemalte Symbole (img/symbole/) */
 .art .i-a { fill: currentColor; }
 .art .i-d { fill: var(--ink); }
 .art .i-l { fill: var(--cream); }
