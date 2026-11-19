@@ -117,7 +117,7 @@ function header(page, ctx) {
           <button class="nav-link nav-trigger c-gold" type="button" aria-expanded="false" aria-controls="mega-spielhalle"${inHall ? ' data-current' : ''}>${art('ticket')}<span>Arcade</span>${ui('chevron', 'ui nav-chevron')}</button>
           ${megaPanel(ctx)}
         </li>
-        <li><a class="nav-link c-coral" href="/#daily-challenge">${art('stars')}<span>Daily Challenge</span></a></li>
+        <li><a class="nav-link c-coral" href="/games"${page.section === 'alle' ? ' aria-current="page"' : ''}>${art('shop')}<span>All Games</span></a></li>
         <li><a class="nav-link c-gold" href="/leaderboard"${page.section === 'bestenliste' ? ' aria-current="page"' : ''}>${art('trophy')}<span>Leaderboard</span></a></li>
       </ul>
     </nav>
@@ -129,7 +129,7 @@ function header(page, ctx) {
 }
 
 function footer(ctx) {
-  const cats = site.nav.map(id => ctx.categories.find(x => x.id === id)).map(c => `<li><a href="/${c.slug}">${esc(c.name)}</a></li>`).join('')
+  const cats = '<li><a href="/games">All Games</a></li>' + site.nav.map(id => ctx.categories.find(x => x.id === id)).map(c => `<li><a href="/${c.slug}">${esc(c.name)}</a></li>`).join('')
     + '<li><a href="/leaderboard">Leaderboard</a></li>';
   const info = site.footer.filter(l => !l.cookies || site.gaId).map(l => `<li><a href="${l.href}"${l.cookies ? ' data-ckb' : ''}>${esc(l.label)}</a></li>`).join('');
   return `<footer class="footer">

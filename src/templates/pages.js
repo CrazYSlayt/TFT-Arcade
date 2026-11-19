@@ -300,6 +300,49 @@ ${gameArticle(g, a)}
   };
 }
 
+// ───────── Alle Spiele: jede Bude, neuestes Spiel zuerst (games.js → released), danach was noch kommt ─────────
+function allGames(ctx) {
+  const live = ctx.games.filter(g => g.status === 'live')
+    .sort((a, b) => (b.released || '').localeCompare(a.released || '') || a.title.localeCompare(b.title, 'en'));
+  const soon = ctx.games.filter(g => g.status !== 'live');
+  const crumbList = [HOME, { label: 'All Games', href: '/games' }];
+  const body = `
+<div class="wrap page-top">
+  ${crumbs(crumbList)}
+  <header class="page-head c-gold">
+    <div class="page-head-art">${art('shop')}</div>
+    <div class="page-head-text">
+      <p class="eyebrow">${ui('star')}Every booth</p>
+      <h1>All TFT Games</h1>
+      <p class="lead">Every game in the arcade in one place, the newest first: simulators, challenges, quizzes and party games for Teamfight Tactics. Free, right in your browser.</p>
+      <p class="head-count">${live.length} games to play${soon.length ? ` · ${soon.length} coming soon` : ''}</p>
+    </div>
+  </header>
+
+  <section class="section-tight" aria-labelledby="all-h">
+    <h2 class="section-title" id="all-h">Newest first</h2>
+    <div class="cards">${live.map(g => gameCard(g, ctx, { full: true })).join('')}</div>
+  </section>
+${soon.length ? `
+  <section class="section-tight" aria-labelledby="soon-h">
+    <h2 class="section-title" id="soon-h">Coming soon</h2>
+    <div class="cards">${soon.map(g => gameCard(g, ctx, { full: true })).join('')}</div>
+  </section>` : ''}
+</div>`;
+  return {
+    path: '/games',
+    section: 'alle',
+    crumbs: crumbList,
+    seo: {
+      title: 'All TFT Games – Newest First | TFT Arcade',
+      desc: 'All TFT games in one place, newest first: simulators, quizzes, challenges and party games for Teamfight Tactics. Free, no sign-up.',
+      h1: 'All TFT Games', kw: 'TFT games',
+    },
+    ld: [{ '@type': 'CollectionPage', name: 'All TFT Games', url: site.url + '/games' }],
+    body,
+  };
+}
+
 // ───────── Bestenliste (Hall of Fame): ein Arcade-Automat pro Spiel mit Rangliste ─────────
 function bestenliste(ctx) {
   const ranked = ctx.games.filter(g => g.status !== 'bald' && g.aside === 'bestenliste');
@@ -468,4 +511,4 @@ function notFound(ctx) {
   };
 }
 
-module.exports = { home, category, game, bestenliste, infoPages, notFound };
+module.exports = { home, category, game, allGames, bestenliste, infoPages, notFound };

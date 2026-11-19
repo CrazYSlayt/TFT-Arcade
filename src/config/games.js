@@ -1,6 +1,7 @@
 // TFT Arcade – alle Attraktionen. Ein neues Spiel = ein neuer Eintrag hier (plus später sein Skript in public/assets/js/spiele/).
 // Die Seite ist englisch: Alle Texte hier erscheinen so auf der Seite.
 //
+// released: Tag, an dem das Spiel live ging (Seite „All Games“ sortiert danach, neuestes zuerst)
 // status:   'live' = spielbar · 'bau' = Seite steht, Spiel wird gerade gebaut · 'bald' = nur Karte „Coming soon“, keine eigene Seite
 // art:      Symbol der Spielkarte (templates/icons.js)
 // bild:     Bild der Spielkarte (public/assets/img/karten/<bild>.jpg); Originale der Illustrationen in quellen/karten/
@@ -35,6 +36,7 @@ module.exports = [
     kurz: 'Reroll (D), buy XP (F), buy (1–5), sell (E) – drag units between board and bench.',
     duration: 'approx. 1–2 min',
     status: 'live',
+    released: '2026-11-03',
     art: 'shop',
     featured: true,
     record: null,   // reines Übungswerkzeug ohne Wertung; Bestzeiten gibt es in der 3-Star Challenge, Punkte in der 100 Gold Challenge
@@ -81,6 +83,7 @@ module.exports = [
     kurz: 'Reroll (D), buy your target (1–5), drag units between board and bench – until it’s 3 stars.',
     duration: 'approx. 1–2 min',
     status: 'live',
+    released: '2026-11-12',
     art: 'shop',
     featured: true,
     record: { label: 'Best time', type: 'zeit', lowerIsBetter: true, min: 5, max: 3600 },
@@ -136,6 +139,7 @@ module.exports = [
     kurz: 'Memorize the shop, then pick the five champions in order.',
     duration: 'approx. 3 min',
     status: 'live',
+    released: '2026-10-26',
     art: 'memory',
     featured: true,
     record: { label: 'High score', type: 'punkte', lowerIsBetter: false, max: 1300 },
@@ -174,6 +178,7 @@ module.exports = [
     kurz: 'Memorize the board, then put the champions back from the selection.',
     duration: 'approx. 3 min',
     status: 'live',
+    released: '2026-11-03',
     art: 'memory',
     featured: true,
     record: { label: 'High score', type: 'punkte', lowerIsBetter: false, max: 920 },
@@ -212,6 +217,7 @@ module.exports = [
     kurz: 'Reroll (D), buy XP (F), buy (1–5), sell (E) – build the comp with 100 gold, then click Done.',
     duration: 'approx. 2 min',
     status: 'live',
+    released: '2026-11-11',
     art: 'coin',
     featured: true,
     record: { label: 'High score', type: 'punkte', lowerIsBetter: false, max: 6000 },
@@ -252,6 +258,7 @@ module.exports = [
     kurz: 'Look at the champion and pick the cost – by click or with the keys 1–5.',
     duration: 'approx. 1 min',
     status: 'live',
+    released: '2026-10-26',
     art: 'coin',
     featured: true,
     record: { label: 'High score', type: 'punkte', lowerIsBetter: false, max: 1500 },
@@ -291,6 +298,7 @@ module.exports = [
     kurz: 'Read the clues and type the champion – the sooner you’re right, the more points you get.',
     duration: 'approx. 3 min',
     status: 'live',
+    released: '2026-11-03',
     art: 'question',
     featured: true,
     record: { label: 'High score', type: 'punkte', lowerIsBetter: false, max: 3000 },
@@ -329,6 +337,7 @@ module.exports = [
     kurz: 'Check the recipe and pick the right answer – by click or with the keys 1–4.',
     duration: 'approx. 1 min',
     status: 'live',
+    released: '2026-11-03',
     art: 'sword',
     featured: true,
     record: { label: 'High score', type: 'punkte', lowerIsBetter: false, max: 1500 },
@@ -367,6 +376,7 @@ module.exports = [
     kurz: 'Look at the trait or champion and pick the right answer – by click or with the keys 1–4.',
     duration: 'approx. 1 min',
     status: 'live',
+    released: '2026-11-03',
     art: 'stars',
     record: { label: 'High score', type: 'punkte', lowerIsBetter: false, max: 1500 },
     aside: 'bestenliste',
@@ -404,6 +414,7 @@ module.exports = [
     kurz: 'Pick the champion who doesn’t share the trait – by click or with the keys 1–4.',
     duration: 'approx. 1 min',
     status: 'live',
+    released: '2026-11-13',
     art: 'question',
     featured: true,
     record: { label: 'High score', type: 'punkte', lowerIsBetter: false, max: 1500 },
@@ -442,6 +453,7 @@ module.exports = [
     kurz: 'Read the question and pick the right number – by click or with the keys 1–4.',
     duration: 'approx. 1 min',
     status: 'live',
+    released: '2026-11-03',
     art: 'coin',
     record: { label: 'High score', type: 'punkte', lowerIsBetter: false, max: 1500 },
     aside: 'bestenliste',
@@ -480,6 +492,7 @@ module.exports = [
     kurz: 'Watch the picture zoom out and pick the champion – by click or with the keys 1–4.',
     duration: 'approx. 2 min',
     status: 'live',
+    released: '2026-11-16',
     art: 'zoom',
     featured: true,
     record: { label: 'High score', type: 'punkte', lowerIsBetter: false, max: 1500 },
@@ -555,6 +568,7 @@ module.exports = [
     kurz: 'Click a field when it happens – a full row, column or diagonal is a bingo.',
     duration: 'one match or more',
     status: 'live',
+    released: '2026-11-19',
     art: 'bingo',
     record: null,   // Abhaken lässt sich nicht prüfen – keine Bestenliste
     aside: 'info',

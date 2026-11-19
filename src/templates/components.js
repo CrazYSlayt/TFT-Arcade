@@ -28,7 +28,6 @@ function gameCard(g, ctx, { level = 3, full = false, attrs = '' } = {}) {
     ${url ? `<a class="gcard-hit" href="${url}" tabindex="-1" aria-hidden="true"></a>` : ''}
     <div class="gcard-art">${img}${g.illu ? '' : `<span class="gcard-emblem">${art(g.art)}</span>`}</div>
     ${g.status !== 'live' ? `<span class="gcard-status">${badge(g.status)}</span>` : ''}
-    ${g.tag ? `<span class="gcard-tag">${esc(g.tag)}</span>` : ''}
     <div class="gcard-body">
       <h${level} class="gcard-title">${title}</h${level}>
       <p class="gcard-hook">${esc(g.hook || g.short)}</p>

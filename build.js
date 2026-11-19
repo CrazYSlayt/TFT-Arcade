@@ -106,6 +106,7 @@ function build() {
     pages.home(ctx),
     ...categories.map(c => pages.category(c, ctx)),
     ...games.filter(g => g.status !== 'bald').map(g => pages.game(g, ctx)),
+    pages.allGames(ctx),
     pages.bestenliste(ctx),
     ...pages.infoPages(ctx),
     pages.notFound(ctx),
