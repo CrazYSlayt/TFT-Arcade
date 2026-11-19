@@ -182,6 +182,22 @@ module.exports = ctx => {
         FREE,
       ],
     },
+    'tft-bingo': {
+      title: 'TFT Bingo: Cards for Streams, Tournaments and Your Own Games',
+      alt: 'TFT Bingo: a bingo card full of TFT moments to mark',
+      intro: `<p>TFT Bingo gives you a card full of TFT moments – rolldowns, loss streaks, 3-star units and the traits of ${set} – and you mark them as they happen. Play it while you watch a tournament or a stream, or in your own games, and share your card so everyone marks the same one.</p>`,
+      sections: [
+        ['How does TFT Bingo work?', `<p>You pick a pool and a card size, then click every moment on your card as soon as it happens; a full row, column or diagonal is a bingo. Watch Party has moments from a tournament lobby or a stream, My Game has moments from your own games, and one card can last several games. The 5×5 card has a free field in the middle, the 4×4 card is the quick one.</p>
+          <p>Every card mixes common, rarer and very rare moments, so a bingo takes a while but always stays possible. Keep marking after your first line, or finish the card to see how many bingos you got.</p>`],
+        ['TFT Bingo for streams and watch parties', `<p>For a stream, share your card link: everyone who opens it gets the exact same card, so your chat can race you to the first bingo. Every card has a short code for that, and your marks stay saved in your browser if you reload. Looking for something to watch? Tournaments and live streams are on <a class="art-a" href="https://www.tft-esports.com/?utm_source=tftarcade&amp;utm_medium=referral&amp;utm_campaign=tft-bingo" target="_blank" rel="noopener">TFT E-Sports</a>.</p>`],
+        ['Which moments are on a TFT Bingo card?', `<p>Classic TFT moments plus moments from the current set: high trait breakpoints, unlockable champions, 2-star 5-costs and comps from the ${climb('tft-bingo', '/en/tier-list', 'TFT tier list on TFTClimb')}. Those change with every set, so the card teaches you the new traits along the way. Want to learn them properly? Try the ${play('trait-quiz', 'Trait Quiz')} or ${play('find-the-imposter', 'Find the Imposter')}.</p>`],
+      ],
+      faq: [
+        ['Can my whole chat play the same card?', 'Yes. Share your card link and everyone who opens it gets the same card.'],
+        ['Is there a leaderboard?', 'No. You mark the fields yourself, so there’s nothing to check – it’s about the fun and sharing your card.'],
+        FREE,
+      ],
+    },
     'shop-odds-quiz': {
       title: 'TFT Shop Odds Quiz: Test Your Numbers',
       alt: 'TFT Shop Odds Quiz: test your knowledge of the shop odds',

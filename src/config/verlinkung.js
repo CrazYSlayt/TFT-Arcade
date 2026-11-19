@@ -24,6 +24,7 @@ const result = {
   'shop-odds-quiz': ['/en/cheatsheet/tft-shop-odds', 'Want every level at a glance?', 'Open the shop odds cheat sheet'],
   'shop-memory': ['/en/tier-list', 'Know what to look for in your shop?', 'See the best comps right now'],
   'comp-memory': ['/en/tier-list', 'Remember the boards that win.', 'See the TFT tier list'],
+  'tft-bingo': ['/en/tier-list', 'Know the comps you’ll see in the lobby?', 'See the TFT tier list'],
 };
 
 module.exports = { utm, network, result, CLIMB: 'https://www.tftclimb.com' };

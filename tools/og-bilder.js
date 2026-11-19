@@ -48,6 +48,8 @@ const VISUAL = {
     return `<div class="hexes">${[...three, imp].map((c, i) => `<span class="hex${i === 3 ? ' sus' : ''}" style="--k:${i === 3 ? '#ff5a6a' : costColor[c.cost - 1]};--s:200px"><span><img src="${file(c.img)}"></span>${i === 3 ? '<b>?</b>' : ''}</span>`).join('')}</div>`; },
   'splash-art-zoom': () => { const c = champs.champions.find(x => x.cost === 5) || champs.champions[0];
     return `<div class="zwrap"><div class="zoomed"><img src="${file(c.img)}"></div><span class="zq">?</span></div>`; },
+  'tft-bingo': () => { const on = [0, 4, 6, 8, 12, 16, 18, 20, 24, 2, 13];   // Diagonalen markiert = Bingo
+    return `<div class="bingo">${[...Array(25)].map((_, i) => `<i class="${i === 12 ? 'free' : on.includes(i) ? 'on' : ''}">${i === 12 ? '★' : ''}</i>`).join('')}</div>`; },
   '100-gold-challenge': () => `<div class="stack"><span class="coin big" style="--k:#ffbf3a;--s:210px">100</span><div class="coins">${[1, 2, 3, 4, 5].map(n => coin(n, 70)).join('')}</div></div>`,
   'shop-odds-quiz': () => `<div class="stack"><div class="bars">${[[18, 1], [32, 2], [56, 3], [78, 4], [42, 5]].map(([h, k]) => `<i style="height:${h * 3}px;--k:${costColor[k - 1]}"></i>`).join('')}</div><div class="coins">${[1, 2, 3, 4, 5].map(n => coin(n)).join('')}</div></div>`,
 };
@@ -65,6 +67,7 @@ const GAMES = [
   { id: 'find-the-imposter', slug: 'tft-find-the-imposter', a: 'TFT Find the', b: 'Imposter', sub: 'Three belong. One doesn’t.', line: 'Spot the odd one out' },
   { id: 'splash-art-zoom', slug: 'tft-splash-art-quiz', a: 'TFT Splash Art', b: 'Quiz', sub: 'Who’s behind the zoom?', line: 'One crop. Name the champion.' },
   { id: 'shop-odds-quiz', slug: 'tft-shop-odds-quiz', a: 'TFT Shop Odds', b: 'Quiz', sub: 'Do you know the odds?', line: 'Level, cost, percent' },
+  { id: 'tft-bingo', slug: 'tft-bingo', a: 'TFT', b: 'Bingo', sub: 'A full row? Bingo!', line: 'For streams and your own games' },
 ];
 
 const CSS = `
@@ -117,6 +120,10 @@ h1 span { display: block; color: #ffc94a; }
 .recipe b { font-weight: 400; }
 .ic { display: grid; place-items: center; width: 122px; height: 122px; border-radius: 16px; border: 4px solid #c99a3c; background: #0b0416; box-shadow: 0 10px 22px rgba(0, 0, 0, .6); }
 .ic.q { border: 4px dashed #ffc94a; color: #ffc94a; }
+.bingo { display: grid; grid-template-columns: repeat(5, 78px); gap: 9px; padding: 16px; border-radius: 20px; border: 5px solid #f2b13c; background: rgba(40, 18, 70, .85); box-shadow: 0 16px 34px rgba(0, 0, 0, .6); transform: rotate(-3deg) translateY(-20px); }
+.bingo i { display: grid; place-items: center; height: 70px; border-radius: 12px; border: 3px solid rgba(255, 220, 160, .35); background: #12061f; font: 400 44px/1 'Lilita One'; font-style: normal; color: #ffc94a; }
+.bingo i.on { border-color: #ffc94a; background: radial-gradient(circle, #ffc94a 0 34%, #4a2a0c 36%); box-shadow: 0 0 16px -2px #ffc94a; }
+.bingo i.free { border-color: #ffc94a; background: #4a2a0c; }
 .bars { display: flex; align-items: flex-end; gap: 22px; height: 250px; }
 .bars i { width: 68px; border-radius: 10px 10px 4px 4px; background: linear-gradient(180deg, var(--k), color-mix(in srgb, var(--k) 45%, #160a28)); box-shadow: 0 0 22px -4px var(--k); }
 `;

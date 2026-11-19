@@ -278,7 +278,7 @@
       show();
     });
     // „Ergebnis teilen“ unter der Spielfläche: letztes Ergebnis – oder eine Einladung, falls noch keine Runde gespielt ist
-    $$('[data-share-last]').forEach(b => b.addEventListener('click', () => share(lastShare || `I’m playing ${page.dataset.gameTitle} at TFT Arcade – can you beat me? #TFTArcade`)));
+    $$('[data-share-last]').forEach(b => b.addEventListener('click', () => share(lastShare || `I’m playing ${page.dataset.gameTitle} at TFT Arcade – can you beat me? #TFTArcade`, lastShare ? lastShareUrl : null)));
     sync(); renderHistory();
   }
 
@@ -372,9 +372,10 @@
   }
 
   // ───────── Auswertung nach einer Runde ─────────
-  // Arcade.finishRound({ value, title, lines: [], shareText, lowerIsBetter, onReplay })
+  // Arcade.finishRound({ value, title, lines: [], shareText, shareUrl, quiet, lowerIsBetter, onReplay })
   // speichert den Rekord (falls die Seite einen hat), zeigt die Auswertung und verbindet „Nochmal spielen“/„Ergebnis teilen“.
-  let lastShare = null;
+  // shareUrl: eigener Link zum Teilen (z. B. dieselbe Bingo-Karte), sonst die Spielseite
+  let lastShare = null, lastShareUrl = null;
   function finishRound(o) {
     const el = $('#auswertung');
     if (!el) return;
@@ -389,9 +390,10 @@
     $('[data-result-record]', el).hidden = !isRecord;
     const ul = $('[data-result-lines]', el), label = $('[data-modes] input:checked + span');
     ul.innerHTML = '';
-    const lines = (o.lines || []).concat(ranked ? [] : [`${label ? label.textContent : 'This mode'} doesn’t count for records or the leaderboard.`]);
+    // quiet: Spiel ohne Wertung (z. B. Bingo) – kein Hinweis „zählt nicht für die Bestenliste“
+    const lines = (o.lines || []).concat(ranked || o.quiet ? [] : [`${label ? label.textContent : 'This mode'} doesn’t count for records or the leaderboard.`]);
     lines.forEach(l => { const li = document.createElement('li'); li.textContent = l; ul.appendChild(li); });
-    lastShare = o.shareText || null;
+    lastShare = o.shareText || null; lastShareUrl = o.shareUrl || null;
     sound(isRecord ? 'win' : 'flip');
     // Ergebniskarte erscheint an Stelle der Spielfläche; „Nochmal spielen“ holt die Spielfläche zurück
     const stage = $('#spielflaeche');
@@ -418,7 +420,7 @@
       lead.textContent = c ? c.lead : l;
       a.textContent = c ? c.text : t;
     }
-    $('[data-result-share]', el).onclick = () => share(o.shareText || `${page.dataset.gameTitle}: ${$('[data-result-value]', el).textContent} – can you beat that? #TFTArcade`);
+    $('[data-result-share]', el).onclick = () => share(o.shareText || `${page.dataset.gameTitle}: ${$('[data-result-value]', el).textContent} – can you beat that? #TFTArcade`, o.shareUrl);
     el.hidden = false;
     const entry = ranked ? highscoreEntry(el, mode, o.value) : hideEntry(el);
     (entry || el).focus({ preventScroll: true });

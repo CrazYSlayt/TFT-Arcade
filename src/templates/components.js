@@ -147,7 +147,10 @@ function leaderboard(g, ctx) {
 function infoPanel(g, ctx) {
   const items = (g.info || []).map(i => {
     const t = i.link && ctx.games.find(x => x.id === i.link);
-    return `<li><h3>${esc(i.title)}</h3><p>${esc(i.text)}</p>${t ? `<a class="text-link" href="${ctx.gameUrl(t)}">Go to ${esc(t.title)}${ui('arrow')}</a>` : ''}</li>`;
+    // link = ein anderes Spiel der Arcade · url + linkText = Seite im TFT-Netzwerk (neuer Tab)
+    const a = t ? `<a class="text-link" href="${ctx.gameUrl(t)}">Go to ${esc(t.title)}${ui('arrow')}</a>`
+      : i.url ? `<a class="text-link" href="${esc(i.url)}" target="_blank" rel="noopener">${esc(i.linkText || 'Learn more')}${ui('arrow')}</a>` : '';
+    return `<li><h3>${esc(i.title)}</h3><p>${esc(i.text)}</p>${a}</li>`;
   }).join('');
   return `<section class="panel info-panel" aria-labelledby="info-h">
   <div class="panel-head"><h2 id="info-h">Good to know</h2></div>
