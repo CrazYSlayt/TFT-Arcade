@@ -15,7 +15,8 @@
     { "source": "/datenschutz", "destination": "/privacy", "permanent": true },
     { "source": "/challenges/tft-3-star-rush", "destination": "/simulators/tft-3-star-challenge", "permanent": true },
     { "source": "/simulators/tft-roll-simulator", "destination": "/simulators/tft-rolldown-simulator", "permanent": true },
-    { "source": "/simulatoren/tft-roll-simulator", "destination": "/simulators/tft-rolldown-simulator", "permanent": true }
+    { "source": "/simulatoren/tft-roll-simulator", "destination": "/simulators/tft-rolldown-simulator", "permanent": true },
+    { "source": "/party/tft-challenge-roulette", "destination": "/party", "permanent": true }
   ],
   "headers": [
     {

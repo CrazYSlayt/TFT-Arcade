@@ -417,11 +417,11 @@ function infoPages() {
     }, 'About TFT Arcade', `
       <p class="lead">TFT Arcade is a digital funfair for everyone who loves Teamfight Tactics: small simulators, challenges, quizzes and party games you can play right in your browser.</p>
       <h2>The idea</h2>
-      <p>Practice a rolldown between two matches, challenge your friends to a quiz or spice up your next game with a crazy rule. That’s what the arcade is for. No sign-up, no download, just one more round.</p>
+      <p>Practice a rolldown between two matches, challenge your friends to a quiz or play TFT Bingo at your next watch party. That’s what the arcade is for. No sign-up, no download, just one more round.</p>
       <h2>Who’s behind it?</h2>
       <p>TFT Arcade is built by CrazYSlayt, a TFT player, coach and the founder of <a href="https://www.tftclimb.com" target="_blank" rel="noopener">TFTClimb</a>, the site for tier lists, comps and coaching. The arcade is its playful sibling: less theory, more “just one more round”.</p>
       <h2>What’s next?</h2>
-      <p>The first games are playable and more booths are being built, starting with Challenge Roulette. After that come attractions like the 100 Gold Challenge and TFT Bingo. Got ideas? <a href="/feedback">Send us your feedback</a>.</p>
+      <p>The first games are playable, from the Rolldown Simulator to TFT Bingo. More booths will follow, each one built to help you learn the current set. Got ideas? <a href="/feedback">Send us your feedback</a>.</p>
       <h2>Not an official Riot product</h2>
       <p>TFT Arcade is a fan project and isn’t affiliated with Riot Games. All simulations are simplified and don’t reproduce the current game rules exactly.</p>`),
     prose('/feedback', {
@@ -433,7 +433,7 @@ function infoPages() {
       <h2>What helps us</h2>
       <ul>
         <li><b>Bugs:</b> Which page, which device and browser, and what happened?</li>
-        <li><b>Ideas:</b> New mini games, quiz questions or funny rules for Challenge Roulette.</li>
+        <li><b>Ideas:</b> New mini games, quiz questions or bingo fields.</li>
         <li><b>Balance:</b> Is a challenge too easy or too hard? Let us know.</li>
       </ul>
       <h2>How to reach us</h2>
@@ -477,7 +477,7 @@ function infoPages() {
       <h2>4. Fonts and images</h2>
       <p>Fonts and all images, including the champion images from Riot Games’ game data, are stored on our own server. No connection to Google Fonts or Riot Games is made for them.</p>
       <h2>5. Storage in your browser</h2>
-      <p>Personal records, the name and avatar you last used, which leaderboard entries are yours, the rules you drew most recently, your settings and whether you accepted or declined Google Analytics are stored only locally in your browser (Local Storage). This data stays on your device and is not transferred to us. The storage is required for the feature you use (§ 25 (2) no. 2 TDDDG). The Google Analytics cookies are described in section 3. You can delete all of this at any time in your browser settings.</p>
+      <p>Personal records, the name and avatar you last used, which leaderboard entries are yours, your Daily Puzzle progress, the fields you marked on your bingo cards, your settings and whether you accepted or declined Google Analytics are stored only locally in your browser (Local Storage). This data stays on your device and is not transferred to us. The storage is required for the feature you use (§ 25 (2) no. 2 TDDDG). The Google Analytics cookies are described in section 3. You can delete all of this at any time in your browser settings.</p>
       <h2>6. Public leaderboards</h2>
       <p>If your result makes the top 100 and you choose to enter it, we publish the name you enter, the avatar you pick, your score and the date on the leaderboard of that game. Everyone can see these entries. We store them with Upstash Inc. in the EU (Frankfurt), the provider of our database, as our processor. Only the best 100 entries per game and mode are kept; entries that drop out of the top 100 are deleted. To limit abuse, our server briefly processes your IP address and stores only a hash of it for 60 seconds. The legal basis is your consent when you submit an entry (Art. 6 (1) (a) GDPR). You can withdraw it at any time: write to us with the name and game, and we will delete the entry.</p>
       <h2>7. Sharing results</h2>
@@ -486,7 +486,7 @@ function infoPages() {
       <p>If you send us an email, we process your details only to answer your message (Art. 6 (1) (f) GDPR). The mailbox is hosted by ALL-INKL.COM – Neue Medien Münnich, Hauptstraße 68, 02742 Friedersdorf, Germany.</p>
       <h2>9. Your rights</h2>
       <p>You have the right to access, rectification, erasure, restriction of processing, data portability and objection. You can also lodge a complaint with a data protection supervisory authority, for example the Hessian Commissioner for Data Protection and Freedom of Information.</p>
-      <p class="muted">Last updated: November 6, 2026</p>`),
+      <p class="muted">Last updated: November 20, 2026</p>`),
   ];
 }
 
