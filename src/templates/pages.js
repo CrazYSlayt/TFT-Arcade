@@ -83,7 +83,7 @@ function category(c, ctx) {
   </header>
 
   <section class="section-tight" aria-labelledby="list-h">
-    <h2 class="section-title" id="list-h">All ${esc(c.name)}</h2>
+    <h2 class="section-title" id="list-h">All ${esc(c.listName || c.name)}</h2>
     <div class="cards">${games.map(g => gameCard(g, ctx, { full: true })).join('')}</div>
   </section>
 

@@ -57,6 +57,7 @@ module.exports = [
     id: 'party',
     slug: 'party',
     name: 'Party',
+    listName: 'Party Games',        // Überschrift der Liste auf /party („All Party Games“)
     menuTitle: 'Game night chaos',
     bild: 'pluesch',
     color: 'violet',
